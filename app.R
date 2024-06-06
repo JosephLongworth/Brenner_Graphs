@@ -1,13 +1,10 @@
 library(shinydashboard)
 library(shiny)
-library(data.table)
+# library(data.table)
 library(rhandsontable)
-library (tidyverse)
-library(readxl)
-library(writexl)
-library(openxlsx)
-library(survminer)
-library(survival)
+library(tidyverse)
+# library(survminer)
+# library(survival)
 library(ggpubr)
 
 ui = dashboardPage(
