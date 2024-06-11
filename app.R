@@ -114,10 +114,19 @@ server = function(input, output) {
   
   output$hot2 = renderPlot(barplot2(hot_to_df(input$hot)))
   
-  output$hot3 = renderRHandsontable({
-    rhandsontable(do.call(cbind, lapply(1:3, function(i) data.table(rnorm(5)))),
-                  stretchH = "all")
-  })
+  
+
+  # Create an empty ggplot object
+  empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+theme_void()
+  p2H <- AE_et_al_bar(file <- "data/Figure_2.xlsx",range = "2.81",main="TLR3",)+
+    theme(rect = element_rect(fill = "transparent"))
+  set_panel_size(p2H, file = "Figure2/p2H.svg",width = unit(2, "cm"), height = unit(3,"cm"))
+  
+  
+  # output$hot3 = renderRHandsontable({
+  #   rhandsontable(do.call(cbind, lapply(1:3, function(i) data.table(rnorm(5)))),
+  #                 stretchH = "all")
+  # })
 }
 
 shinyApp(ui, server)
