@@ -37,6 +37,11 @@ server = function(input, output) {
     Unit = rep("Intracellular thiols (MFI of mBBr)",7),
     Annotation = c(rep("",3),rep("Day 7 p.i.",4)))
   
+  
+  colour_key=tibble::tibble(Sample=c("C57BL/6","C57BL/6 + C.rodentium","Gclc fl/fl","Cd4Cre Gclc fl/fl"),
+                            fill=c("#d4d4d4ff","#000000ff","#000000ff","#ff0000ff"))
+  
+
  hot_to_df = function(hot) {
     hot %>%
       hot_to_r() %>%
@@ -49,7 +54,10 @@ server = function(input, output) {
     rhandsontable(df)
   })
   
-  output$hot2 = renderPlot(barplot2(hot_to_df(input$hot),font = 12,dotsize = 5))
+  output$hot2 = renderPlot(barplot2(hot_to_df(input$hot),
+                                    colour_key,
+                                    font = 12,
+                                    dotsize = 5))
   
   source("R/Plot_functions.R")
 
@@ -57,7 +65,7 @@ server = function(input, output) {
   empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
     theme_void()
   # plot <- barplot2(barplot2(hot_to_df(input$hot)))+
-  plot <- barplot2(df,font = 12,dotsize = 5,legend_loc = "none",scale = T)+
+  plot <- barplot2(df,colour_key,legend_loc = "none")+
     theme(rect = element_rect(fill = "transparent"))
   plot
   set_panel_size(plot, file = "Figure2/p2H.svg",width = unit(2, "cm"), height = unit(3,"cm"))

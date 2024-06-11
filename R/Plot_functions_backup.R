@@ -105,7 +105,10 @@ AE_et_al_bar <- function(file,range,ylabel=NA,scale=F,ref_group=NULL,font=7,col_
 
 
 
-barplot2=function(df,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1,display_N=F){
+barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1,display_N=F){
+  
+  
+  colour_key_vector <- deframe(colour_key)
   max_y=max(val <- df$Value)*space_top
   
   df %>%
@@ -120,14 +123,20 @@ barplot2=function(df,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1,d
     group_by(Sample,Annotation) %>%
     mutate(Count = n()) %>%
     ungroup() %>%
+    # left_join(colour_key) %>%
+    glimpse() %>% 
     ggplot(aes(x=Annotation, y=Value))+
     geom_bar(aes(symbol=Sample),stat = "summary", fun = "mean",
              fill="white",colour="black",width = 0.75,linewidth=0.1,
              position = position_dodge(width = 0.85))+
-    geom_point(aes(fill = Sample),size=dotsize,pch=21,stroke = 0.2,
-               position =  (position_dodge2(width = 0.85,
-                                            padding = 0)))+
-    geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,fill = Sample), width = 0.3,linewidth=0.1,
+    geom_point(aes(fill = Sample),
+               size=dotsize,
+               pch=21,
+               stroke = 0.2,
+               position =  (position_dodge2(width = 0.85,padding = 0)))+
+    scale_fill_manual(values = colour_key_vector)+
+    # scale_fill_identity()+
+    geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se), width = 0.3,linewidth=0.1,
                   position = position_dodge(width = 0.85)) +
     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
     {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
