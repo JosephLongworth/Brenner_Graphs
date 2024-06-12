@@ -9,6 +9,7 @@ library(ggpubr)
 library(egg)
 library(svglite)
 library(scales)
+# library('latex2exp')
 
 ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
@@ -20,11 +21,12 @@ ui = dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = "Barplot",
-              rHandsontableOutput("hot", width = 1200, height = 400),
-              rHandsontableOutput("colour_key_hot", width = 1200, height = 400),
-              plotOutput("plot1"),
-              plotOutput("hot2")
-
+              rHandsontableOutput("hot"),
+              rHandsontableOutput("colour_key_hot"),
+              plotOutput("paper_plot"),
+              downloadButton("downloadData_paper_plot", "Paper SVG"),
+              plotOutput("presentation_plot"),
+              downloadButton("downloadData_presentation_plot", "Presentation SVG")
       )
     )
   )
@@ -53,36 +55,32 @@ server = function(input, output) {
      rhandsontable(colour_key)
    })
   
-  print("render hot2" )
- 
-  output$hot2 = renderPlot({
-    
-    print("render hot2" )
-    
-        barplot2(hot_to_df(input$hot),
-                 hot_to_df(input$colour_key_hot),
-             font = 12,
-             dotsize = 5)
-    })
+  # output$hot2 = renderPlot({
+  #   
+  #   print("render hot2" )
+  #   
+  #       barplot2(hot_to_df(input$hot),
+  #                hot_to_df(input$colour_key_hot),
+  #            font = 12,
+  #            dotsize = 5)
+  #   })
   # |> 
   #   bindCache(input$hot) |> 
   #   bindEvent(input$hot,input$colour_key_hot)
   
-  output$plot1 <- renderImage({
+  output$paper_plot <- renderImage({
     req(input$hot)
     print("render plot1")
    
     outfile <- tempfile(fileext='.svg')
     
-    print(outfile)
-    
     # Create an empty ggplot object
     empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
       theme_void()
-    plot <- barplot2(hot_to_df(input$hot),
+    plot <- barplot2(hot_to_df(input$hot),ylab_split=20,
                      hot_to_df(input$colour_key_hot),
                      legend_loc = "none")+
-    # plot <- barplot2(df,colour_key,legend_loc = "none")+
+    # plot <- barplot2(df,colour_key,legend_loc = "none",Auto_Split_ylab = T,font = 16,dotsize = 5)+
       theme(rect = element_rect(fill = "transparent"))
     set_panel_size(plot, file = outfile ,width = unit(2, "cm"), height = unit(3,"cm"))
 
@@ -90,6 +88,86 @@ server = function(input, output) {
     list(src = outfile,
          alt = "This is alternate text")
   }, deleteFile = F)
+  
+ 
+   observe({
+   
+     req(input$hot)
+     print("render plot1")
+     
+     outfile <- tempfile(fileext='.svg')
+     # Create an empty ggplot object
+     empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
+       theme_void()
+     plot <- barplot2(hot_to_df(input$hot),font = 16,dotsize = 5,
+                      hot_to_df(input$colour_key_hot),
+                      legend_loc = "none")+
+       # plot <- barplot2(df,colour_key,legend_loc = "none")+
+       theme(rect = element_rect(fill = "transparent"))
+     set_panel_size(plot, file = outfile ,width = unit(20, "cm"), height = unit(10,"cm"))
+     
+     
+     
+   output$presentation_plot <- renderImage({
+    
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+  }, deleteFile = F)
+
+   
+   output$downloadData_presentation_plot <- downloadHandler(
+     filename = function() {
+       file_name <- paste0("test",".svg")
+       file_name
+     },
+     content = function(file) {
+       print(outfile)
+       file.copy(paste0("outfile"), file)
+     }
+   )
+   
+   
+  # 
+  # # Downloadable csv of selected dataset ----
+  # output$downloadData_presentation_plot <- downloadHandler(
+  #   filename = function() {
+  #     "test.svg"
+  #   },
+  #   content = function(file) {
+  #     outfile
+  #     }
+  # )
+   })
+  
+   
+   # ui <- fluidPage(
+   #   downloadButton(outputId = "downloadData",label =  "Download")
+   # )
+   # server <- function(input, output) {
+   #   local <- reactiveValues(data = mtcars,
+   #                           export_file = NULL
+   #   )
+   #   observeEvent(local$data,{
+   #     out <- tempfile(fileext = ".csv")
+   #     write.csv(x = local$data,file = out)
+   #     local$export_file <- out
+   #   })
+   #   output$downloadData <- downloadHandler(
+   #     filename = function() {
+   #       paste("data-", Sys.Date(), ".csv", sep="")
+   #     },
+   #     content = function(file) {
+   #       file.copy(
+   #         from = local$export_file,
+   #         to = file
+   #       )
+   #     }
+   #   )
+   # }
+   # shinyApp(ui, server)
+   
+  
   
 }
 

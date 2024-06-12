@@ -4,7 +4,7 @@ hot_to_df = function(hot) {
     as.data.frame() %>%
     as_tibble()
 }
-barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1,display_N=F){
+barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1,display_N=F,ylab_split=2000){
   
   
   colour_key_vector <- deframe(colour_key)
@@ -34,7 +34,7 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
                position =  (position_dodge2(width = 0.85,padding = 0)))+
     scale_fill_manual(values = colour_key_vector)+
     # scale_fill_identity()+
-    geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se), width = 0.3,linewidth=0.1,
+    geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,symbol=Sample), width = 0.3,linewidth=0.1,
                   position = position_dodge(width = 0.85)) +
     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
     {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
@@ -49,8 +49,7 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
               hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
     theme_classic()+
     coord_cartesian(ylim = c(0, max_y), clip = "off")+
-    # ylab(df$Unit) +
-    ylab( str_wrap(df$Unit[1],width = 20)) +
+    ylab(str_wrap(df$Unit[1],width = ylab_split))+ 
     theme(axis.text=  element_text(size=font,family = "sans"),
           plot.title = element_text(size=font,family = "sans"),
           text=  element_text(size=font,family = "sans"),
