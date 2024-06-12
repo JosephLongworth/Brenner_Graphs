@@ -25,8 +25,11 @@ ui = dashboardPage(
               rHandsontableOutput("colour_key_hot"),
               plotOutput("paper_plot"),
               downloadButton("downloadPaper", "Paper SVG"),
+              downloadButton("downloadPaperpng", "Paper PNG"),
               plotOutput("poster_plot"),
-              downloadButton("downloadPoster", "Poster SVG")
+              downloadButton("downloadPoster", "Poster SVG"),
+              downloadButton("downloadPosterpng", "Poster PNG")
+              
       )
     )
   )
@@ -60,6 +63,7 @@ server = function(input, output) {
     print("render plot1")
    
     outfile <- tempfile(fileext='.svg')
+    outfile_png <- tempfile(fileext='.png')
     
     # Create an empty ggplot object
     empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
@@ -70,7 +74,10 @@ server = function(input, output) {
     # plot <- barplot2(df,colour_key,legend_loc = "none",Auto_Split_ylab = T,font = 16,dotsize = 5)+
       theme(rect = element_rect(fill = "transparent"))
     set_panel_size(plot, file = outfile ,width = unit(2, "cm"), height = unit(3,"cm"))
+    set_panel_size(plot, file = outfile_png ,width = unit(2, "cm"), height = unit(3,"cm"))
+    
     local$paper_size_svg_file <- outfile
+    local$paper_size_png_file <- outfile_png
 
     
     # Return a list
@@ -91,6 +98,8 @@ server = function(input, output) {
      print("render plot1")
      
      outfile <- tempfile(fileext='.svg')
+     outfile_png <- tempfile(fileext='.png')
+     
      # Create an empty ggplot object
      empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
        theme_void()
@@ -100,7 +109,10 @@ server = function(input, output) {
        # plot <- barplot2(df,colour_key,legend_loc = "none")+
        theme(rect = element_rect(fill = "transparent"))
      set_panel_size(plot, file = outfile ,width = unit(20, "cm"), height = unit(10,"cm"))
+     set_panel_size(plot, file = outfile_png ,width = unit(20, "cm"), height = unit(10,"cm"))
+     
      local$poster_size_svg_file <- outfile
+     local$poster_size_png_file <- outfile_png
      
      
    output$poster_plot <- renderImage({
@@ -133,6 +145,28 @@ server = function(input, output) {
        content = function(file) {
          file.copy(
            from = local$paper_size_svg_file,
+           to = file
+         )
+       }
+     )
+     output$downloadPaperpng <- downloadHandler(
+       filename = function() {
+         paste("PaperSize-", Sys.Date(), ".png", sep="")
+       },
+       content = function(file) {
+         file.copy(
+           from = local$paper_size_png_file,
+           to = file
+         )
+       }
+     )
+     output$downloadPosterpng <- downloadHandler(
+       filename = function() {
+         paste("PosterSize-", Sys.Date(), ".png", sep="")
+       },
+       content = function(file) {
+         file.copy(
+           from = local$poster_size_png_file,
            to = file
          )
        }
