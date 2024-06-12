@@ -24,9 +24,9 @@ ui = dashboardPage(
               rHandsontableOutput("hot"),
               rHandsontableOutput("colour_key_hot"),
               plotOutput("paper_plot"),
-              downloadButton("downloadData_paper_plot", "Paper SVG"),
-              plotOutput("presentation_plot"),
-              downloadButton("downloadData_presentation_plot", "Presentation SVG")
+              downloadButton("downloadPaper", "Paper SVG"),
+              plotOutput("poster_plot"),
+              downloadButton("downloadPoster", "Poster SVG")
       )
     )
   )
@@ -55,19 +55,6 @@ server = function(input, output) {
      rhandsontable(colour_key)
    })
   
-  # output$hot2 = renderPlot({
-  #   
-  #   print("render hot2" )
-  #   
-  #       barplot2(hot_to_df(input$hot),
-  #                hot_to_df(input$colour_key_hot),
-  #            font = 12,
-  #            dotsize = 5)
-  #   })
-  # |> 
-  #   bindCache(input$hot) |> 
-  #   bindEvent(input$hot,input$colour_key_hot)
-  
   output$paper_plot <- renderImage({
     req(input$hot)
     print("render plot1")
@@ -83,12 +70,20 @@ server = function(input, output) {
     # plot <- barplot2(df,colour_key,legend_loc = "none",Auto_Split_ylab = T,font = 16,dotsize = 5)+
       theme(rect = element_rect(fill = "transparent"))
     set_panel_size(plot, file = outfile ,width = unit(2, "cm"), height = unit(3,"cm"))
+    local$paper_size_svg_file <- outfile
 
+    
     # Return a list
     list(src = outfile,
          alt = "This is alternate text")
   }, deleteFile = F)
   
+   
+   local <- reactiveValues(data = mtcars,
+                           export_file = NULL,
+                           poster_size_svg_file=NULL,
+                           paper_size_svg_file=NULL
+   )
  
    observe({
    
@@ -105,10 +100,10 @@ server = function(input, output) {
        # plot <- barplot2(df,colour_key,legend_loc = "none")+
        theme(rect = element_rect(fill = "transparent"))
      set_panel_size(plot, file = outfile ,width = unit(20, "cm"), height = unit(10,"cm"))
+     local$poster_size_svg_file <- outfile
      
      
-     
-   output$presentation_plot <- renderImage({
+   output$poster_plot <- renderImage({
     
     # Return a list
     list(src = outfile,
@@ -116,58 +111,33 @@ server = function(input, output) {
   }, deleteFile = F)
 
    
-   output$downloadData_presentation_plot <- downloadHandler(
-     filename = function() {
-       file_name <- paste0("test",".svg")
-       file_name
-     },
-     content = function(file) {
-       print(outfile)
-       file.copy(paste0("outfile"), file)
-     }
-   )
-   
-   
-  # 
-  # # Downloadable csv of selected dataset ----
-  # output$downloadData_presentation_plot <- downloadHandler(
-  #   filename = function() {
-  #     "test.svg"
-  #   },
-  #   content = function(file) {
-  #     outfile
-  #     }
-  # )
    })
   
+     
+     output$downloadPoster <- downloadHandler(
+       filename = function() {
+         paste("PosterSize-", Sys.Date(), ".svg", sep="")
+       },
+       content = function(file) {
+         file.copy(
+           from = local$poster_size_svg_file,
+           to = file
+         )
+       }
+     )
+     
+     output$downloadPaper <- downloadHandler(
+       filename = function() {
+         paste("PaperSize-", Sys.Date(), ".svg", sep="")
+       },
+       content = function(file) {
+         file.copy(
+           from = local$paper_size_svg_file,
+           to = file
+         )
+       }
+     )
    
-   # ui <- fluidPage(
-   #   downloadButton(outputId = "downloadData",label =  "Download")
-   # )
-   # server <- function(input, output) {
-   #   local <- reactiveValues(data = mtcars,
-   #                           export_file = NULL
-   #   )
-   #   observeEvent(local$data,{
-   #     out <- tempfile(fileext = ".csv")
-   #     write.csv(x = local$data,file = out)
-   #     local$export_file <- out
-   #   })
-   #   output$downloadData <- downloadHandler(
-   #     filename = function() {
-   #       paste("data-", Sys.Date(), ".csv", sep="")
-   #     },
-   #     content = function(file) {
-   #       file.copy(
-   #         from = local$export_file,
-   #         to = file
-   #       )
-   #     }
-   #   )
-   # }
-   # shinyApp(ui, server)
-   
-  
   
 }
 
