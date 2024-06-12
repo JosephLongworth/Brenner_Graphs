@@ -14,15 +14,17 @@ ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Table", tabName = "table", icon = icon("dashboard"))
+      menuItem("Table", tabName = "Barplot", icon = icon("dashboard"))
     )
   ),
   dashboardBody(
     tabItems(
-      tabItem(tabName = "table",
-              fluidRow(box(rHandsontableOutput("hot", height = 400)),
-                       box(plotOutput("hot2"))),
-              fluidRow(box(plotOutput("hot2")))
+      tabItem(tabName = "Barplot",
+              rHandsontableOutput("hot", width = 1200, height = 400),
+              rHandsontableOutput("colour_key_hot", width = 1200, height = 400),
+              plotOutput("plot1"),
+              plotOutput("hot2")
+
       )
     )
   )
@@ -38,43 +40,57 @@ server = function(input, output) {
     Annotation = c(rep("",3),rep("Day 7 p.i.",4)))
   
   
-  colour_key=tibble::tibble(Sample=c("C57BL/6","C57BL/6 + C.rodentium","Gclc fl/fl","Cd4Cre Gclc fl/fl"),
-                            fill=c("#d4d4d4ff","#000000ff","#000000ff","#ff0000ff"))
+  colour_key=tibble::tibble(
+    Sample=c("C57BL/6","C57BL/6 + C.rodentium","Gclc fl/fl","Cd4Cre Gclc fl/fl"),
+    fill=c("#d4d4d4ff","#000000ff","#000000ff","#ff0000ff"))
   
 
- hot_to_df = function(hot) {
-    hot %>%
-      hot_to_r() %>%
-      as.data.frame() %>%
-      as_tibble()
- }
- 
- 
-  output$hot = renderRHandsontable({
+
+   output$hot = renderRHandsontable({
     rhandsontable(df)
   })
+   output$colour_key_hot = renderRHandsontable({
+     rhandsontable(colour_key)
+   })
   
-  output$hot2 = renderPlot(barplot2(hot_to_df(input$hot),
-                                    colour_key,
-                                    font = 12,
-                                    dotsize = 5))
+  print("render hot2" )
+ 
+  output$hot2 = renderPlot({
+    
+    print("render hot2" )
+    
+        barplot2(hot_to_df(input$hot),
+                 hot_to_df(input$colour_key_hot),
+             font = 12,
+             dotsize = 5)
+    })
+  # |> 
+  #   bindCache(input$hot) |> 
+  #   bindEvent(input$hot,input$colour_key_hot)
   
-  source("R/Plot_functions.R")
+  output$plot1 <- renderImage({
+    req(input$hot)
+    print("render plot1")
+   
+    outfile <- tempfile(fileext='.svg')
+    
+    print(outfile)
+    
+    # Create an empty ggplot object
+    empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
+      theme_void()
+    plot <- barplot2(hot_to_df(input$hot),
+                     hot_to_df(input$colour_key_hot),
+                     legend_loc = "none")+
+    # plot <- barplot2(df,colour_key,legend_loc = "none")+
+      theme(rect = element_rect(fill = "transparent"))
+    set_panel_size(plot, file = outfile ,width = unit(2, "cm"), height = unit(3,"cm"))
 
-  # Create an empty ggplot object
-  empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
-    theme_void()
-  # plot <- barplot2(barplot2(hot_to_df(input$hot)))+
-  plot <- barplot2(df,colour_key,legend_loc = "none")+
-    theme(rect = element_rect(fill = "transparent"))
-  plot
-  set_panel_size(plot, file = "Figure2/p2H.svg",width = unit(2, "cm"), height = unit(3,"cm"))
+    # Return a list
+    list(src = outfile,
+         alt = "This is alternate text")
+  }, deleteFile = F)
   
-  
-  # output$hot3 = renderRHandsontable({
-  #   rhandsontable(do.call(cbind, lapply(1:3, function(i) data.table(rnorm(5)))),
-  #                 stretchH = "all")
-  # })
 }
 
 shinyApp(ui, server)
