@@ -1,0 +1,74 @@
+---
+title: "Figure Compiling"
+author: "Joseph Longworth"
+format: pdf
+editor: visual
+geometry:
+      - inner=2cm
+      - outer=2cm
+      - top=2cm
+      - bottom=2cm
+mainfont: Arial
+output:
+  pdf:
+    numbering: gobble
+---
+
+\pagenumbering{gobble}
+
+```{r}
+library(rhandsontable)
+library(tidyverse)
+library(ggpubr)
+library(egg)
+library(svglite)
+library(scales)
+source("R/Plot_functions.R")
+  df=tibble::tibble(
+    Sample = c(rep("C57BL/6",3),rep("C57BL/6 + C.rodentium",4)),
+    Value = 	c(5673.5,	5730,	5611.5,	6433.5,	6325.5,	6569.5,	6607.5),
+    Unit = rep("Intracellular thiols (MFI of mBBr)",7),
+    Annotation = c(rep("",3),rep("Day 7 p.i.",4)))
+  
+  
+  colour_key=tibble::tibble(
+    Sample=c("C57BL/6","C57BL/6 + C.rodentium","Gclc fl/fl","Cd4Cre Gclc fl/fl"),
+    fill=c("#d4d4d4ff","#000000ff","#000000ff","#ff0000ff"))
+  
+```
+
+```{r fig.height=1, fig.width=1.5}
+
+  
+  outfile <- "SVGS/direct_1.svg"
+  
+  # empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
+  #     theme_void()
+    plot <- barplot2(df,colour_key,ylab_split = 20,legend_loc = "none")+
+      theme(
+         panel.background = element_rect(fill='transparent'),
+         plot.background = element_rect(fill='transparent', color=NA),
+         panel.grid.major = element_blank(),
+         panel.grid.minor = element_blank(),
+         legend.background = element_rect(fill='transparent'),
+         legend.box.background = element_rect(fill='transparent')
+       )+
+      theme(axis.line.x.bottom=element_line(color="#b32222"))
+    
+    # plot <- barplot2(df,colour_key,legend_loc = "none",Auto_Split_ylab = T,font = 16,dotsize = 5)+
+      # theme(rect = element_rect(fill = "transparent"))
+    plot
+    set_panel_size(plot, file = outfile ,
+                   width = unit(20, "mm"),
+                   height = unit(30,"mm"))
+  
+
+```
+
+
+![](SVGS/Test_2.svg)
+![](SVGS/direct_1.svg)
+![](SVGS/trimmed_1.svg)
+
+
+

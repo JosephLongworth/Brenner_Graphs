@@ -25,7 +25,7 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
     # left_join(colour_key) %>%
     ggplot(aes(x=Annotation, y=Value))+
     geom_bar(aes(symbol=Sample),stat = "summary", fun = "mean",
-             fill="white",colour="black",width = 0.75,linewidth=0.1,
+             colour="black",width = 0.75,linewidth=0.1,alpha=0,
              position = position_dodge(width = 0.85))+
     geom_point(aes(fill = Sample),
                size=dotsize,
@@ -35,7 +35,7 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
     scale_fill_manual(values = colour_key_vector)+
     # scale_fill_identity()+
     geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,symbol=Sample), width = 0.3,linewidth=0.1,
-                  position = position_dodge(width = 0.85)) +
+                  position = position_dodge(width = 0.85),alpha=0,) +
     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
     {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
                                  labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))}+
