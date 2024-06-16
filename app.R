@@ -21,26 +21,41 @@ ui = dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = "Barplot",
-              rHandsontableOutput("hot"),
-              rHandsontableOutput("colour_key_hot"),
-              plotOutput("paper_plot"),
-              numericInput("paper_ylab_split", "Paper ylab split", 20),
-              numericInput("paper_width", "Paper width", 20),
-              numericInput("paper_height", "Paper height", 30),
-              numericInput("paper_font", "Paper font", 7),
-              numericInput("paper_dotsize", "Paper dotsize", 1),
-              downloadButton("downloadPaper", "Paper SVG"),
-              downloadButton("downloadPaperpng", "Paper PNG"),
-              plotOutput("poster_plot"),
-              numericInput("poster_ylab_split", "Poster ylab split", 200),
-              numericInput("poster_width", "Poster width", 200),
-              numericInput("poster_height", "Poster height", 300),
-              numericInput("poster_font", "Poster font", 16),
-              numericInput("poster_dotsize", "Poster dotsize", 5),
-              downloadButton("downloadPoster", "Poster SVG"),
-              downloadButton("downloadPosterpng", "Poster PNG")
-              
-      )
+              fluidRow(
+                       box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "warning", width = 6, collapsed = FALSE,
+                           
+                           rHandsontableOutput("hot"),
+                           rHandsontableOutput("colour_key_hot")
+                           ),
+                       box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "warning", width = 3, collapsed = FALSE,
+                           downloadButton("downloadPaper", "Paper SVG"),
+                           downloadButton("downloadPaperpng", "Paper PNG"),
+                           plotOutput("paper_plot")
+                           ),
+                       box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "warning", width = 3, collapsed = T,
+                           numericInput("paper_ylab_split", "Paper ylab split", 20),
+                           splitLayout(
+                             cellWidths = c("50%", "50%"),
+                             numericInput("paper_width", "Plot width mm", 20),
+                             numericInput("paper_height", "Plot height mm", 30)),
+                           splitLayout(
+                             cellWidths = c("50%", "50%"),
+                           numericInput("paper_font", "Plot font size", 7),
+                           numericInput("paper_dotsize", "Plot dotsize", 1)))
+                       ,
+
+                fluidRow(
+                  box(plotOutput("poster_plot"),
+                      numericInput("poster_ylab_split", "Poster ylab split", 200),
+                      numericInput("poster_width", "Poster width", 200),
+                      numericInput("poster_height", "Poster height", 300),
+                      numericInput("poster_font", "Poster font", 16),
+                      numericInput("poster_dotsize", "Poster dotsize", 5),
+                      downloadButton("downloadPoster", "Poster SVG"),
+                      downloadButton("downloadPosterpng", "Poster PNG")
+                  ))
+                )
+              )
     )
   )
 )

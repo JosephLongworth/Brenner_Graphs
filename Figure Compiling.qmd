@@ -65,10 +65,4 @@ source("R/Plot_functions.R")
 
 ```
 
-
-![](SVGS/Test_2.svg)
-![](SVGS/direct_1.svg)
-![](SVGS/trimmed_1.svg)
-
-
-
+![](SVGS/Test_2.svg) ![](SVGS/direct_1.svg) ![](SVGS/trimmed_1.svg)
