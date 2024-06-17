@@ -14,7 +14,7 @@
     }
   ]]></style>
 </defs>
-<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(5.87,13.1)' id='panel_a' >
+<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(5.87,43.1)' id='panel_a' >
 <rect x='44.13' y='6.90' width='56.69' height='85.04' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='51.22' y='25.58' width='16.75' height='66.36' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
 <rect x='76.99' y='16.07' width='16.75' height='75.86' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
@@ -64,7 +64,7 @@
 <text transform='translate(12.40,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='54.48px' lengthAdjust='spacingAndGlyphs'>Intracellular thiols</text>
 <text transform='translate(19.96,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='43.94px' lengthAdjust='spacingAndGlyphs'>(MFI of mBBr)</text>
 </g>
-<g clip-path='url(#cpMC4wMHwxMTEuOTd8MC4wMHwxMTEuMjY=)' transform='translate(112.12,13.1)' id='panel_b' >
+<g clip-path='url(#cpMC4wMHwxMTEuOTd8MC4wMHwxMTEuMjY=)' transform='translate(112.12,43.1)' id='panel_b' >
 <rect x='47.88' y='6.90' width='56.69' height='85.04' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='54.97' y='26.16' width='16.75' height='65.78' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
 <rect x='80.74' y='15.98' width='16.75' height='75.96' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
@@ -112,7 +112,7 @@
 <text transform='translate(12.40,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='52.91px' lengthAdjust='spacingAndGlyphs'>intracellular GSH</text>
 <text transform='translate(19.96,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='18.67px' lengthAdjust='spacingAndGlyphs'>(RLU)</text>
 </g>
-<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(225.87,13.1)' id='panel_c' >
+<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(225.87,43.1)' id='panel_c' >
 <rect x='44.13' y='6.90' width='56.69' height='85.04' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='51.22' y='21.86' width='16.75' height='70.07' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
 <rect x='76.99' y='25.57' width='16.75' height='66.36' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
@@ -158,7 +158,7 @@
 <text transform='translate(12.40,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='60.28px' lengthAdjust='spacingAndGlyphs'>cytosolic ROS (MFI</text>
 <text transform='translate(19.96,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='34.22px' lengthAdjust='spacingAndGlyphs'>of DCFDA)</text>
 </g>
-<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(5.87,123.1)' id='panel_d' >
+<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(5.87,163.1)' id='panel_d' >
 <rect x='44.13' y='6.90' width='56.69' height='85.04' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='54.76' y='17.39' width='15.35' height='74.55' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
 <rect x='74.84' y='50.47' width='15.35' height='41.47' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
@@ -206,7 +206,7 @@
 <text transform='translate(12.40,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='54.09px' lengthAdjust='spacingAndGlyphs'>intracellular thiols</text>
 <text transform='translate(19.96,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='41.61px' lengthAdjust='spacingAndGlyphs'>(MFI of mBB)</text>
 </g>
-<g clip-path='url(#cpMC4wMHwxMTEuOTd8MC4wMHwxMTEuMjY=)' transform='translate(112.12,123.1)' id='panel_e' >
+<g clip-path='url(#cpMC4wMHwxMTEuOTd8MC4wMHwxMTEuMjY=)' transform='translate(112.12,163.1)' id='panel_e' >
 <rect x='47.88' y='6.90' width='56.69' height='85.04' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='58.51' y='26.91' width='15.35' height='65.03' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
 <rect x='78.59' y='70.64' width='15.35' height='21.30' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
@@ -252,7 +252,7 @@
 <text transform='translate(12.40,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='53.30px' lengthAdjust='spacingAndGlyphs'>Intracellular GSH</text>
 <text transform='translate(19.96,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='18.67px' lengthAdjust='spacingAndGlyphs'>(RLU)</text>
 </g>
-<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(225.87,123.1)' id='panel_f' >
+<g clip-path='url(#cpMC4wMHwxMDguMjJ8MC4wMHwxMTEuMjY=)' transform='translate(225.87,163.1)' id='panel_f' >
 <rect x='44.13' y='6.90' width='56.69' height='85.04' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='54.76' y='70.16' width='15.35' height='21.77' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
 <rect x='74.84' y='34.87' width='15.35' height='57.07' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
@@ -308,7 +308,7 @@
 <text transform='translate(12.40,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='61.83px' lengthAdjust='spacingAndGlyphs'>Cytosolic ROS (MFI</text>
 <text transform='translate(19.96,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='36.55px' lengthAdjust='spacingAndGlyphs'>of DCF-DA)</text>
 </g>
-<g clip-path='url(#cpMC4wMHw5My4xNnwwLjAwfDExMS4yNg==)' transform='translate(130.93,233.1)' id='panel_i.i' >
+<g clip-path='url(#cpMC4wMHw5My4xNnwwLjAwfDExMS4yNg==)' transform='translate(130.93,283.1)' id='panel_i.i' >
 <rect x='29.07' y='6.90' width='56.69' height='85.04' style='stroke-width: 1.07; stroke: none; fill: #FFFFFF;' />
 <rect x='39.70' y='58.56' width='15.35' height='33.38' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
 <rect x='59.78' y='18.61' width='15.35' height='73.33' style='stroke-width: 0.21; stroke-linecap: butt; stroke-linejoin: miter;' />
@@ -351,11 +351,11 @@
 <text x='57.42' y='101.88' text-anchor='middle' style='font-size: 7.00px;fill: #4D4D4D; font-family: "Arial";' textLength='33.47px' lengthAdjust='spacingAndGlyphs'>Day 14 p.i.</text>
 <text transform='translate(12.40,49.42) rotate(-90)' text-anchor='middle' style='font-size: 7.00px; font-family: "Arial";' textLength='60.32px' lengthAdjust='spacingAndGlyphs'>Log10 CFU/g feces</text>
 </g>
-<text x='0' y='10' style='font-size: 12.00px; font-family: "Arial";' >A</text>
-<text x='110' y='10' style='font-size: 12.00px; font-family: "Arial";' >B</text>
-<text x='220' y='10' style='font-size: 12.00px; font-family: "Arial";' >C</text>
-<text x='0' y='120' style='font-size: 12.00px; font-family: "Arial";' >D</text>
-<text x='110' y='120' style='font-size: 12.00px; font-family: "Arial";' >E</text>
-<text x='220' y='120' style='font-size: 12.00px; font-family: "Arial";' >F</text>
-<text x='110' y='230' style='font-size: 12.00px; font-family: "Arial";' >I.ii</text>
+<text x='0' y='50' style='font-size: 12.00px; font-family: "Arial";' >A</text>
+<text x='110' y='50' style='font-size: 12.00px; font-family: "Arial";' >B</text>
+<text x='220' y='50' style='font-size: 12.00px; font-family: "Arial";' >C</text>
+<text x='0' y='170' style='font-size: 12.00px; font-family: "Arial";' >D</text>
+<text x='110' y='170' style='font-size: 12.00px; font-family: "Arial";' >E</text>
+<text x='220' y='170' style='font-size: 12.00px; font-family: "Arial";' >F</text>
+<text x='110' y='290' style='font-size: 12.00px; font-family: "Arial";' >I.ii</text>
 </svg>

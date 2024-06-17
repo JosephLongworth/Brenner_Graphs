@@ -31,7 +31,7 @@ return(offset)
 
 find_svg_offset("SVGS/text_combine/PaperSize-2024-06-13 (6).svg")
 
-row_height <- 110
+row_height <- 120
 row_width <-  110
 
 figure_1_layout=tibble(panel_path=c("SVGS/text_combine/Fig.1A.svg",
@@ -44,7 +44,6 @@ figure_1_layout=tibble(panel_path=c("SVGS/text_combine/Fig.1A.svg",
                        panel_name=c("panel_a","panel_b","panel_c","panel_d","panel_e","panel_f","panel_i.i"),
                        x_coordinate=c(0,1*row_width,2*row_width,0,1*row_width,2*row_width,1*row_width)+50,
                        y_coordinate=c(0,0,0,1*row_height,1*row_height,1*row_height,2*row_height)+50)
-                                      110,110,110,220)+20)
                        
 readLines("SVGS/text_combine/svg_top.svg") |> 
   write_lines("SVGS/text_combine/Figure_1.svg")
@@ -72,19 +71,13 @@ for(i in 1:nrow(figure_1_layout)){
 }
 
 svg_letters <- tibble(Letter=c("A","B","C","D","E","F","I.ii"),
-                      x=c(0,110,220,0,110,220,110),
-                      y=c(10,10,10,120,120,120,230)) %>% 
+                      x=c(0,1*row_width,2*row_width,0,1*row_width,2*row_width,1*row_width)+0,
+                      y=c(0,0,0,1*row_height,1*row_height,1*row_height,2*row_height)+50) %>%
   mutate(svg_code = paste0("<text x='",x,"' y='",y,"' style='font-size: 12.00px; font-family: \"Arial\";' >",Letter,"</text>")) 
 
 for(i in 1:nrow(svg_letters)){
   write_lines(svg_letters$svg_code[i],"SVGS/text_combine/Figure_1.svg",append = T)
 }
-# 
-# svg_letters <- "<text x='0' y='10' style='font-size: 12.00px; font-family: \"Arial\";' >A</text>"
-# write_lines(svg_letters,"SVGS/text_combine/Figure_1.svg",append = T)
-# 
-# svg_letters <- "<text x='110' y='10' style='font-size: 12.00px; font-family: \"Arial\";' >B</text>"
-# write_lines(svg_letters,"SVGS/text_combine/Figure_1.svg",append = T)
-#   
+
 write_lines("</svg>","SVGS/text_combine/Figure_1.svg",append = T)
 
