@@ -15,24 +15,27 @@ ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Table", tabName = "Barplot", icon = icon("dashboard"))
+      menuItem("Barplot", tabName = "barplot", icon = icon("dashboard")),
+      menuItem("Line Plot", tabName = "line_plot", icon = icon("dashboard")),
+      menuItem("Survival Plot", tabName = "survival_plot", icon = icon("dashboard"))
     )
   ),
   dashboardBody(
     tabItems(
-      tabItem(tabName = "Barplot",
+      tabItem(tabName = "barplot",
               fluidRow(
-                       box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "warning", width = 6, collapsed = FALSE,
+                       box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 6, collapsed = FALSE,
                            
                            rHandsontableOutput("hot"),
+                           br(),
                            rHandsontableOutput("colour_key_hot")
                            ),
-                       box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "warning", width = 3, collapsed = FALSE,
+                       box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
                            downloadButton("downloadPaper", "Paper SVG"),
                            downloadButton("downloadPaperpng", "Paper PNG"),
                            plotOutput("paper_plot")
                            ),
-                       box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "warning", width = 3, collapsed = T,
+                       box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = T,
                            numericInput("paper_ylab_split", "Paper ylab split", 20),
                            splitLayout(
                              cellWidths = c("50%", "50%"),
@@ -45,20 +48,27 @@ ui = dashboardPage(
                        ,
 
                 fluidRow(
-                  box(plotOutput("poster_plot"),
-                      numericInput("poster_ylab_split", "Poster ylab split", 200),
-                      numericInput("poster_width", "Poster width", 200),
-                      numericInput("poster_height", "Poster height", 300),
-                      numericInput("poster_font", "Poster font", 16),
-                      numericInput("poster_dotsize", "Poster dotsize", 5),
+                  
+                  box(title = "Plot Poster size", collapsible = TRUE, solidHeader = TRUE, status = "success", width = 9, collapsed = FALSE,
                       downloadButton("downloadPoster", "Poster SVG"),
-                      downloadButton("downloadPosterpng", "Poster PNG")
+                      downloadButton("downloadPosterpng", "Poster PNG"),
+                      plotOutput("poster_plot")),
+                  box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "success", width = 3, collapsed = T,
+                      numericInput("poster_ylab_split", "Poster ylab split", 20),
+                      splitLayout(
+                        cellWidths = c("50%", "50%"),
+                        numericInput("poster_width", "Poster width", 65),
+                        numericInput("poster_height", "Poster height", 65)),
+                      splitLayout(
+                        cellWidths = c("50%", "50%"),
+                        numericInput("poster_font", "Poster font", 14),
+                        numericInput("poster_dotsize", "Poster dotsize", 4)))
                   ))
                 )
               )
-    )
-  )
-)
+    ))
+  
+
 
 server = function(input, output) {
   
