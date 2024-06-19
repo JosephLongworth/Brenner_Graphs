@@ -34,29 +34,59 @@ find_svg_offset("SVGS/text_combine/PaperSize-2024-06-13 (6).svg")
 row_height <- 120
 row_width <-  110
 
-figure_1_layout=tibble(panel_path=c("Figure_1_panels/Panel_Aii.svg",
+figure_1_layout=tibble(panel_path=c("Figure_1_panels/Panel_Ai.svg",
+                                    "Figure_1_panels/Panel_Aii.svg",
                                     "Figure_1_panels/Panel_B.svg",
+                                    "Figure_1_panels/Panel_Ci.svg",
                                     "Figure_1_panels/Panel_Cii.svg",
+                                    "Figure_1_panels/Panel_Di.svg",
                                     "Figure_1_panels/Panel_Dii.svg",
                                     "Figure_1_panels/Panel_E.svg",
+                                    "Figure_1_panels/Panel_Fi.svg",
                                     "Figure_1_panels/Panel_Fii.svg",
                                     "Figure_1_panels/Panel_Iii.svg",
-                                    "Figure_1_panels/Panel_F_clean.svg",
-                                    "Figure_1_panels/Panel_Ji_clean.svg",
-                                    "Figure_1_panels/Panel_K_clean.svg"
+                                    "Figure_1_panels/Panel_Ji.svg",
+                                    "Figure_1_panels/Panel_K.svg"
                                     ),
-                       panel_name=c("panel_a","panel_b","panel_c","panel_d","panel_e","panel_f","panel_i.i","Panel_Fi","Panel_Ji","Panel_K"),
-                       x_coordinate=c(0,1*row_width,3*row_width,0,1*row_width,3*row_width,1*row_width,2*row_width,3*row_width,0)+50,
-                       y_coordinate=c(0,0,0,1*row_height,1*row_height,1*row_height,2*row_height,1*row_height,3*row_height,4*row_height)+50)
+                       panel_name=c("panel_Ai","panel_Aii","panel_B","panel_Ci","panel_Cii",
+                                    "panel_Di","panel_Dii","panel_E","panel_Fi","panel_Fii",
+                                    "panel_I.i","Panel_Ji","Panel_K"),
+                       x_coordinate=c( 0, 160, 270, 350, 510,
+                                       0, 160, 270, 350, 510,
+                                      
+                                               270, 350,
+                                       0)+20,
+                       y_coordinate=c(  0,   0,   0,   0,   0,
+                                      170, 170, 170, 170, 170,
+                                      
+                                                420, 420,
+                                      560)+20)
+
+svg_letters <- tibble(Letter=c("A","B","C",
+                               "D","E","F",
+                               "G","H",
+                               "I","J",
+                               "K"),
+                      x=c(010,240,350,
+                          010,240,350,
+                          010,240,
+                          240,350,
+                          010),
+                      y=c(010,010,010,
+                          160,160,160,
+                          300,300,
+                          420,420,
+                          560))
+  
                        
-readLines("SVGS/text_combine/svg_top.svg") |> 
+readLines("svg_top2.svg") |> 
   write_lines("Figure_1_panels/Figure_1.svg")
 
-i <- 8
+i <- 12
 
 for(i in 1:nrow(figure_1_layout)){
   
-  # for(i in 1:7){
+  # for(i in 1:1){
   print(i)
   
   svg_code <- readLines(figure_1_layout$panel_path[i])
@@ -89,9 +119,20 @@ for(i in 1:nrow(figure_1_layout)){
   
   svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "\\(.+\\)",matrix,svg_code[g_code_lines$g_start[1]])
   
-  } else {
+  } else if(grepl("id=",svg_code[g_code_lines$g_start[1]])){
+  
+      svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
+                                                " transform='translate(",
+                                                figure_1_layout$x_coordinate[i]-0,
+                                                ",",
+                                                figure_1_layout$y_coordinate[i]-0,
+                                                ")' ",
+                                                ">")
     
-    svg_offset <- find_svg_offset(figure_1_layout$panel_path[i])
+      svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "id='..'",replacement = paste0("id='",figure_1_layout$panel_name[i],"'"),svg_code[g_code_lines$g_start[1]])
+      } else{
+    
+  svg_offset <- find_svg_offset(figure_1_layout$panel_path[i])
     
     
   svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
@@ -108,9 +149,7 @@ for(i in 1:nrow(figure_1_layout)){
   write_lines(svg_code[g_code_lines$g_start[1]:g_code_lines$g_end[1]],"Figure_1_panels/Figure_1.svg",append = T)
 }
 
-svg_letters <- tibble(Letter=c("A","B","C","D","E","F","I.ii"),
-                      x=c(0,1*row_width,2*row_width,0,1*row_width,2*row_width,1*row_width)+0,
-                      y=c(0,0,0,1*row_height,1*row_height,1*row_height,2*row_height)+50) %>%
+svg_letters <- svg_letters %>% 
   mutate(svg_code = paste0("<text x='",x,"' y='",y,"' style='font-size: 12.00px; font-family: \"Arial\";' >",Letter,"</text>")) 
 
 for(i in 1:nrow(svg_letters)){
@@ -132,6 +171,9 @@ temp <- gsub(pattern = ">",replacement = ">
 ",x = temp)
 write_lines(temp,out)}
 
-import_inkscape(file = "Figure_1_panels/Panel_F.svg",out = "Figure_1_panels/Panel_F_clean.svg")
-import_inkscape(file = "Figure_1_panels/Panel_Ji.svg",out = "Figure_1_panels/Panel_Ji_clean.svg")
-import_inkscape(file = "Figure_1_panels/Panel_K.svg",out = "Figure_1_panels/Panel_K_clean.svg")
+import_inkscape(file = "Figure_1_panels/Panel_Ai.svg",out = "Figure_1_panels/Panel_Ai.svg")
+import_inkscape(file = "Figure_1_panels/Panel_Ci.svg",out = "Figure_1_panels/Panel_Ci.svg")
+import_inkscape(file = "Figure_1_panels/Panel_Di.svg",out = "Figure_1_panels/Panel_Di.svg")
+import_inkscape(file = "Figure_1_panels/Panel_Fi.svg",out = "Figure_1_panels/Panel_Fi.svg")
+import_inkscape(file = "Figure_1_panels/Panel_Ji.svg",out = "Figure_1_panels/Panel_Ji.svg")
+import_inkscape(file = "Figure_1_panels/Panel_K.svg",out = "Figure_1_panels/Panel_K.svg")
