@@ -81,8 +81,8 @@ server = function(input, output) {
   
   
   colour_key=tibble::tibble(
-    Sample=c("C57BL/6","C57BL/6 + C.rodentium","Gclc fl/fl","Cd4Cre Gclc fl/fl"),
-    fill=c("#d4d4d4ff","#000000ff","#000000ff","#ff0000ff"))
+    Sample=c("C57BL/6","C57BL/6 + C.rodentium","Gclc fl/fl","Cd4Cre Gclc fl/fl","Man2afl/fl","Man2afl/flCD4cre+"),
+    fill=c("#d4d4d4ff","#000000ff","#000000ff","#ff0000ff","#3ba99aff","#c93963ff"))
   
 
 

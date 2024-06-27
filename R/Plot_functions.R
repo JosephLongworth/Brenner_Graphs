@@ -24,8 +24,8 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
     ungroup() %>%
     # left_join(colour_key) %>%
     ggplot(aes(x=Annotation, y=Value))+
-    geom_bar(aes(symbol=Sample),stat = "summary", fun = "mean",
-             colour="black",width = 0.65,linewidth=0.1,alpha=0,
+    geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
+             colour="black",width = 0.65,linewidth=0.1,alpha=0.3,
              position = position_dodge(width = 0.85))+
     geom_point(aes(fill = Sample),
                size=dotsize,
@@ -44,7 +44,10 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
              method = "t_test",
              method.args = list(var.equal = TRUE),
              p.adjust.method="bonferroni",
-             label = "p.adj",label.size =  font/.pt,size = 0.1)+
+             label = "p.adj",label.size =  font/.pt,size = 0.1
+             # ,
+             # symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "nvs"))
+             )+
     {if(display_N)
     geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
               hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
