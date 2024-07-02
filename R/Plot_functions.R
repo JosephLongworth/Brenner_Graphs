@@ -1,9 +1,19 @@
-hot_to_df = function(hot) {
-  hot %>%
-    hot_to_r() %>%
-    as.data.frame() %>%
-    as_tibble()
+# hot_to_df = function(hot) {
+#   hot %>%
+#     hot_to_r() %>%
+#     as.data.frame() %>%
+#     as_tibble()
+# }
+
+
+hot_to_df <- function(hot) {
+  if (is.null(hot)) {
+    return(NULL)
+  }
+  rhandsontable::hot_to_r(hot)
 }
+
+
 barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1,display_N=F,ylab_split=2000){
   
   
