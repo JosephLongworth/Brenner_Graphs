@@ -1,4 +1,4 @@
-UI_plot <- function(id) {
+UI_barplot <- function(id) {
   ns <- NS(id)
   fluidPage(
     fluidRow(
@@ -10,7 +10,7 @@ UI_plot <- function(id) {
       )
     ),
     fluidRow(
-    box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = T,
+    box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
         numericInput(ns("ylab_split"), "Paper ylab split", 20),
         splitLayout(
           cellWidths = c("50%", "50%"),
@@ -22,7 +22,7 @@ UI_plot <- function(id) {
           numericInput(ns("dotsize"), "Plot dotsize", 1)),
         numericInput(ns("space_top"), "Plot space top", 1.1)
     ),
-    box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
+    box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
         downloadButton(ns("downloadPaper"), "Paper SVG"),
         downloadButton(ns("downloadPaperpng"), "Paper PNG"),
         plotOutput(ns("plot"))
@@ -32,7 +32,7 @@ UI_plot <- function(id) {
 
 }
 
-Server_plot <- function(id) {
+Server_barplot <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {

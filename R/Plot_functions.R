@@ -75,3 +75,29 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
           axis.ticks.y =element_line(size=0.1))
 }
 
+lineplot=function(df){df %>% 
+    group_by(Sample,`Days post infection`) %>%
+    summarise(mean=mean(Value),
+              sd=sd(Value),
+              se=sd/sqrt(n())) %>%
+    ggplot(aes(x=`Days post infection`, y=mean,colour=Sample))+
+    geom_errorbar(aes(ymin=mean-se,ymax=mean+se),width=0.2)+
+    geom_line()+
+    theme_classic()+
+    ylab(df$Unit)}
+
+
+lineplot2=function(df){df %>% 
+    group_by(Sample,`Time (minutes)`) %>%
+    summarise(mean=mean(Value),
+              sd=sd(Value),
+              se=sd/sqrt(n())) %>%
+    ggplot(aes(x=`Time (minutes)`, y=mean,colour=Sample))+
+    geom_errorbar(aes(ymin=mean-se,ymax=mean+se),width=0.2)+
+    geom_line()+
+    theme_classic()+
+    ylab(df$Unit)}
+
+Survivalplot=function(df){
+  fit <- survfit(Surv(Day, Mouse_Status) ~ Sample,data = df)
+  ggsurvplot(fit, data = df, pval = TRUE)}
