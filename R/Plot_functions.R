@@ -1,23 +1,19 @@
-# hot_to_df = function(hot) {
-#   hot %>%
-#     hot_to_r() %>%
-#     as.data.frame() %>%
-#     as_tibble()
-# }
-
-
 hot_to_df <- function(hot) {
   if (is.null(hot)) {
     return(NULL)
   }
   rhandsontable::hot_to_r(hot)
 }
-
-
-barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1,display_N=F,ylab_split=2000){
+JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000){
+  
+  if(length(colour_key)>1){
+    colour_key_vector <- deframe(colour_key)}
   
   
-  colour_key_vector <- deframe(colour_key)
+  if("Unit_barplot" %in% colnames(df)){
+  df <- df %>%
+    mutate(Unit = Unit_barplot,.keep = c("unused"))}
+  
   max_y=max(df$Value)*space_top
   
   df %>%
@@ -35,7 +31,7 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
     # left_join(colour_key) %>%
     ggplot(aes(x=Annotation, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
-             colour="black",width = 0.65,linewidth=0.1,alpha=0.3,
+             colour="black",width = 0.65,linewidth=0.1,alpha=0.5,
              position = position_dodge(width = 0.85))+
     geom_point(aes(fill = Sample),
                size=dotsize,
@@ -43,7 +39,7 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
                stroke = 0.2,
                width = 0.65,
                position =  (position_dodge2(width = 0.85,padding = 0)))+
-    scale_fill_manual(values = colour_key_vector)+
+    {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
     # scale_fill_identity()+
     geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,symbol=Sample), width = 0.3,linewidth=0.1,
                   position = position_dodge(width = 0.85)) +
@@ -74,30 +70,71 @@ barplot2=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1
           axis.line=element_line(size=0.1),
           axis.ticks.y =element_line(size=0.1))
 }
-
-lineplot=function(df){df %>% 
+JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
+  
+  if(length(colour_key)>1){
+    colour_key_vector <- deframe(colour_key)}
+  
+    max_y=max(df$Value)*space_top
+  
+  df %>% 
     group_by(Sample,`Days post infection`) %>%
     summarise(mean=mean(Value),
               sd=sd(Value),
               se=sd/sqrt(n())) %>%
-    ggplot(aes(x=`Days post infection`, y=mean,colour=Sample))+
-    geom_errorbar(aes(ymin=mean-se,ymax=mean+se),width=0.2)+
+    ggplot(aes(x=`Days post infection`, y=mean,colour=Sample),linewidth=0.1)+
+    geom_point(aes(fill = Sample),
+               colour = "black",
+               size=dotsize,
+               pch=21,
+               stroke = 0.2)+
+    geom_errorbar(aes(ymin=mean-se,ymax=mean+se),width=0.3,linewidth=0.1)+
+    {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
+                                 labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))}+
+
     geom_line()+
+    {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
     theme_classic()+
-    ylab(df$Unit)}
+    coord_cartesian(ylim = c(NA, max_y), clip = "off")+
+    ylab(str_wrap(df$Unit[1],width = ylab_split))+ 
+    theme(axis.text=  element_text(size=font,family = "sans"),
+          plot.title = element_text(size=font,family = "sans"),
+          text=  element_text(size=font,family = "sans"),
+          element_line(size = 0.1),
+          legend.position = legend_loc,
+          axis.title.x = element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.line=element_line(size=0.1),
+          axis.ticks.y =element_line(size=0.1))
 
+  
+  }
+JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=2000){
+  
 
-lineplot2=function(df){df %>% 
-    group_by(Sample,`Time (minutes)`) %>%
-    summarise(mean=mean(Value),
-              sd=sd(Value),
-              se=sd/sqrt(n())) %>%
-    ggplot(aes(x=`Time (minutes)`, y=mean,colour=Sample))+
-    geom_errorbar(aes(ymin=mean-se,ymax=mean+se),width=0.2)+
-    geom_line()+
-    theme_classic()+
-    ylab(df$Unit)}
-
-Survivalplot=function(df){
+  if(length(colour_key)>1){
+    colour_key_vector <- colour_key %>% 
+      filter(Sample %in% unique(df$Sample))
+      }
+  
+  survdiff(Surv(Day, Mouse_Status) ~ Sample,data = df)
   fit <- survfit(Surv(Day, Mouse_Status) ~ Sample,data = df)
-  ggsurvplot(fit, data = df, pval = TRUE)}
+  plot <- ggsurvplot(fit, data = df, pval = T,palette = colour_key_vector$fill,linewidth=0.1)
+  plot <- plot$plot
+  plot +
+    # {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
+    theme_classic()+
+    ylab(str_wrap(df$Unit[1],width = ylab_split))+
+    theme(rect = element_rect(fill = "transparent"))+
+    theme(axis.text=  element_text(size=font,family = "sans"),
+          plot.title = element_text(size=font,family = "sans"),
+          text=element_text(size=font,family = "sans"),
+          element_line(size = 0.1),
+          legend.position = legend_loc,
+          axis.title.x = element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.line=element_line(size=0.1),
+          line = element_line(linewidth = 3),
+          axis.ticks.y =element_line(size=0.1))
+  
+}
