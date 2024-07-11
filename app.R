@@ -10,13 +10,14 @@ library(readxl)
 # library(data.table)
 library(survminer)
 library(survival)
-# library('latex2exp')
+library(latex2exp)
 
 ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Barplot", tabName = "barplot", icon = icon("dashboard")),
+      menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("Counter", tabName = "Counter", icon = icon("dashboard")),
       menuItem("Batch Plot", tabName = "batchplot", icon = icon("dashboard")),
       menuItem("Line Plot", tabName = "lineplot", icon = icon("dashboard")),
@@ -26,6 +27,7 @@ ui = dashboardPage(
   dashboardBody(
     tabItems(
       tabItem(tabName = "Counter",counterButton("counter1", "Counter #1")),
+      tabItem(tabName = "barplot_annotated",UI_barplot_annotated("barplot_annotated")),
       tabItem(tabName = "batchplot",UI_batchplot("batchplot")),
       tabItem(tabName = "barplot",UI_barplot("barplot")),
       tabItem(tabName = "lineplot",UI_lineplot("lineplot")),
@@ -36,6 +38,7 @@ ui = dashboardPage(
 
 server = function(input, output) {
   counterServer("counter1")
+  Server_barplot_annotated("barplot_annotated")
   Server_batchplot("batchplot")
   Server_barplot("barplot")
   Server_lineplot("lineplot")
