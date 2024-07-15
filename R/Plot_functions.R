@@ -141,6 +141,7 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=
 
 JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_ns=F,var_equal=T,scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000){
 
+  
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
 
@@ -184,13 +185,14 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
     # left_join(colour_key) %>%
     ggplot(aes(x=condition, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
-             colour="black",width = 0.65,linewidth=0.1,alpha=0.5,
+             colour="#111111",width = 0.65,linewidth=0.1,alpha=0.5,
              position = position_dodge(width = 0.85))+
     geom_point(aes(fill = Sample),
                size=dotsize,
                pch=21,
                stroke = 0.2,
                width = 0.65,
+               color = "#111111",linewidth = 0.1,
                position =  (position_dodge2(width = 0.85,padding = 0))) +
     {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
     # scale_fill_identity()+
@@ -203,8 +205,15 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
              method = "t_test",
              method.args = list(var.equal = var_equal),
              p.adjust.method="bonferroni",
-             label = "p.adj",label.size =  font/.pt,size = 0.1,
-             hide.ns = Show_ns
+             label = "italic(p) = {p.adj.format}",
+             # symnum.args = list(cutpoints = c(0,  Inf),
+             #                     symbols = c("****", "ns")),
+             # label = "p.adj.signif",
+             label.size =  font/.pt,size = 0.1,
+             hide.ns = !Show_ns,
+             # hide.ns = "ns",
+             # label.x = 1,
+             colour = "#111111"
              # ,
              # symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "nvs"))
     )+
@@ -215,27 +224,38 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
     theme_classic()+
     coord_cartesian(ylim = c(0, max_y), clip = "off") +
     # coord_cartesian(ylim = c((-max_y/10)*2, max_y), clip = "off")+
-    annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt) +
-    annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt)+
-    annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt) +
-    annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt)+
+    annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111") +
+    annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111")+
+    annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111") +
+    annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111")+
     # {if(length(Annotations_ids)>1)annotate("text",x = 0.4,y = (-max_y/10)*2,label = Annotations_ids[2],size=font/.pt,hjust = 1)}+
     # {if(length(Annotations_ids)>1)annotate("text", x = c(1:length(df_anno[[2]])) ,y = (-max_y/10)*2, label = df_anno[[2]],size=font/.pt)}+
-    theme(axis.text=  element_text(size=font,family = "sans"),
+    theme(
+      # axis.text=  element_text(size=font,family = "sans"),
           plot.title = element_text(size=font,family = "sans"),
-          text=  element_text(size=font,family = "sans"),
+          text=  element_text(size=font,family = "sans",colour = "#111111"),
+          axis.text=  element_text(size=font,family = "sans",colour = "#111111"),
           plot.margin = unit(c(5,0,25,15), "mm"),
           axis.text.x = element_blank(),
           legend.position = legend_loc,
           axis.title.x = element_blank(),
           axis.ticks.x=element_blank(),
-          axis.line=element_line(size=0.1),
-          axis.ticks.y =element_line(size=0.1))
+          # axis.line.x.bottom=element_line(color="#111111"),
+          axis.line=element_line(color = "#111111",linewidth = 0.1),
+          axis.ticks.y =element_line(color = "#111111",linewidth = 0.1))
+  
     }
 
 
 # 
-# df <- read_csv("Data/example_barplot_annotation.csv")
-# colour_key <- read_csv("Data/example_colour_key.csv")
-# 
-# JPL_barplot_annotation(df,colour_key)
+df <- read_csv("Data/example_barplot_annotation.csv")
+colour_key <- read_csv("Data/example_colour_key.csv")
+
+JPL_barplot_annotation(df,colour_key,Show_ns=T)
+  # theme(rect = element_rect(fill = "transparent"))
+set_panel_size(plot, file = "outfile2.svg" ,
+               width = unit(40, "mm"),
+               height = unit(30,"mm"))
+set_panel_size(plot, file = outfile_png,
+               width = unit(input$width, "mm"),
+               height = unit(input$height,"mm"))

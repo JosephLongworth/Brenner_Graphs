@@ -6,7 +6,7 @@ UI_barplot_annotated <- function(id) {
                   numericInput(ns("ylab_split"), "Paper ylab split", 20),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
-                    numericInput(ns("width"), "Plot width mm", 20),
+                    numericInput(ns("width"), "Plot width mm", 40),
                     numericInput(ns("height"), "Plot height mm", 30)),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
@@ -104,3 +104,4 @@ Server_barplot_annotated <- function(id) {
       }
   )
 }
+
