@@ -141,7 +141,7 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=
 
 JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_ns=F,var_equal=T,scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000){
 
-  
+  # df=read_csv("Data/example_barplot_annotation.csv")  
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
 
@@ -151,7 +151,9 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
       mutate(Unit = Unit_barplot_annotation,.keep = c("unused"))}
 
   max_y=max(na.omit(df$Value))*space_top
-
+  
+  colnames(df) 
+  if("Annotation_2_Symbol" %in% colnames(df)){
 
   df_anno <- df %>%
     dplyr::select(Annotation_1_Symbol,Annotation_2_Symbol) %>%
@@ -161,9 +163,15 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
                                    "+" = "YES")) |>
     mutate(Annotation_2_Symbol = fct_recode(Annotation_2_Symbol,
                                    "-" = "NO",
-                                   "+" = "YES")) |>
-    
-    glimpse()
+                                   "+" = "YES"))
+  } else {
+    df_anno <- df %>%
+      dplyr::select(Annotation_1_Symbol) %>%
+      distinct() %>%
+      mutate(Annotation_1_Symbol = fct_recode(Annotation_1_Symbol,
+                                   "-" = "NO",
+                                   "+" = "YES"))
+  }
 
   # Annotations_ids <- gsub("Annotation_",replacement = "",grep("Annotation",names(df),value = T))
 
@@ -171,7 +179,8 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
   df %>%
     filter(!is.na(Value)) %>%
     mutate(Sample = as_factor(Sample)) %>%
-    mutate(condition = paste(Annotation_1_Symbol,Annotation_2_Symbol,sep = "_")) %>% 
+    {if("Annotation_2_Symbol" %in% colnames(df)){mutate(.,condition = paste(Annotation_1_Symbol,Annotation_2_Symbol,sep = "_"))}else{
+        mutate(.,condition = Annotation_1_Symbol)}} |> 
     group_by(condition) %>%
     {full_join(x=.,y =group_by(.,Sample,condition) %>%
                  summarise(mean=mean(Value),
@@ -200,7 +209,7 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
                   position = position_dodge(width = 0.85)) +
     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
     {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
-                                 labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))}+
+                                 labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))} +
     geom_pwc(aes(group = Sample), tip.length = 0,
              method = "t_test",
              method.args = list(var.equal = var_equal),
@@ -226,8 +235,8 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
     # coord_cartesian(ylim = c((-max_y/10)*2, max_y), clip = "off")+
     annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111") +
     annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111")+
-    annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111") +
-    annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111")+
+    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111")}} +
+    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111")}}+
     # {if(length(Annotations_ids)>1)annotate("text",x = 0.4,y = (-max_y/10)*2,label = Annotations_ids[2],size=font/.pt,hjust = 1)}+
     # {if(length(Annotations_ids)>1)annotate("text", x = c(1:length(df_anno[[2]])) ,y = (-max_y/10)*2, label = df_anno[[2]],size=font/.pt)}+
     theme(
@@ -246,16 +255,16 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
   
     }
 
-
 # 
-df <- read_csv("Data/example_barplot_annotation.csv")
-colour_key <- read_csv("Data/example_colour_key.csv")
-
-JPL_barplot_annotation(df,colour_key,Show_ns=T)
-  # theme(rect = element_rect(fill = "transparent"))
-set_panel_size(plot, file = "outfile2.svg" ,
-               width = unit(40, "mm"),
-               height = unit(30,"mm"))
-set_panel_size(plot, file = outfile_png,
-               width = unit(input$width, "mm"),
-               height = unit(input$height,"mm"))
+# # 
+# df <- read_csv("Data/example_barplot_annotation.csv")
+# colour_key <- read_csv("Data/example_colour_key.csv")
+# 
+# JPL_barplot_annotation(df,colour_key,Show_ns=T)
+#   # theme(rect = element_rect(fill = "transparent"))
+# set_panel_size(plot, file = "outfile2.svg" ,
+#                width = unit(40, "mm"),
+#                height = unit(30,"mm"))
+# set_panel_size(plot, file = outfile_png,
+#                width = unit(input$width, "mm"),
+#                height = unit(input$height,"mm"))

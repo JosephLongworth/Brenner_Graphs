@@ -38,7 +38,8 @@ Server_batchplot <- function(id) {
         
         # read the excel file
         
-        for(j in excel_sheets(excel_path)){
+          
+        for(j in excel_sheets(excel_path)[-1]){
           temp_data <- read_excel(excel_path,sheet = j)
           
           
@@ -56,6 +57,9 @@ Server_batchplot <- function(id) {
             }
           if("Unit_survivalplot" %in% colnames(temp_data)){
             temp_plot <- JPL_survivalplot(temp_data, colour_key,legend_loc = "none")
+            }
+          if("Unit_barplot_annotation" %in% colnames(temp_data)){
+            temp_plot <- JPL_barplot_annotation(temp_data, colour_key,legend_loc = "none")
             }
           set_panel_size(temp_plot, file = paste0(outfile_zip,"/",j,".svg"),
                          # width = unit(bars_count*10, "mm"),

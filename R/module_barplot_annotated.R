@@ -59,15 +59,15 @@ Server_barplot_annotated <- function(id) {
         empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
           theme_void()
         plot <- JPL_barplot_annotation(hot_to_df(input$hot),
-                         hot_to_df(input$colour_key_hot),
-                         ylab_split=input$ylab_split,
-                         font = input$font,
-                         dotsize = input$dotsize,
-                         space_top = input$space_top,
-                         var_equal = input$var_equal,
-                         Show_ns = input$Show_ns,
-                         legend_loc = "none")+
-          theme(rect = element_rect(fill = "transparent"))
+                                       hot_to_df(input$colour_key_hot),
+                                       ylab_split=input$ylab_split,
+                                       font = input$font,
+                                       dotsize = input$dotsize,
+                                       space_top = input$space_top,
+                                       var_equal = input$var_equal,
+                                       Show_ns = input$Show_ns,
+                                       legend_loc = "none")+
+        theme(rect = element_rect(fill = "transparent"))
         set_panel_size(plot, file = outfile ,
                        width = unit(input$width, "mm"),
                        height = unit(input$height,"mm"))
