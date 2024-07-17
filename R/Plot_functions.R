@@ -8,10 +8,9 @@ hot_to_df <- function(hot) {
 JPL_genral_theme <- function(font=7,legend_loc="right"){
 theme_classic()+
   theme(
-    # axis.text=  element_text(size=font,family = "arial"),
-    plot.title = element_text(size=font,family = "arial"),
-    text=  element_text(size=font,family = "arial",colour = "#111111"),
-    axis.text=  element_text(size=font,family = "arial",colour = "#111111"),
+    plot.title = element_text(size=font,family = "ArialMT"),
+    text=  element_text(size=font,family = "ArialMT",colour = "#111111"),
+    axis.text=  element_text(size=font,family = "ArialMT",colour = "#111111"),
     # plot.margin = unit(c(5,0,25,15), "mm"),
     axis.text.x = element_blank(),
     legend.position = legend_loc,
