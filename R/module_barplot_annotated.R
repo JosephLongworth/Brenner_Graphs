@@ -3,7 +3,7 @@ UI_barplot_annotated <- function(id) {
   fluidPage(
     fluidRow(
               box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-                  numericInput(ns("ylab_split"), "Paper ylab split", 20),
+                  numericInput(ns("ylab_split"), "Paper ylab split", 100),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("width"), "Plot width mm", 40),

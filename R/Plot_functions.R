@@ -31,6 +31,7 @@ JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_to
     mutate(Unit = Unit_barplot,.keep = c("unused"))}
   
   df <- df |> 
+    mutate(Annotation = as.character(Annotation)) |>
     mutate(Annotation=replace_na(Annotation,""))
   
   max_y=max(df$Value)*space_top
@@ -146,6 +147,8 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
   df_anno <- df %>%
     dplyr::select(Annotation_1_Symbol,Annotation_2_Symbol) %>%
     distinct() %>%
+    mutate(Annotation_1_Symbol = as.character(Annotation_1_Symbol)) |>
+    mutate(Annotation_2_Symbol = as.character(Annotation_2_Symbol)) |>
     mutate(Annotation_1_Symbol = replace_na(Annotation_1_Symbol,"")) |> 
     mutate(Annotation_2_Symbol = replace_na(Annotation_2_Symbol,"")) |> 
     mutate(Annotation_1_Symbol = fct_recode(Annotation_1_Symbol,
