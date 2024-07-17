@@ -30,21 +30,22 @@ JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_to
   df <- df %>%
     mutate(Unit = Unit_barplot,.keep = c("unused"))}
   
+  df <- df |> 
+    mutate(Annotation=replace_na(Annotation,""))
+  
   max_y=max(df$Value)*space_top
   
   df %>%
     filter(!is.na(Value)) %>%
     mutate(Sample = as_factor(Sample)) %>%
-    group_by(Sample,Annotation) %>%
-    {full_join(x=.,y =group_by(.,Sample,Annotation) %>%
+    {full_join(x=.,y =. |> 
                  summarise(mean=mean(Value),
                            sd=sd(Value),
-                           n=n()) %>%
+                           n=n(),
+                           .by = c(Sample,Annotation)) %>%
                  mutate(se=sd/n))} %>%
-    group_by(Sample,Annotation) %>%
-    mutate(Count = n()) %>%
     ungroup() %>%
-    # left_join(colour_key) %>%
+    glimpse() |> 
     ggplot(aes(x=Annotation, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
              colour="black",width = 0.65,linewidth=0.1,alpha=0.5,
@@ -56,7 +57,6 @@ JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_to
                # width = 0.65,
                position =  (position_dodge2(width = 0.85,padding = 0)))+
     {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
-    # scale_fill_identity()+
     geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,symbol=Sample), width = 0.3,linewidth=0.1,
                   position = position_dodge(width = 0.85)) +
     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
@@ -146,6 +146,8 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
   df_anno <- df %>%
     dplyr::select(Annotation_1_Symbol,Annotation_2_Symbol) %>%
     distinct() %>%
+    mutate(Annotation_1_Symbol = replace_na(Annotation_1_Symbol,"")) |> 
+    mutate(Annotation_2_Symbol = replace_na(Annotation_2_Symbol,"")) |> 
     mutate(Annotation_1_Symbol = fct_recode(Annotation_1_Symbol,
                                    "-" = "NO",
                                    "+" = "YES")) |>
@@ -232,7 +234,7 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
 # 
 # df <- read_csv("Data/example_barplot.csv")
 # colour_key <- read_csv("Data/example_colour_key.csv")
-# 
+# # 
 # JPL_barplot(df,colour_key)
 # set_panel_size(plot, file = "outfile2.svg" ,
 #                width = unit(40, "mm"),

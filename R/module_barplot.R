@@ -12,8 +12,10 @@ UI_barplot <- function(id) {
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("font"), "Plot font size", 7),
                     numericInput(ns("dotsize"), "Plot dotsize", 1)),
-                  numericInput(ns("space_top"), "Plot space top", 1.1)
-              ),
+                  numericInput(ns("space_top"), "Plot space top", 1.1),
+                  checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
+                  checkboxInput(ns("Show_ns"), "Show NS", value = F)
+                  ),
               box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
                   downloadButton(ns("downloadPaper"), "Paper SVG"),
                   downloadButton(ns("downloadPaperpng"), "Paper PNG"),
@@ -61,6 +63,8 @@ Server_barplot <- function(id) {
                          font = input$font,
                          dotsize = input$dotsize,
                          space_top = input$space_top,
+                         var_equal = input$var_equal,
+                         Show_ns = input$Show_ns,
                          legend_loc = "none")+
           theme(rect = element_rect(fill = "transparent"))
         set_panel_size(plot, file = outfile ,
