@@ -20,9 +20,6 @@ theme_classic()+
     # axis.line.x.bottom=element_line(color="#111111"),
     axis.line=element_line(color = "#111111",linewidth = 0.1),
     axis.ticks.y =element_line(color = "#111111",linewidth = 0.1))}
-
-
-
 JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000,Show_ns=F,var_equal=T){
   
   if(length(colour_key)>1){
@@ -68,12 +65,6 @@ JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_to
     geom_pwc(aes(group = Sample),
              tip.length = 0,
              method = "t_test",
-             # method.args = list(var.equal = TRUE),
-             # p.adjust.method="bonferroni",
-             # label = "p.adj",
-             # label.size =  font/.pt,size = 0.1
-             # aes(group = Sample), tip.length = 0,
-             # method = "t_test",
              method.args = list(var.equal = var_equal),
              p.adjust.method="bonferroni",
              label = "italic(p) = {p.adj.format}",
@@ -116,16 +107,6 @@ JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_t
     coord_cartesian(ylim = c(NA, max_y), clip = "off")+
     ylab(str_wrap(df$Unit[1],width = ylab_split))+ 
     JPL_genral_theme(font = font,legend_loc = legend_loc)
-    # theme_classic()+
-    # theme(axis.text=  element_text(size=font,family = "sans"),
-    #       plot.title = element_text(size=font,family = "sans"),
-    #       text=  element_text(size=font,family = "sans"),
-    #       element_line(size = 0.1),
-    #       legend.position = legend_loc,
-    #       axis.title.x = element_blank(),
-    #       axis.ticks.x=element_blank(),
-    #       axis.line=element_line(size=0.1),
-    #       axis.ticks.y =element_line(size=0.1))
 
   
   }
@@ -142,25 +123,10 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=
   plot <- ggsurvplot(fit, data = df, pval = T,palette = colour_key_vector$fill,linewidth=0.1)
   plot <- plot$plot
   plot +
-    # {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
     ylab(str_wrap(df$Unit[1],width = ylab_split))+
     JPL_genral_theme(font = font,legend_loc = legend_loc)
-    
-    # theme_classic()+
-    # theme(rect = element_rect(fill = "transparent"))+
-    # theme(axis.text=  element_text(size=font,family = "sans"),
-    #       plot.title = element_text(size=font,family = "sans"),
-    #       text=element_text(size=font,family = "sans"),
-    #       element_line(size = 0.1),
-    #       legend.position = legend_loc,
-    #       axis.title.x = element_blank(),
-    #       axis.ticks.x=element_blank(),
-    #       axis.line=element_line(size=0.1),
-    #       line = element_line(linewidth = 3),
-    #       axis.ticks.y =element_line(size=0.1))
-  
-}
 
+}
 JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_ns=F,var_equal=T,scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000){
 
   # df=read_csv("Data/example_barplot_annotation.csv")  
@@ -195,9 +161,7 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
                                    "+" = "YES"))
   }
 
-  # Annotations_ids <- gsub("Annotation_",replacement = "",grep("Annotation",names(df),value = T))
-
-
+ 
   df %>%
     filter(!is.na(Value)) %>%
     mutate(Sample = as_factor(Sample)) %>%
@@ -237,16 +201,9 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
              method.args = list(var.equal = var_equal),
              p.adjust.method="bonferroni",
              label = "italic(p) = {p.adj.format}",
-             # symnum.args = list(cutpoints = c(0,  Inf),
-             #                     symbols = c("****", "ns")),
-             # label = "p.adj.signif",
              label.size =  font/.pt,size = 0.1,
              hide.ns = !Show_ns,
-             # hide.ns = "ns",
-             # label.x = 1,
              colour = "#111111"
-             # ,
-             # symnum.args <- list(cutpoints = c(0, 0.0001, 0.001, 0.01, 0.05, Inf), symbols = c("****", "***", "**", "*", "nvs"))
     )+
     # {if(display_N)
       # geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
@@ -258,25 +215,8 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
     annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111")+
     {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111")}} +
     {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111")}}+
-    # {if(length(Annotations_ids)>1)annotate("text",x = 0.4,y = (-max_y/10)*2,label = Annotations_ids[2],size=font/.pt,hjust = 1)}+
-    # {if(length(Annotations_ids)>1)annotate("text", x = c(1:length(df_anno[[2]])) ,y = (-max_y/10)*2, label = df_anno[[2]],size=font/.pt)}+
-    
-    JPL_genral_theme(font = font,legend_loc = legend_loc)
-  # theme_classic()+
-  #   theme(
-  #     # axis.text=  element_text(size=font,family = "sans"),
-  #         plot.title = element_text(size=font,family = "sans"),
-  #         text=  element_text(size=font,family = "sans",colour = "#111111"),
-  #         axis.text=  element_text(size=font,family = "sans",colour = "#111111"),
-  #         plot.margin = unit(c(5,0,25,15), "mm"),
-  #         axis.text.x = element_blank(),
-  #         legend.position = legend_loc,
-  #         axis.title.x = element_blank(),
-  #         axis.ticks.x=element_blank(),
-  #         # axis.line.x.bottom=element_line(color="#111111"),
-  #         axis.line=element_line(color = "#111111",linewidth = 0.1),
-  #         axis.ticks.y =element_line(color = "#111111",linewidth = 0.1))
-  # 
+    JPL_genral_theme(font = font,legend_loc = legend_loc)+
+    theme(plot.margin = unit(c(5,0,25,15), "mm"))
     }
 
 
