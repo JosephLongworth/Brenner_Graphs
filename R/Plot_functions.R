@@ -5,12 +5,14 @@ hot_to_df <- function(hot) {
   rhandsontable::hot_to_r(hot)
 }
 
+
+family <- "Chiller"
 JPL_genral_theme <- function(font=7,legend_loc="right"){
 theme_classic()+
   theme(
-    plot.title = element_text(size=font,family = "ArialMT"),
-    text=  element_text(size=font,family = "ArialMT",colour = "#111111"),
-    axis.text=  element_text(size=font,family = "ArialMT",colour = "#111111"),
+    plot.title = element_text(size=font,family = family),
+    text=  element_text(size=font,family = family,colour = "#111111"),
+    axis.text=  element_text(size=font,family = family,colour = "#111111"),
     # plot.margin = unit(c(5,0,25,15), "mm"),
     axis.text.x = element_blank(),
     legend.position = legend_loc,
@@ -19,6 +21,9 @@ theme_classic()+
     # axis.line.x.bottom=element_line(color="#111111"),
     axis.line=element_line(color = "#111111",linewidth = 0.1),
     axis.ticks.y =element_line(color = "#111111",linewidth = 0.1))}
+
+
+
 JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000,Show_ns=F,var_equal=T){
   
   if(length(colour_key)>1){
@@ -129,7 +134,7 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=
 }
 JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_ns=F,var_equal=T,scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000){
 
-  # df=read_csv("Data/example_barplot_annotation.csv")  
+  # df=read_csv("Data/example_barplot_annotation.csv")
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
 
@@ -214,21 +219,26 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
     ylab(latex2exp::TeX(str_wrap(df$Unit[1],width = ylab_split))) +
     coord_cartesian(ylim = c(0, max_y), clip = "off") +
     # coord_cartesian(ylim = c((-max_y/10)*2, max_y), clip = "off")+
-    annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111") +
-    annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111")+
-    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111")}} +
-    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111")}}+
+    annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
+    annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
+    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
+    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
     JPL_genral_theme(font = font,legend_loc = legend_loc)+
     theme(plot.margin = unit(c(5,0,25,15), "mm"))
     }
 
 
+# library(extrafont)
+# font_import()
+# loadfonts(device = "win")
+
 # #
 # df <- read_csv("Data/example_barplot_annotation.csv")
 # colour_key <- read_csv("Data/example_colour_key.csv")
 # 
-# plot <- JPL_barplot_annotation(df,colour_key,Show_ns=T)
-#   # theme(rect = element_rect(fill = "transparent"))
+# plot2 <- JPL_barplot_annotation(df,colour_key,Show_ns=T)
+# plot2  
+# # theme(rect = element_rect(fill = "transparent"))
 # set_panel_size(plot, file = "outfile2.svg" ,
 #                width = unit(40, "mm"),
 #                height = unit(30,"mm"))
@@ -240,3 +250,4 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
 # set_panel_size(plot, file = "outfile2.svg" ,
 #                width = unit(40, "mm"),
 #                height = unit(30,"mm"))
+

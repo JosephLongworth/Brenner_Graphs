@@ -1,3 +1,7 @@
+library(extrafont)
+extrafont::loadfonts()
+loadfonts(device="win")
+library(ggplot2)
 library(tidyverse)
 library(shinydashboard)
 library(shiny)
