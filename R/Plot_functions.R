@@ -141,7 +141,6 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
 
   max_y=max(na.omit(df$Value))*space_top
   
-  colnames(df) 
   if("Annotation_2_Symbol" %in% colnames(df)){
 
   df_anno <- df %>%

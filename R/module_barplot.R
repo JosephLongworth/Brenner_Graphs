@@ -6,7 +6,7 @@ UI_barplot <- function(id) {
                   numericInput(ns("ylab_split"), "Paper ylab split", 20),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
-                    numericInput(ns("width"), "Plot width mm", 20),
+                    numericInput(ns("width"), "Plot width mm (per bar)", 5),
                     numericInput(ns("height"), "Plot height mm", 30)),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
@@ -67,11 +67,18 @@ Server_barplot <- function(id) {
                          Show_ns = input$Show_ns,
                          legend_loc = "none")+
           theme(rect = element_rect(fill = "transparent"))
+
+        nbars <- hot_to_df(input$hot) |> 
+          select(Sample,Annotation) |>
+          distinct() |>
+          summarise(nbars=n()) |>
+          as.double()
+        
         set_panel_size(plot, file = outfile ,
-                       width = unit(input$width, "mm"),
+                       width = unit(nbars*input$width, "mm"),
                        height = unit(input$height,"mm"))
         set_panel_size(plot, file = outfile_png,
-                       width = unit(input$width, "mm"),
+                       width = unit(nbars*input$width, "mm"),
                        height = unit(input$height,"mm"))
         list(src = outfile,
              alt = "This is alternate text")
