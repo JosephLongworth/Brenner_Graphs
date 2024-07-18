@@ -6,7 +6,7 @@ hot_to_df <- function(hot) {
 }
 
 
-family <- "Comic Sans MS"
+family <- "Arial"
 JPL_genral_theme <- function(font=7,legend_loc="right"){
 theme_classic()+
   theme(
@@ -75,7 +75,8 @@ JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_to
              label = "italic(p) = {p.adj.format}",
              label.size =  font/.pt,size = 0.1,
              hide.ns = !Show_ns,
-             colour = "#111111"
+             colour = "#111111",
+             family = family
              )+
     {if(display_N)
     geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
