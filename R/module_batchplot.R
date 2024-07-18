@@ -25,6 +25,7 @@ UI_batchplot <- function(id) {
                   ".xlsx",
                   ".xls")),
       tags$hr(),
+      shinyjs::useShinyjs(),
       actionButton(ns("Run_Plots"), "Run Plots"),
       downloadButton(ns("downloadData"), "Download")
       ),
@@ -46,8 +47,8 @@ Server_batchplot <- function(id) {
       })
       
       observeEvent(input$Run_Plots, {
-        
         req(input$file1)
+        shinyjs::disable("downloadData")
         
         outfile_zip <- paste0(tempdir(),"/OUT")
         # delete the folder if it exists
@@ -154,6 +155,8 @@ Server_batchplot <- function(id) {
         
         # zip a the folder 'output'
         zip(paste0(tempdir(),"/OUT.zip"),flags = "-j", list.files(outfile_zip,full.names = TRUE))
+        
+        shinyjs::enable("downloadData")
       })
       
       

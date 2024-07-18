@@ -20,7 +20,8 @@ UI_barplot_annotated <- function(id) {
               box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
                   downloadButton(ns("downloadPaper"), "Paper SVG"),
                   downloadButton(ns("downloadPaperpng"), "Paper PNG"),
-                  plotOutput(ns("plot"))
+                  plotOutput(ns("plot")) %>% 
+                    shinycustomloader::withLoader()
               )
             ),
     fluidRow(
