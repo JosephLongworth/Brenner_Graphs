@@ -2,11 +2,11 @@ UI_batchplot <- function(id) {
   ns <- NS(id)
   fluidPage(
     box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-        numericInput(ns("ylab_split"), "Paper ylab split", 20),
+        numericInput(ns("ylab_split"), "ylab split", 50),
         splitLayout(
           cellWidths = c("50%", "50%"),
-          numericInput(ns("width"), "Plot width mm (per bar)", 5),
-          numericInput(ns("height"), "Plot height mm", 30)),
+          numericInput(ns("width"), "Plot width mm (per bar)", 7.5),
+          numericInput(ns("height"), "Plot height mm", 25)),
         splitLayout(
           cellWidths = c("50%", "50%"),
           numericInput(ns("width_lineplot"), "Plot width mm (lineplot)", 60),
@@ -145,7 +145,7 @@ Server_batchplot <- function(id) {
           set_panel_size(temp_plot, file = paste0(outfile_zip,"/",j,".svg"),
                          # width = unit(bars_count*10, "mm"),
                          width = unit(plot_width, "mm"),
-                         height = unit(40,"mm"))
+                         height = unit(input$height,"mm"))
         }
         # files within the folder output
         list.files(outfile_zip,full.names = TRUE)
