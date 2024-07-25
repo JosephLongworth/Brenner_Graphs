@@ -1,14 +1,14 @@
 UI_figure_builder <- function(id) {
   ns <- NS(id)
   fluidPage(
-     box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 12, collapsed = FALSE,
+     box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 4, collapsed = FALSE,
          fileInput(ns("files"), "Choose SVG File", multiple = TRUE,
                 accept = c(".svg")),
       tags$hr(),
       shinyjs::useShinyjs(),
       downloadButton(ns("downloadData"), "Download")
       ),
-     box(title = "Layout", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 4, collapsed = FALSE,
+     box(title = "Layout", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 12, collapsed = FALSE,
          rHandsontableOutput(ns("Layout_hot"))
      ),
      box(title = "Labels", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 4, collapsed = FALSE,
@@ -29,15 +29,27 @@ Server_figure_builder <- function(id) {
     id,
     function(input, output, session) {
 
-      Layout <- tibble("Panel Name"=c("GRAPH_pIC_anti-IFNAR_Ifit1_2"),"X"=c(11),"Y"=c(11),"X Offset"=c(11),"Y Offset"=c(11))
-      output$Layout_hot = renderRHandsontable({
-        rhandsontable(Layout)
-      })
+      # Layout <- tibble("Panel Name"=c("GRAPH_pIC_anti-IFNAR_Ifit1_2"),"X"=c(11),"Y"=c(11),"X Offset"=c(11),"Y Offset"=c(11))
+      # output$Layout_hot = renderRHandsontable({
+      #   rhandsontable(Layout)
+      # })
       
       Labels <- tibble("Label"=c("A"),"X"=c(11),"Y"=c(11))
       output$Labels_hot = renderRHandsontable({
         rhandsontable(Labels)
       })
+      
+      observeEvent(input$files, {
+        Layout <- tibble("Panel Name"=rep("                                       ",10),
+                         "X"=rep(0,10),
+                         "Y"=rep(0,10),
+                         "X Offset"=rep(0,10),
+                         "Y Offset"=rep(0,10))
+        output$Layout_hot = renderRHandsontable({
+          rhandsontable(Layout) %>%  
+            hot_col(col = "Panel Name", type = c("autocomplete"), source = input$files$name)
+            })
+        })
       
 
       observeEvent(input$Run_Plots, {
@@ -58,12 +70,13 @@ Server_figure_builder <- function(id) {
 
         readLines("Data/Standard_SVG_Head.svg") |> 
         write_lines("Anouk_data/Figure_2.svg")
-        # write_lines("www/Figure_1.svg")
-        
         i <- 1
         layout <- hot_to_df(input$Layout_hot) |> 
-          janitor::clean_names() 
+          janitor::clean_names() |> 
+          filter(panel_name != "") |>
+          glimpse()
         
+        for (i in 1:nrow(layout)){
         panel_name <- layout$panel_name[i]
         panel_id <- grep(pattern = panel_name,x = input$files$name)
         
@@ -88,7 +101,6 @@ Server_figure_builder <- function(id) {
           svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "\\(.+\\)",matrix,svg_code[g_code_lines$g_start[1]])
           
         } else if (grepl("id=",svg_code[g_code_lines$g_start[1]])){
-          
           svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
                                                       " transform='translate(",
                                                       layout$x[i]-0,
@@ -99,15 +111,13 @@ Server_figure_builder <- function(id) {
           
           svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "id='..'",replacement = paste0("id='",panel_name,"'"),svg_code[g_code_lines$g_start[1]])
         } else{
-          
           # svg_offset <- find_svg_offset(figure_1_layout$panel_path[i])
-          
           
           svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
                                                       " transform='translate(",
                                                       layout$x[i]-layout$x_offset[i],
                                                       ",",
-                                                      layout$y[i]-layout$y_offset,
+                                                      layout$y[i]-layout$y_offset[i],
                                                       ")' ",
                                                       "id='",panel_name,"' ",
                                                       ">")
@@ -116,11 +126,11 @@ Server_figure_builder <- function(id) {
         
         write_lines(svg_code[g_code_lines$g_start[1]:g_code_lines$g_end[1]],"Anouk_data/Figure_2.svg",append = T)
         
-        
+        }
         write_lines("</svg>","Anouk_data/Figure_2.svg",append = T)
         
         
-        output$plot_preview <- renderImage({
+        output$plot_preview <- renderImage(deleteFile=F,{
 
           list(src = "Anouk_data/Figure_2.svg",
                contentType = "image/svg+xml")
