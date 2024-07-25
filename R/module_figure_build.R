@@ -55,7 +55,7 @@ Server_figure_builder <- function(id) {
       observeEvent(input$predict_Offsets, {
 
         Layout <- hot_to_df(input$Layout_hot) |>
-          filter(`Panel Name` != "") |>
+          filter(`Panel Name` %in% input$files$name) |>
           rowwise() |>
           mutate(panel_id = grep(pattern = `Panel Name`,x = input$files$name),
                  path = input$files$datapath[panel_id],
@@ -81,11 +81,9 @@ Server_figure_builder <- function(id) {
         write_lines("Anouk_data/Figure_2.svg")
         i <- 1
 
-        browser()
         layout <- hot_to_df(input$Layout_hot) |> 
-          janitor::clean_names() |> 
-          filter(panel_name != "") |>
-          glimpse()
+          filter(`Panel Name` %in% input$files$name) |>
+          janitor::clean_names()
         
         for (i in 1:nrow(layout)){
         panel_name <- layout$panel_name[i]

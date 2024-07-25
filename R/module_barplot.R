@@ -52,6 +52,47 @@ Server_barplot <- function(id) {
       output$colour_key_hot = renderRHandsontable({
         rhandsontable(colour_key)
       })
+      
+      
+      observeEvent(input$colour_key_hot,{
+      output$colour_key_hot = renderRHandsontable({
+        
+        
+        tmp <- hot_to_df(input$colour_key_hot) |>
+          select(color_hex) |>
+          distinct() |> 
+          mutate(text=paste0("else if (value == '",color_hex,"'){td.style.background = '",color_hex,"';}"
+            )) |>
+          glimpse()
+        
+        tmp$text[1] = gsub(pattern = "else ",replacement = "",
+                           tmp$text[1],"else","")
+
+        text <- paste0(c("
+           function (instance, td, row, col, prop, value, cellProperties) {
+             Handsontable.renderers.NumericRenderer.apply(this, arguments);"  
+               ,tmp$text,"             
+          }"),collapse = "")
+        
+        
+        text
+        
+        rhandsontable(hot_to_df(input$colour_key_hot)) |>
+          hot_cols(renderer = text)
+          
+          # "
+          #  function (instance, td, row, col, prop, value, cellProperties) {
+          #    Handsontable.renderers.NumericRenderer.apply(this, arguments);
+          #    if (value == '#ea801c') {
+          #    td.style.background = '#ea801c';}
+          #    
+          # }")
+        
+        
+      })
+      })
+      
+      
       outfile <- tempfile(fileext='.svg')
       outfile_png <- tempfile(fileext='.png')
       output$plot <- renderImage({
