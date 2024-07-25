@@ -10,6 +10,7 @@ UI_figure_builder <- function(id) {
       tags$hr(),
       
       rHandsontableOutput(ns("Layout_hot")),
+      actionButton(ns("predict_Offsets"), "Predict Offestes"),
       tags$hr(),
       rHandsontableOutput(ns("Labels_hot"))
       ),
@@ -51,6 +52,25 @@ Server_figure_builder <- function(id) {
         })
       
 
+      observeEvent(input$predict_Offsets, {
+
+        Layout <- hot_to_df(input$Layout_hot) |>
+          filter(`Panel Name` != "") |>
+          rowwise() |>
+          mutate(panel_id = grep(pattern = `Panel Name`,x = input$files$name),
+                 path = input$files$datapath[panel_id],
+                 `X Offset` = as.numeric(find_svg_offset(path)[1]),
+                 `Y Offset` = as.numeric(find_svg_offset(path)[2])) |>
+          select (-panel_id,-path) |>
+          glimpse()
+        
+        output$Layout_hot = renderRHandsontable({
+          rhandsontable(Layout) %>%
+            hot_col(col = "Panel Name", type = c("autocomplete"), source = input$files$name)
+        })
+      })
+
+
       observeEvent(input$Run_Plots, {
         req(input$files)
         shinyjs::disable("downloadData")
@@ -60,6 +80,8 @@ Server_figure_builder <- function(id) {
         readLines("Data/Standard_SVG_Head.svg") |> 
         write_lines("Anouk_data/Figure_2.svg")
         i <- 1
+
+        browser()
         layout <- hot_to_df(input$Layout_hot) |> 
           janitor::clean_names() |> 
           filter(panel_name != "") |>
