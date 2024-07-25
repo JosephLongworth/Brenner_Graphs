@@ -981,4 +981,14 @@
 <text transform='translate(49.52,80.98) rotate(-90)' style='font-size: 7.00px; font-style: italic;fill: #111111; font-family: "Arial";' textLength='16.34px' lengthAdjust='spacingAndGlyphs'>Stat1</text>
 <text transform='translate(49.52,63.88) rotate(-90)' style='font-size: 7.00px;fill: #111111; font-family: "Arial";' textLength='42.82px' lengthAdjust='spacingAndGlyphs'> (fold change)</text>
 </g>
+<text x='10' y='10' style='font-size: 12.00px; font-family: "Arial";' >A</text>
+<text x='110' y='10' style='font-size: 12.00px; font-family: "Arial";' >B</text>
+<text x='10' y='110' style='font-size: 12.00px; font-family: "Arial";' >D</text>
+<text x='110' y='110' style='font-size: 12.00px; font-family: "Arial";' >E</text>
+<text x='210' y='110' style='font-size: 12.00px; font-family: "Arial";' >F</text>
+<text x='310' y='110' style='font-size: 12.00px; font-family: "Arial";' >G</text>
+<text x='10' y='210' style='font-size: 12.00px; font-family: "Arial";' >H</text>
+<text x='110' y='210' style='font-size: 12.00px; font-family: "Arial";' >I</text>
+<text x='10' y='310' style='font-size: 12.00px; font-family: "Arial";' >K</text>
+<text x='180' y='310' style='font-size: 12.00px; font-family: "Arial";' >L</text>
 </svg>

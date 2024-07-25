@@ -2,18 +2,17 @@ UI_figure_builder <- function(id) {
   ns <- NS(id)
   fluidPage(
      box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 4, collapsed = FALSE,
-         fileInput(ns("files"), "Choose SVG File", multiple = TRUE,
+         fileInput(ns("files"), "Upload SVG File", multiple = TRUE,
                 accept = c(".svg")),
       tags$hr(),
       shinyjs::useShinyjs(),
-      downloadButton(ns("downloadData"), "Download")
+      downloadButton(ns("downloadData"), "Download"),
+      tags$hr(),
+      
+      rHandsontableOutput(ns("Layout_hot")),
+      tags$hr(),
+      rHandsontableOutput(ns("Labels_hot"))
       ),
-     box(title = "Layout", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 12, collapsed = FALSE,
-         rHandsontableOutput(ns("Layout_hot"))
-     ),
-     box(title = "Labels", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 4, collapsed = FALSE,
-         rHandsontableOutput(ns("Labels_hot"))
-     ),
      box(title = "Plot Preview", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 8, collapsed = FALSE,
          actionButton(ns("Run_Plots"), "Update Figure"),
          imageOutput(ns("plot_preview"))
@@ -56,18 +55,8 @@ Server_figure_builder <- function(id) {
         req(input$files)
         shinyjs::disable("downloadData")
 
-        # outfile_zip <- paste0(tempdir(),"/OUT")
-        # # delete the folder if it exists
-        # if (dir.exists(outfile_zip)) unlink(outfile_zip, recursive = TRUE)
-        # dir.create(outfile_zip)
-
-
-        # Path to the excel file
         excel_path <- input$files$datapath
-        # excel_path <- "Anouk_data/figure_data.xlsx"
-        # read the excel file
-        # browser()
-
+   
         readLines("Data/Standard_SVG_Head.svg") |> 
         write_lines("Anouk_data/Figure_2.svg")
         i <- 1
@@ -127,6 +116,14 @@ Server_figure_builder <- function(id) {
         write_lines(svg_code[g_code_lines$g_start[1]:g_code_lines$g_end[1]],"Anouk_data/Figure_2.svg",append = T)
         
         }
+
+        lables <- hot_to_df(input$Labels_hot) |> 
+          mutate(svg_code = paste0("<text x='",X,"' y='",Y,"' style='font-size: 12.00px; font-family: \"Arial\";' >",Label,"</text>"))
+        
+        for(i in 1:nrow(lables)){
+          write_lines(lables$svg_code[i],"Anouk_data/Figure_2.svg",append = T)
+        }
+        
         write_lines("</svg>","Anouk_data/Figure_2.svg",append = T)
         
         
@@ -137,130 +134,6 @@ Server_figure_builder <- function(id) {
         })
         
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-      #   
-      #   
-      #   
-      #   
-      #   for(j in excel_sheets(excel_path)[-1]){
-      #     temp_data <- read_excel(excel_path,sheet = j)
-      # 
-      # 
-      # 
-      #     # bars_count=length(paste0(temp_data$Sample,temp_data$Annotation) %>%
-      #     #                     unique())
-      #     assign(j,temp_data)
-      # 
-      # 
-      #     if("Unit_barplot" %in% colnames(temp_data)){
-      #       temp_plot <- JPL_barplot(temp_data,
-      #                                hot_to_df(input$colour_key_hot),
-      #                                ylab_split=input$ylab_split,
-      #                                font = input$font,
-      #                                dotsize = input$dotsize,
-      #                                space_top = input$space_top,
-      #                                var_equal = input$var_equal,
-      #                                Show_ns = input$Show_ns,
-      #                                legend_loc = "none")
-      # 
-      #       nbars <- temp_data |>
-      #         select(Sample,Annotation) |>
-      #         distinct() |>
-      #         summarise(nbars=n()) |>
-      #         as.double()
-      # 
-      #       plot_width <- nbars*input$width
-      #       }
-      #     if("Unit_lineplot" %in% colnames(temp_data)){
-      #       temp_plot <- JPL_lineplot(temp_data,
-      #                                 hot_to_df(input$colour_key_hot),
-      #                                 ylab_split=input$ylab_split,
-      #                                 font = input$font,
-      #                                 dotsize = input$dotsize,
-      #                                 space_top = input$space_top,
-      #                                 var_equal = input$var_equal,
-      #                                 Show_ns = input$Show_ns,
-      #                                 legend_loc = "none")
-      #       plot_width <- input$width_lineplot
-      #       }
-      #     if("Unit_survivalplot" %in% colnames(temp_data)){
-      #       temp_plot <- JPL_survivalplot(temp_data,
-      #                                     hot_to_df(input$colour_key_hot),
-      #                                     ylab_split=input$ylab_split,
-      #                                     font = input$font,
-      #                                     dotsize = input$dotsize,
-      #                                     space_top = input$space_top,
-      #                                     var_equal = input$var_equal,
-      #                                     Show_ns = input$Show_ns,
-      #                                     legend_loc = "none")
-      #       plot_width <- input$width_survivalplot
-      #       }
-      #     if("Unit_barplot_annotation" %in% colnames(temp_data)){
-      #       temp_plot <- JPL_barplot_annotation(temp_data,
-      #                                           hot_to_df(input$colour_key_hot),
-      #                                           ylab_split=input$ylab_split,
-      #                                           font = input$font,
-      #                                           dotsize = input$dotsize,
-      #                                           space_top = input$space_top,
-      #                                           var_equal = input$var_equal,
-      #                                           Show_ns = input$Show_ns,
-      #                                           legend_loc = "none")
-      # 
-      #       if("Annotation_2_Symbol" %in% colnames(temp_data)){
-      #         nbars <- temp_data |>
-      #           select(Sample,Annotation_1_Symbol,Annotation_2_Symbol) |>
-      #           distinct() |>
-      #           summarise(nbars=n()) |>
-      #           as.double()
-      #         } else {
-      #           nbars <- temp_data |>
-      #           select(Sample,Annotation_1_Symbol) |>
-      #           distinct() |>
-      #           summarise(nbars=n()) |>
-      #           as.double()
-      #           }
-      # 
-      #       plot_width <- nbars*input$width
-      #       }
-      #     set_panel_size(temp_plot, file = paste0(outfile_zip,"/",j,".svg"),
-      #                    # width = unit(bars_count*10, "mm"),
-      #                    width = unit(plot_width, "mm"),
-      #                    height = unit(input$height,"mm"))
-      #   }
-      #   # files within the folder output
-      #   list.files(outfile_zip,full.names = TRUE)
-      # 
-      # 
-      # 
-      # 
       #   # zip a the folder 'output'
       #   zip(paste0(tempdir(),"/OUT.zip"),flags = "-j", list.files(outfile_zip,full.names = TRUE))
       # 
