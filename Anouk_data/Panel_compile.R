@@ -52,11 +52,11 @@ figure_1_layout=tibble(panel_path=c("Anouk_data/example_panel_data/GRAPH_IFNB_LC
                        x_coordinate=c( 0, 100,
                                       0, 100,200,300,
                                       0,100,
-                                      0,150)+50,
+                                      0,170)+50,
                        y_coordinate=c(  0,   0,
-                                        150, 150, 150, 150,
-                                        300, 300,
-                                        450,450)+20)
+                                        100, 100,100,100,
+                                        200,200,
+                                        300,300)+20)
 svg_letters <- tibble(Letter=c("A","B",
                                "D","E","F","G",
                                "H","I",
@@ -64,11 +64,11 @@ svg_letters <- tibble(Letter=c("A","B",
                       x=c(-40,60,
                           -40,60,160,260,
                           -40,60,
-                          -40,110)+50,
+                          -40,130)+50,
                       y=c(-10,-10,
-                          140,140,140,140,
-                          290,290,
-                          440,440)+20)
+                          90,90,90,90,
+                          190,190,
+                          290,290)+20)
 
                        
 readLines("svg_top2.svg") |> 
@@ -111,7 +111,7 @@ for(i in 1:nrow(figure_1_layout)){
   
   svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "\\(.+\\)",matrix,svg_code[g_code_lines$g_start[1]])
   
-  } else if(grepl("id=",svg_code[g_code_lines$g_start[1]])){
+  } else if (grepl("id=",svg_code[g_code_lines$g_start[1]])){
   
       svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
                                                 " transform='translate(",
