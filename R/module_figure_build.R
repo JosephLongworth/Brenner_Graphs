@@ -6,7 +6,7 @@ UI_figure_builder <- function(id) {
                 accept = c(".svg")),
       tags$hr(),
       shinyjs::useShinyjs(),
-      downloadButton(ns("downloadData"), "Download"),
+      downloadButton(ns("downloadPlot"), "Download"),
       tags$hr(),
       
       rHandsontableOutput(ns("Layout_hot")),
@@ -29,11 +29,7 @@ Server_figure_builder <- function(id) {
     id,
     function(input, output, session) {
 
-      # Layout <- tibble("Panel Name"=c("GRAPH_pIC_anti-IFNAR_Ifit1_2"),"X"=c(11),"Y"=c(11),"X Offset"=c(11),"Y Offset"=c(11))
-      # output$Layout_hot = renderRHandsontable({
-      #   rhandsontable(Layout)
-      # })
-      
+
       Labels <- tibble("Label"=c("A"),"X"=c(11),"Y"=c(11))
       output$Labels_hot = renderRHandsontable({
         rhandsontable(Labels)
@@ -70,15 +66,17 @@ Server_figure_builder <- function(id) {
         })
       })
 
-
+      outfile <- tempfile(fileext='.svg')
+      # outfile <- "Anouk_data/Figure_2.svg"
+      
+      
       observeEvent(input$Run_Plots, {
         req(input$files)
-        shinyjs::disable("downloadData")
+        shinyjs::disable("downloadPlot")
 
         excel_path <- input$files$datapath
-   
         readLines("Data/Standard_SVG_Head.svg") |> 
-        write_lines("Anouk_data/Figure_2.svg")
+        write_lines(outfile)
         i <- 1
 
         layout <- hot_to_df(input$Layout_hot) |> 
@@ -120,8 +118,6 @@ Server_figure_builder <- function(id) {
           
           svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "id='..'",replacement = paste0("id='",panel_name,"'"),svg_code[g_code_lines$g_start[1]])
         } else{
-          # svg_offset <- find_svg_offset(figure_1_layout$panel_path[i])
-          
           svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
                                                       " transform='translate(",
                                                       layout$x[i]-layout$x_offset[i],
@@ -130,46 +126,39 @@ Server_figure_builder <- function(id) {
                                                       ")' ",
                                                       "id='",panel_name,"' ",
                                                       ">")
-          
         }
-        
-        write_lines(svg_code[g_code_lines$g_start[1]:g_code_lines$g_end[1]],"Anouk_data/Figure_2.svg",append = T)
+        write_lines(svg_code[g_code_lines$g_start[1]:g_code_lines$g_end[1]],outfile,append = T)
         
         }
-
         lables <- hot_to_df(input$Labels_hot) |> 
           mutate(svg_code = paste0("<text x='",X,"' y='",Y,"' style='font-size: 12.00px; font-family: \"Arial\";' >",Label,"</text>"))
         
         for(i in 1:nrow(lables)){
-          write_lines(lables$svg_code[i],"Anouk_data/Figure_2.svg",append = T)
+          write_lines(lables$svg_code[i],outfile,append = T)
         }
         
-        write_lines("</svg>","Anouk_data/Figure_2.svg",append = T)
+        write_lines("</svg>",outfile,append = T)
         
         
         output$plot_preview <- renderImage(deleteFile=F,{
-
-          list(src = "Anouk_data/Figure_2.svg",
+          list(src = outfile,
                contentType = "image/svg+xml")
         })
         
-        
-      #   # zip a the folder 'output'
-      #   zip(paste0(tempdir(),"/OUT.zip"),flags = "-j", list.files(outfile_zip,full.names = TRUE))
-      # 
-      #   shinyjs::enable("downloadData")
-      # })
-      # 
-      # 
-      # output$downloadData <- downloadHandler(
-      #   filename = function() {
-      #     paste("Data-", Sys.Date(), ".zip", sep="")
-      #   },
-      #   content = function(file) {
-      #     file.copy(
-      #       from = paste0(tempdir(),"/OUT.zip"),
-      #       to = file
-      #     )
+        shinyjs::enable("downloadPlot")
+
+        }
+      )
+      
+      output$downloadPlot <- downloadHandler(
+        filename = function() {
+          paste("Figure-", Sys.Date(), ".svg", sep="")
+        },
+        content = function(file) {
+          file.copy(
+            from = outfile,
+            to = file
+          )
         }
       )
 
