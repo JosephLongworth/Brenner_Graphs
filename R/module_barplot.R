@@ -6,15 +6,18 @@ UI_barplot <- function(id) {
                   numericInput(ns("ylab_split"), "ylab split", 20),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
-                    numericInput(ns("width"), "Plot width mm (per bar)", 5),
-                    numericInput(ns("height"), "Plot height mm", 30)),
+                    numericInput(ns("width"), "Plot width mm (per bar)", 7.5),
+                    numericInput(ns("height"), "Plot height mm", 25)),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("font"), "Plot font size", 7),
                     numericInput(ns("dotsize"), "Plot dotsize", 1)),
-                  numericInput(ns("space_top"), "Plot space top", 1.1),
+                  numericInput(ns("space_top"), "Plot space top", 1.1, step = 0.1),
                   checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
-                  checkboxInput(ns("Show_ns"), "Show NS", value = F)
+                  checkboxInput(ns("Show_ns"), "Show NS", value = F),
+                  selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "none"),
+                  selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}","p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
+                  
                   ),
               box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
                   downloadButton(ns("downloadPaper"), "Paper SVG"),
@@ -107,7 +110,8 @@ Server_barplot <- function(id) {
                          space_top = input$space_top,
                          var_equal = input$var_equal,
                          Show_ns = input$Show_ns,
-                         legend_loc = "none")+
+                         legend_loc = input$legend_loc,
+                         label = input$Stat_type) +
           theme(rect = element_rect(fill = "transparent"))
 
         nbars <- hot_to_df(input$hot) |> 

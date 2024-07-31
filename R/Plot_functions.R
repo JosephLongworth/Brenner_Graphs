@@ -24,7 +24,18 @@ theme_classic()+
 
 
 
-JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000,Show_ns=F,var_equal=T){
+JPL_barplot=function(df,
+                     colour_key=NA,
+                     font=7,
+                     legend_loc="right",
+                     scale=F,
+                     space_top=1.1,
+                     dotsize=1.2,
+                     display_N=F,
+                     ylab_split=2000,
+                     Show_ns=F,
+                     var_equal=T,
+                     label = "italic(p) = {p.adj.format}"){
   
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
@@ -72,7 +83,7 @@ JPL_barplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_to
              method = "t_test",
              method.args = list(var.equal = var_equal),
              p.adjust.method="bonferroni",
-             label = "italic(p) = {p.adj.format}",
+             label = label,
              label.size =  font/.pt,size = 0.1,
              hide.ns = !Show_ns,
              colour = "#111111",
@@ -133,7 +144,18 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=
     JPL_genral_theme(font = font,legend_loc = legend_loc)
 
 }
-JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_ns=F,var_equal=T,scale=F,space_top=1.1,dotsize=1.2,display_N=F,ylab_split=2000){
+JPL_barplot_annotation=function(df,
+                                colour_key=NA,
+                                font=7,
+                                legend_loc="right",
+                                Show_ns=F,
+                                var_equal=T,
+                                scale=F,
+                                space_top=1.1,
+                                dotsize=1.2,
+                                display_N=F,
+                                ylab_split=2000,
+                                label = "italic(p) = {p.adj.format}"){
 
   # df=read_csv("Data/example_barplot_annotation.csv")
   if(length(colour_key)>1){
@@ -209,7 +231,7 @@ JPL_barplot_annotation=function(df,colour_key=NA,font=7,legend_loc="right",Show_
              method = "t_test",
              method.args = list(var.equal = var_equal),
              p.adjust.method="bonferroni",
-             label = "italic(p) = {p.adj.format}",
+             label = label,
              label.size =  font/.pt,size = 0.1,
              hide.ns = !Show_ns,
              colour = "#111111",
