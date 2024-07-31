@@ -3,7 +3,8 @@ UI_barplot_annotated <- function(id) {
   fluidPage(
     fluidRow(
               box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-                  # radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"), selected = "Paper"),
+                  radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
+                               selected = "Paper",inline = T),
                   numericInput(ns("ylab_split"), "Paper ylab split", 100),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
@@ -43,6 +44,22 @@ Server_barplot_annotated <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
+      
+      
+      observeEvent(input$defaults,{
+        if(input$defaults == "Paper"){
+          updateNumericInput(session, "width", "Plot width mm (per bar)", value = 7.5)
+          updateNumericInput(session, "height", "Plot height mm", value = 25)
+          updateNumericInput(session, "font", "Plot font size", value = 7)
+          updateNumericInput(session, "dotsize", "Plot dotsize", value = 1)
+        } else {
+          updateNumericInput(session, "width", "Plot width mm (per bar)", value = 15)
+          updateNumericInput(session, "height", "Plot height mm", value = 60)
+          updateNumericInput(session, "font", "Plot font size", value = 12)
+          updateNumericInput(session, "dotsize", "Plot dotsize", value = 2)
+        }
+      })
+      
       df <- read_csv("Data/example_barplot_annotation.csv")
       
       if("Unit_barplot" %in% colnames(df)){
