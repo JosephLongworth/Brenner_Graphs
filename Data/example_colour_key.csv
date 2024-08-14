@@ -8,4 +8,17 @@ Man2afl/flCD4cre+,#c93963ff
 Sample=Cd4Cre Gclc fl/fl,#000000ff
 Sample=Gclc fl/fl,#ff0000ff
 Ubc13fl/fl,#1a80bb
+Ubc13^fl/fl,#1a80bb
 LysMcre-Ubc13fl/fl,#ea801c
+LysMCre-Ubc13^fl/fl,#ea801c
+WT,#008000
+CD4-Cre1,#249651
+FoxP3-Cre1,#003840
+Gclc^fl/fl,#878787
+LysMCre-Gclc^fl/fl,#5A0024
+Mcp^fl/fl,#878787
+Cd4Cre-Mcp^fl/fl,#2A4662
+FoxP3Cd4Cre-Mcp^fl/fl,#905A6A
+0h,#000000
+3h,#ff0000
+9h,#008000
