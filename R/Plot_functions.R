@@ -14,7 +14,7 @@ theme_classic()+
     text=  element_text(size=font,family = family,colour = "#111111"),
     axis.text=  element_text(size=font,family = family,colour = "#111111"),
     # plot.margin = unit(c(5,0,25,15), "mm"),
-    axis.text.x = element_blank(),
+    # axis.text.x = element_blank(),
     legend.position = legend_loc,
     axis.title.x = element_blank(),
     axis.ticks.x=element_blank(),
@@ -61,7 +61,6 @@ JPL_barplot=function(df,
                            .by = c(Sample,Annotation)) %>%
                  mutate(se=sd/n))} %>%
     ungroup() %>%
-    glimpse() |> 
     ggplot(aes(x=Annotation, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
              colour="black",width = 0.65,linewidth=0.1,alpha=0.5,
@@ -248,7 +247,8 @@ JPL_barplot_annotation=function(df,
     {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
     {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
     JPL_genral_theme(font = font,legend_loc = legend_loc)+
-    theme(plot.margin = unit(c(5,0,25,15), "mm"))
+    theme(plot.margin = unit(c(5,0,25,15), "mm"),
+          axis.text.x = element_blank())
     }
 
 find_svg_offset <- function(svg_file){

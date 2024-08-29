@@ -60,7 +60,7 @@ Server_barplot <- function(id) {
       })
       
       
-      df <- read_csv("Data/example_barplot.csv")
+      df <- read_csv("Data/example_barplot.csv",show_col_types = FALSE)
       
       if("Unit_barplot" %in% colnames(df)){
           df <- df %>%

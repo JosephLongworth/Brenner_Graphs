@@ -23,6 +23,7 @@ ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("FlowJo", tabName = "FlowJo", icon = icon("home")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),
       menuItem("Barplot", tabName = "barplot", icon = icon("dashboard")),
       menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
@@ -40,7 +41,8 @@ ui = dashboardPage(
       tabItem(tabName = "barplot",UI_barplot("barplot")),
       tabItem(tabName = "lineplot",UI_lineplot("lineplot")),
       tabItem(tabName = "survivalplot",UI_survivalplot("survivalplot")),
-      tabItem(tabName = "figure_builder",UI_figure_builder("figure_builder"))
+      tabItem(tabName = "figure_builder",UI_figure_builder("figure_builder")),
+      tabItem(tabName = "FlowJo",UI_FlowJo("FlowJo"))
       )
     )
   )
@@ -53,6 +55,7 @@ server = function(input, output) {
   Server_lineplot("lineplot")
   Server_survivalplot("survivalplot")
   Server_figure_builder("figure_builder")
+  Server_FlowJo("FlowJo")
 }
 
 shinyApp(ui, server)
