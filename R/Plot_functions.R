@@ -37,6 +37,34 @@ JPL_barplot=function(df,
                      var_equal=T,
                      label = "italic(p) = {p.adj.format}"){
   
+  # test1 <<- df
+  # test2 <<- colour_key
+  # test3 <<- font
+  # test4 <<- legend_loc
+  # test5 <<- scale
+  # test6 <<- space_top
+  # test7 <<- dotsize
+  # test8 <<- display_N
+  # test9 <<- ylab_split
+  # test10 <<- Show_ns
+  # test11 <<- var_equal
+  # test12 <<- label
+  # df <- test1
+  # colour_key <- test2
+  # font <- test3
+  # legend_loc <- test4
+  # scale <- test5
+  # space_top <- test6
+  # dotsize <- 5
+  # display_N <- test8
+  # ylab_split <- test9
+  # Show_ns <- test10
+  # var_equal <- test11
+  # label <- test12
+  # 
+  
+  
+
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
   
@@ -70,7 +98,7 @@ JPL_barplot=function(df,
                pch=21,
                stroke = 0.2,
                # width = 0.65,
-               position =  (position_dodge2(width = 0.85,padding = 0)))+
+               position =  (position_jitterdodge(dodge.width = 0.85)))+
     {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
     geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,symbol=Sample), width = 0.3,linewidth=0.1,
                   position = position_dodge(width = 0.85)) +
@@ -95,6 +123,7 @@ JPL_barplot=function(df,
     ylab(str_wrap(df$Unit[1],width = ylab_split))+
     JPL_genral_theme(font = font,legend_loc = legend_loc)
 
+  
 }
 JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
   
