@@ -37,14 +37,14 @@ Server_survivalplot <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
-      df <- read_csv("Data/example_survivalplot.csv")
+      df <- read_csv("Data/example_survivalplot.csv",show_col_types = FALSE)
       
       if("Unit_survivalplot" %in% colnames(df)){
         df <- df %>%
           mutate(Unit = Unit_survivalplot,.keep = c("unused")) %>% 
           mutate(Sample = as_factor(Sample))}
       
-      colour_key <- read_csv("Data/example_colour_key.csv")
+      colour_key <- read_csv("Data/example_colour_key.csv",show_col_types = FALSE)
       output$hot = renderRHandsontable({
         rhandsontable(df)
       })

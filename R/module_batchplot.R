@@ -41,7 +41,7 @@ Server_batchplot <- function(id) {
     id,
     function(input, output, session) {
 
-      colour_key <- read_csv("Data/example_colour_key.csv")
+      colour_key <- read_csv("Data/example_colour_key.csv",show_col_types = FALSE)
       output$colour_key_hot = renderRHandsontable({
         rhandsontable(colour_key)
       })

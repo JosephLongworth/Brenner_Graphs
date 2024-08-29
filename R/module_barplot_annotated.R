@@ -60,12 +60,12 @@ Server_barplot_annotated <- function(id) {
         }
       })
       
-      df <- read_csv("Data/example_barplot_annotation.csv")
+      df <- read_csv("Data/example_barplot_annotation.csv",show_col_types = FALSE)
       
       if("Unit_barplot" %in% colnames(df)){
           df <- df %>%
             mutate(Unit = Unit_barplot,.keep = c("unused"))}
-      colour_key <- read_csv("Data/example_colour_key.csv")
+      colour_key <- read_csv("Data/example_colour_key.csv",show_col_types = FALSE)
       
       output$hot = renderRHandsontable({
         rhandsontable(df)
