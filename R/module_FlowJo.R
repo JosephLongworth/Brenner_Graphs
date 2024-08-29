@@ -5,7 +5,7 @@ UI_FlowJo <- function(id) {
               box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
                   radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
                                selected = "Paper",inline = T),
-                  numericInput(ns("ylab_split"), "Paper ylab split", 100),
+                  numericInput(ns("ylab_split"), "Paper ylab split", 50),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("width"), "Plot width mm (per bar)", 300),
@@ -99,7 +99,7 @@ Server_FlowJo <- function(id) {
       
       observe({
         req(input$file1)
-        req(!input$Subset=="")
+        req(!input$Subset == "")
         
         # browser()
         df=read_excel(input$file1$datapath)
@@ -115,6 +115,9 @@ Server_FlowJo <- function(id) {
           rename(Sample = Genotype,Annotation = Treatment) |>
           # filter(Unit == "Lymphocytes/Single Cells/Live | Freq. of Parent") |>
           glimpse()
+        
+        
+        req(input$Subset %in% unique(df$Unit))
         
         df <- df |>
           filter(Unit == input$Subset)
@@ -133,6 +136,7 @@ Server_FlowJo <- function(id) {
         output$plot <- renderImage({
           req(input$file1)
           req(!input$Subset=="")
+          
           plot <- JPL_barplot(hot_to_df(input$hot),
                                 hot_to_df(input$colour_key_hot),
                                 ylab_split=input$ylab_split,
