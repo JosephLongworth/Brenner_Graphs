@@ -169,15 +169,19 @@ for(i in 1:nrow(svg_letters)){
 
 write_lines("</svg>","Figure_1_panels/Inkscape_extenstions_example_start.svg",append = T)
 
-
+file="Figure_1_panels/Combined_plain.svg"
+out = "Figure_1_panels/Combined_plain3.svg"
 import_inkscape <- function(file,out){
+ 
+  
 temp <- readLines(file)
 temp <- trimws(temp)
 temp <- paste0(temp,collapse = " ")
 temp <- gsub(pattern = "\"",replacement = "'",x = temp)
 temp <- gsub(pattern = ">",replacement = ">
 ",x = temp)
-write_lines(temp,out)}
+write_lines(temp,out)
+}
 # 
 # import_inkscape(file = "Figure_1_panels/Panel_Ai.svg",out = "Figure_1_panels/Panel_Ai.svg")
 # import_inkscape(file = "Figure_1_panels/Panel_Ci.svg",out = "Figure_1_panels/Panel_Ci.svg")
@@ -185,3 +189,4 @@ write_lines(temp,out)}
 # import_inkscape(file = "Figure_1_panels/Panel_Fi.svg",out = "Figure_1_panels/Panel_Fi.svg")
 # import_inkscape(file = "Figure_1_panels/Panel_Ji.svg",out = "Figure_1_panels/Panel_Ji.svg")
 import_inkscape(file = "Figure_1_panels/Panel_K.svg",out = "Figure_1_panels/Panel_K.svg")
+import_inkscape(file = "Figure_1_panels/Combined.svg",out = "Figure_1_panels/Combined2.svg")

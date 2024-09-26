@@ -186,6 +186,7 @@ JPL_barplot_annotation=function(df,
                                 label = "italic(p) = {p.adj.format}"){
 
   # df=read_csv("Data/example_barplot_annotation.csv")
+  # df=read_csv("Data/temp.csv")
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
 
@@ -195,6 +196,7 @@ JPL_barplot_annotation=function(df,
       mutate(Unit = Unit_barplot_annotation,.keep = c("unused"))}
 
   max_y=max(na.omit(df$Value))*space_top
+  min_y=min(na.omit(df$Value))*space_top
   
   if("Annotation_2_Symbol" %in% colnames(df)){
 
@@ -273,6 +275,9 @@ JPL_barplot_annotation=function(df,
     # coord_cartesian(ylim = c((-max_y/10)*2, max_y), clip = "off")+
     annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
     annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
+    # coord_cartesian(ylim = c(min_y*2, 0.1), clip = "off") +
+    # annotate("text",x = 0.4,y = min_y,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
+    # annotate("text", x = c(1:nrow(df_anno)) ,y = min_y*1.5, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
     {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
     {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
     JPL_genral_theme(font = font,legend_loc = legend_loc)+

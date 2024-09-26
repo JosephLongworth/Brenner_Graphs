@@ -5,7 +5,7 @@ find_svg_offset <- function(svg_file){
 svg_code=readLines(svg_file)
 
 # find the coordinates of polylines and determine their lengths 
-lines <- tibble::tibble(polylines = grep("<polyline points",svg_code,value = T)) |>
+lines <- tibble::tibble(polylines = grep("7<polyline points",svg_code,value = T)) |>
   separate(polylines,sep = "'",into = c(NA,"coordinates"),extra = "drop") |> 
   separate(coordinates,sep = " ",into = c("a","b")) |> 
   separate(a,sep = ",",into = c("x_1","y_1")) |> 

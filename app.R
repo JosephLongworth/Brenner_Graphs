@@ -1,3 +1,4 @@
+options(shiny.maxRequestSize=300*1024^2) 
 library(extrafont)
 extrafont::loadfonts()
 loadfonts(device="win")
