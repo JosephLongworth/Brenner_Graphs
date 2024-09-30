@@ -195,8 +195,11 @@ JPL_barplot_annotation=function(df,
     df <- df %>%
       mutate(Unit = Unit_barplot_annotation,.keep = c("unused"))}
 
-  max_y=max(na.omit(df$Value))*space_top
-  min_y=min(na.omit(df$Value))*space_top
+  max_y=max(na.omit(df$Value))
+  min_y=min(na.omit(df$Value))
+  
+  range <- max(c(max_y,0)) - min(c(min_y,0))
+  
   
   if("Annotation_2_Symbol" %in% colnames(df)){
 
@@ -249,7 +252,8 @@ JPL_barplot_annotation=function(df,
                stroke = 0.2,
                width = 0.65,
                color = "#111111",linewidth = 0.1,
-               position =  (position_dodge2(width = 0.85,padding = 0))) +
+               position =  (position_jitterdodge(dodge.width = 0.85))) +
+               # position =  (position_dodge2(width = 0.85,padding = 0))) +
     {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
     # scale_fill_identity()+
     geom_errorbar(aes(x=condition,ymin=mean-se,ymax=mean+se,symbol=Sample), width = 0.3,linewidth=0.1,
@@ -271,19 +275,26 @@ JPL_barplot_annotation=function(df,
       # geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
       #           hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
     ylab(latex2exp::TeX(str_wrap(df$Unit[1],width = ylab_split))) +
-    coord_cartesian(ylim = c(0, max_y), clip = "off") +
+    # coord_cartesian(ylim = c(0, max_y), clip = "off") +
     # coord_cartesian(ylim = c((-max_y/10)*2, max_y), clip = "off")+
-    annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
-    annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
-    # coord_cartesian(ylim = c(min_y*2, 0.1), clip = "off") +
-    # annotate("text",x = 0.4,y = min_y,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
-    # annotate("text", x = c(1:nrow(df_anno)) ,y = min_y*1.5, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
-    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y = (-max_y/10)*2,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
-    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = (-max_y/10)*2, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
+    # annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
+    # annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
+    
+    coord_cartesian(ylim = c(min(c(min_y,0)),max(c(max_y,0))+((range/10)*1)), clip = "off") +
+    annotate("text",x = 0.4,y = min(c(min_y,0))- ((range/10)*1),label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
+    annotate("text", x = c(1:nrow(df_anno)) ,y = min(c(min_y,0))- ((range/10)*1), label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
+    
+    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text",x = 0.4,y =min(c(min_y,0))- ((range/10)*2),label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
+    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = min(c(min_y,0))- ((range/10)*2), label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
     JPL_genral_theme(font = font,legend_loc = legend_loc)+
     theme(plot.margin = unit(c(5,0,25,15), "mm"),
-          axis.text.x = element_blank())
+          axis.text.x = element_blank(),
+          axis.line.x = element_blank())+
+    geom_hline(yintercept = 0, color = 1, lwd = 0.2)
     }
+
+
+
 
 find_svg_offset <- function(svg_file){
   
