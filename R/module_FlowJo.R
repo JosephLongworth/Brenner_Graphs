@@ -5,19 +5,21 @@ UI_FlowJo <- function(id) {
               box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
                   radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
                                selected = "Paper",inline = T),
+                  selectizeInput(ns("Compare"), "Compare", choices = c("Sample","Annotation"), selected = "Sample"),
+                  textInput(ns("stat_ref"), "Stat ref", "all"),
                   numericInput(ns("ylab_split"), "Paper ylab split", 50),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
-                    numericInput(ns("width"), "Plot width mm (per bar)", 300),
+                    numericInput(ns("width"), "Plot width mm (per bar)", 150),
                     numericInput(ns("height"), "Plot height mm", 100)),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("font"), "Plot font size", 7),
                     numericInput(ns("dotsize"), "Plot dotsize", 1)),
-                  numericInput(ns("space_top"), "Plot space top", 1.1, step = 0.1),
+                  numericInput(ns("space_top"), "Plot space top", 1.5, step = 0.1),
                   checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
                   checkboxInput(ns("Show_ns"), "Show NS", value = F),
-                  selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "none"),
+                  selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "right"),
                   selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}","p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
                   
               ),
@@ -54,12 +56,12 @@ Server_FlowJo <- function(id) {
       
       observeEvent(input$defaults,{
         if(input$defaults == "Paper"){
-          updateNumericInput(session, "width", "Plot width mm", value = 100)
+          updateNumericInput(session, "width", "Plot width mm", value = 50)
           updateNumericInput(session, "height", "Plot height mm", value = 30)
           updateNumericInput(session, "font", "Plot font size", value = 7)
           updateNumericInput(session, "dotsize", "Plot dotsize", value = 1)
         } else {
-          updateNumericInput(session, "width", "Plot width mm (per bar)", value = 200)
+          updateNumericInput(session, "width", "Plot width mm (per bar)", value = 100)
           updateNumericInput(session, "height", "Plot height mm", value = 100)
           updateNumericInput(session, "font", "Plot font size", value = 12)
           updateNumericInput(session, "dotsize", "Plot dotsize", value = 2)
@@ -89,12 +91,13 @@ Server_FlowJo <- function(id) {
           glimpse()
         
         updateSelectizeInput(session, "Subset", choices = c(unique(df$Unit)))
-        
-        
-        # browser()
+    
+        if(input$Compare=="Sample"){updateTextInput(session, "stat_ref", "Stat ref", df$Sample[1])}
+        if(input$Compare=="Annotation"){updateTextInput(session, "stat_ref", "Stat ref", df$Annotation[1])}
+
         
       }) |> 
-        bindEvent(input$file1)
+        bindEvent(c(input$file1,input$Compare))
       
       
       observe({
@@ -136,10 +139,11 @@ Server_FlowJo <- function(id) {
         output$plot <- renderImage({
           req(input$file1)
           req(!input$Subset=="")
-          
-          plot <- JPL_barplot(hot_to_df(input$hot),
+          if(input$Compare=="Sample"){
+            plot <- JPL_barplot(hot_to_df(input$hot),
                                 hot_to_df(input$colour_key_hot),
                                 ylab_split=input$ylab_split,
+                                stat_ref = input$stat_ref,
                                 font = input$font,
                                 dotsize = input$dotsize,
                                 space_top = input$space_top,
@@ -147,7 +151,23 @@ Server_FlowJo <- function(id) {
                                 Show_ns = input$Show_ns,
                                 legend_loc = input$legend_loc,
                                 label = input$Stat_type) +
-            theme(rect = element_rect(fill = "transparent"))
+              theme(rect = element_rect(fill = "transparent"))}
+          if(input$Compare=="Annotation"){
+          plot <- JPL_barplot_flip(hot_to_df(input$hot),
+                                   ylab_split=input$ylab_split,
+                                   stat_ref = input$stat_ref,
+                                   font = input$font,
+                                dotsize = input$dotsize,
+                                space_top = input$space_top,
+                                var_equal = input$var_equal,
+                                Show_ns = input$Show_ns,
+                                legend_loc = input$legend_loc,
+                                label = input$Stat_type) +
+            theme(rect = element_rect(fill = "transparent"))}
+          
+          
+          
+          
           set_panel_size(plot, file = outfile ,
                                         width = unit(input$width, "mm"),
                                         height = unit(input$height,"mm"))
