@@ -40,7 +40,8 @@ Server_figure_builder <- function(id) {
                          "X"=rep(0,10),
                          "Y"=rep(0,10),
                          "X Offset"=rep(0,10),
-                         "Y Offset"=rep(0,10))
+                         "Y Offset"=rep(0,10),
+                         "SVG_Groups"=rep(1,10))
         output$Layout_hot = renderRHandsontable({
           rhandsontable(Layout) %>%  
             hot_col(col = "Panel Name", type = c("autocomplete"), source = input$files$name)
@@ -86,17 +87,21 @@ Server_figure_builder <- function(id) {
         for (i in 1:nrow(layout)){
         panel_name <- layout$panel_name[i]
         panel_id <- grep(pattern = panel_name,x = input$files$name)
+        panel_number <- layout$svg_groups[i]
+        
         
         svg_code <- readLines(input$files$datapath[panel_id])
         g_code_lines <- tibble::tibble(g_start = grep("<g",svg_code,value = F),
                                        g_end = grep("</g",svg_code,value = F)) |>
           arrange(desc(g_start))
         
-        
-        if(grepl("transform=",svg_code[g_code_lines$g_start[1]])){
+        # browser()
+        for(n in c(1:panel_number)){
+         
+        if(grepl("transform=",svg_code[g_code_lines$g_start[n]])){
           
           
-          matrix <- str_match(pattern = "\\(.+\\)",svg_code[g_code_lines$g_start[1]])
+          matrix <- str_match(pattern = "\\(.+\\)",svg_code[g_code_lines$g_start[n]])
           matrix <- substr(matrix[1],2,nchar(matrix[1])-1) 
           matrix <- strsplit(matrix,",")[[1]]
           matrix <- as.numeric(matrix)
@@ -105,10 +110,10 @@ Server_figure_builder <- function(id) {
           matrix <- paste0("(",paste0(matrix,collapse = ","),")")
           
           
-          svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "\\(.+\\)",matrix,svg_code[g_code_lines$g_start[1]])
+          svg_code[g_code_lines$g_start[n]] <- gsub(pattern = "\\(.+\\)",matrix,svg_code[g_code_lines$g_start[n]])
           
-        } else if (grepl("id=",svg_code[g_code_lines$g_start[1]])){
-          svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
+        } else if (grepl("id=",svg_code[g_code_lines$g_start[n]])){
+          svg_code[g_code_lines$g_start[n]] <- paste0(substr(svg_code[g_code_lines$g_start[n]],1,nchar(svg_code[g_code_lines$g_start[n]])-1),
                                                       " transform='translate(",
                                                       layout$x[i]-0,
                                                       ",",
@@ -116,9 +121,9 @@ Server_figure_builder <- function(id) {
                                                       ")' ",
                                                       ">")
           
-          svg_code[g_code_lines$g_start[1]] <- gsub(pattern = "id='..'",replacement = paste0("id='",panel_name,"'"),svg_code[g_code_lines$g_start[1]])
+          svg_code[g_code_lines$g_start[n]] <- gsub(pattern = "id='..'",replacement = paste0("id='",panel_name,"'"),svg_code[g_code_lines$g_start[n]])
         } else{
-          svg_code[g_code_lines$g_start[1]] <- paste0(substr(svg_code[g_code_lines$g_start[1]],1,nchar(svg_code[g_code_lines$g_start[1]])-1),
+          svg_code[g_code_lines$g_start[n]] <- paste0(substr(svg_code[g_code_lines$g_start[n]],1,nchar(svg_code[g_code_lines$g_start[n]])-1),
                                                       " transform='translate(",
                                                       layout$x[i]-layout$x_offset[i],
                                                       ",",
@@ -127,8 +132,8 @@ Server_figure_builder <- function(id) {
                                                       "id='",panel_name,"' ",
                                                       ">")
         }
-        write_lines(svg_code[g_code_lines$g_start[1]:g_code_lines$g_end[1]],outfile,append = T)
-        
+        write_lines(svg_code[g_code_lines$g_start[n]:g_code_lines$g_end[n]],outfile,append = T)
+        }
         }
         lables <- hot_to_df(input$Labels_hot) |> 
           mutate(svg_code = paste0("<text x='",X,"' y='",Y,"' style='font-size: 12.00px; font-family: \"Arial\";' >",Label,"</text>"))

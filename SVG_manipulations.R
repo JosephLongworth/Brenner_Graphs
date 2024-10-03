@@ -29,7 +29,7 @@ return(offset)
 }
 
 
-find_svg_offset("SVGS/text_combine/PaperSize-2024-06-13 (6).svg")
+# find_svg_offset("SVGS/text_combine/PaperSize-2024-06-13 (6).svg")
 
 row_height <- 120
 row_width <-  110
