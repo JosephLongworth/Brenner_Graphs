@@ -9,6 +9,7 @@ UI_batchplot <- function(id) {
           numericInput(ns("height"), "Plot height mm", 25)),
         splitLayout(
           cellWidths = c("50%", "50%"),
+          numericInput(ns("width_blankplot"), "Plot width mm (blankplot)", 60),
           numericInput(ns("width_lineplot"), "Plot width mm (lineplot)", 60),
           numericInput(ns("width_survivalplot"), "Plot width mm (survivalplot)", 60)),
         splitLayout(
@@ -78,10 +79,7 @@ Server_batchplot <- function(id) {
           # update progress bar
           progress$set(value = sheet_count/sheet_count_total,
                        message = paste0("Processing sheet ",j))
-          
-          
-          browser()
-           
+
            length(excel_sheets(excel_path)[-1])
           
           # bars_count=length(paste0(temp_data$Sample,temp_data$Annotation) %>% 
@@ -94,8 +92,18 @@ Server_batchplot <- function(id) {
           lineplot_head <- c("Sample","Value","Unit","Annotation","Time")
           survivalplot_head <- c("Day","Sample","Mouse_status","Unit_survivalplot")
           barplot_annotation_head <- c("Sample","Value","Unit","Annotation_1_label","Annotation_1_Symbol")
+      # browser()
           
-          if(all( barplot_head %in% colnames(temp_data))){
+          if(ncol(temp_data)==0|all(is.na(temp_data$Value))){
+            temp_plot <-ggplot() +
+              labs(title = j,
+                   subtitle = "To be produced/uploaded")+
+              theme_void()
+            
+            plot_width <- input$width_blankplot
+            
+          } else if
+          (all( barplot_head %in% colnames(temp_data))){
             temp_plot <- JPL_barplot(temp_data,
                                      hot_to_df(input$colour_key_hot),
                                      ylab_split=input$ylab_split,
@@ -113,8 +121,7 @@ Server_batchplot <- function(id) {
               as.double()
             
             plot_width <- nbars*input$width
-          }
-          if(all( lineplot_head %in% colnames(temp_data))){
+          } else if(all( lineplot_head %in% colnames(temp_data))){
             temp_plot <- JPL_lineplot(temp_data,
                                       hot_to_df(input$colour_key_hot),
                                       ylab_split=input$ylab_split,
@@ -125,20 +132,20 @@ Server_batchplot <- function(id) {
                                       Show_ns = input$Show_ns,
                                       legend_loc = "none")
             plot_width <- input$width_lineplot
-          }
-          if(all( survivalplot_head %in% colnames(temp_data))){
+          } else if(all( survivalplot_head %in% colnames(temp_data))){
+            # browser()
             temp_plot <- JPL_survivalplot(temp_data,
                                           hot_to_df(input$colour_key_hot),
                                           ylab_split=input$ylab_split,
                                           font = input$font,
-                                          dotsize = input$dotsize,
-                                          space_top = input$space_top,
-                                          var_equal = input$var_equal,
-                                          Show_ns = input$Show_ns,
-                                          legend_loc = "none")
+                                          # dotsize = input$dotsize,
+                                          # space_top = input$space_top,
+                                          # var_equal = input$var_equal,
+                                          # Show_ns = input$Show_ns,
+                                          # legend_loc = "none"
+                                          )
             plot_width <- input$width_survivalplot
-          }
-          if(all( barplot_annotation_head %in% colnames(temp_data))){
+          } else if(all( barplot_annotation_head %in% colnames(temp_data))){
             temp_plot <- JPL_barplot_annotation(temp_data,
                                                 hot_to_df(input$colour_key_hot),
                                                 ylab_split=input$ylab_split,

@@ -41,7 +41,8 @@ Server_figure_builder <- function(id) {
                          "Y"=rep(0,10),
                          "X Offset"=rep(0,10),
                          "Y Offset"=rep(0,10),
-                         "SVG_Groups"=rep(1,10))
+                         "SVG_Groups"=rep(1,10),
+                         "class" = rep('svglite',10))
         output$Layout_hot = renderRHandsontable({
           rhandsontable(Layout) %>%  
             hot_col(col = "Panel Name", type = c("autocomplete"), source = input$files$name)
@@ -86,6 +87,7 @@ Server_figure_builder <- function(id) {
         
         for (i in 1:nrow(layout)){
         panel_name <- layout$panel_name[i]
+        panel_class <- layout$class[i]
         panel_id <- grep(pattern = panel_name,x = input$files$name)
         panel_number <- layout$svg_groups[i]
         
@@ -95,7 +97,6 @@ Server_figure_builder <- function(id) {
                                        g_end = grep("</g",svg_code,value = F)) |>
           arrange(desc(g_start))
         
-        browser()
         for(n in c(1:panel_number)){
          
         if(grepl("transform=",svg_code[g_code_lines$g_start[n]])){
@@ -132,6 +133,9 @@ Server_figure_builder <- function(id) {
                                                       "id='",panel_name,"' ",
                                                       ">")
         }
+          
+          svg_code[g_code_lines$g_start[n]] <- gsub(pattern = "<g",replacement = paste0("<g class='",panel_class,"'"),svg_code[g_code_lines$g_start[n]])
+          
         write_lines(svg_code[g_code_lines$g_start[n]:g_code_lines$g_end[n]],outfile,append = T)
         }
         }

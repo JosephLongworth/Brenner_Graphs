@@ -24,13 +24,13 @@ ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("FlowJo", tabName = "FlowJo", icon = icon("home")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),
+      menuItem("Batch Plot", tabName = "batchplot", icon = icon("dashboard")),
+      menuItem("FlowJo", tabName = "FlowJo", icon = icon("home")),
       menuItem("Barplot", tabName = "barplot", icon = icon("dashboard")),
       menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("Counter", tabName = "Counter", icon = icon("dashboard")),
-      menuItem("Batch Plot", tabName = "batchplot", icon = icon("dashboard")),
-      menuItem("Line Plot", tabName = "lineplot", icon = icon("dashboard")),
+            menuItem("Line Plot", tabName = "lineplot", icon = icon("dashboard")),
       menuItem("Survival Plot", tabName = "survivalplot", icon = icon("dashboard"))
     )
   ),

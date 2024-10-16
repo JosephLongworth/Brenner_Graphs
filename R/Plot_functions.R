@@ -224,7 +224,14 @@ JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_t
 
 
 
-JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=2000){
+JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=2000
+                          # ,
+                          # dotsize = input$dotsize,
+                          # space_top = input$space_top,
+                          # var_equal = input$var_equal,
+                          # Show_ns = input$Show_ns,
+                          # legend_loc = "none"
+                          ){
   
 
   if(length(colour_key)>1){
@@ -232,8 +239,8 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=
       filter(Sample %in% unique(df$Sample))
       }
   
-  survdiff(Surv(Day, Mouse_Status) ~ Sample,data = df)
-  fit <- survfit(Surv(Day, Mouse_Status) ~ Sample,data = df)
+  survdiff(Surv(Day, Mouse_status) ~ Sample,data = df)
+  fit <- survfit(Surv(Day, Mouse_status) ~ Sample,data = df)
   plot <- ggsurvplot(fit, data = df, pval = T,palette = colour_key_vector$fill,linewidth=0.1)
   plot <- plot$plot
   plot +
@@ -246,7 +253,7 @@ JPL_barplot_annotation=function(df,
                                 font=7,
                                 legend_loc="right",
                                 Show_ns=F,
-                                var_equal=T,
+                                var_equal=var_equal,
                                 scale=F,
                                 space_top=1.1,
                                 dotsize=1.2,
