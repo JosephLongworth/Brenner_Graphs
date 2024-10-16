@@ -62,17 +62,40 @@ Server_batchplot <- function(id) {
         # read the excel file
         
           
+        sheet_count_total <- length(excel_sheets(excel_path)[-1])
+        sheet_count <- 0
+        # start a progress bar in shiny 
+        # with the number of sheets in the excel file
+        progress <- shiny::Progress$new()
+        
+        
         for(j in excel_sheets(excel_path)[-1]){
-          temp_data <- read_excel(excel_path,sheet = j)
+                    temp_data <- read_excel(excel_path,sheet = j)
+          
+          sheet_count <- sheet_count + 1
+          sheet_count/sheet_count_total*100
+          
+          # update progress bar
+          progress$set(value = sheet_count/sheet_count_total,
+                       message = paste0("Processing sheet ",j))
           
           
+          browser()
+           
+           length(excel_sheets(excel_path)[-1])
           
           # bars_count=length(paste0(temp_data$Sample,temp_data$Annotation) %>% 
           #                     unique())
           assign(j,temp_data)
           
+          colnames(temp_data)
           
-          if("Unit_barplot" %in% colnames(temp_data)){
+          barplot_head <- c("Sample","Value","Unit","Annotation")
+          lineplot_head <- c("Sample","Value","Unit","Annotation","Time")
+          survivalplot_head <- c("Day","Sample","Mouse_status","Unit_survivalplot")
+          barplot_annotation_head <- c("Sample","Value","Unit","Annotation_1_label","Annotation_1_Symbol")
+          
+          if(all( barplot_head %in% colnames(temp_data))){
             temp_plot <- JPL_barplot(temp_data,
                                      hot_to_df(input$colour_key_hot),
                                      ylab_split=input$ylab_split,
@@ -90,8 +113,8 @@ Server_batchplot <- function(id) {
               as.double()
             
             plot_width <- nbars*input$width
-            }
-          if("Unit_lineplot" %in% colnames(temp_data)){
+          }
+          if(all( lineplot_head %in% colnames(temp_data))){
             temp_plot <- JPL_lineplot(temp_data,
                                       hot_to_df(input$colour_key_hot),
                                       ylab_split=input$ylab_split,
@@ -102,8 +125,8 @@ Server_batchplot <- function(id) {
                                       Show_ns = input$Show_ns,
                                       legend_loc = "none")
             plot_width <- input$width_lineplot
-            }
-          if("Unit_survivalplot" %in% colnames(temp_data)){
+          }
+          if(all( survivalplot_head %in% colnames(temp_data))){
             temp_plot <- JPL_survivalplot(temp_data,
                                           hot_to_df(input$colour_key_hot),
                                           ylab_split=input$ylab_split,
@@ -114,8 +137,8 @@ Server_batchplot <- function(id) {
                                           Show_ns = input$Show_ns,
                                           legend_loc = "none")
             plot_width <- input$width_survivalplot
-            }
-          if("Unit_barplot_annotation" %in% colnames(temp_data)){
+          }
+          if(all( barplot_annotation_head %in% colnames(temp_data))){
             temp_plot <- JPL_barplot_annotation(temp_data,
                                                 hot_to_df(input$colour_key_hot),
                                                 ylab_split=input$ylab_split,

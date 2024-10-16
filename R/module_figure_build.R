@@ -74,7 +74,7 @@ Server_figure_builder <- function(id) {
       observeEvent(input$Run_Plots, {
         req(input$files)
         shinyjs::disable("downloadPlot")
-
+# browser()
         excel_path <- input$files$datapath
         readLines("Data/Standard_SVG_Head.svg") |> 
         write_lines(outfile)
@@ -95,7 +95,7 @@ Server_figure_builder <- function(id) {
                                        g_end = grep("</g",svg_code,value = F)) |>
           arrange(desc(g_start))
         
-        # browser()
+        browser()
         for(n in c(1:panel_number)){
          
         if(grepl("transform=",svg_code[g_code_lines$g_start[n]])){
