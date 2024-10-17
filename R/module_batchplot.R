@@ -104,15 +104,36 @@ Server_batchplot <- function(id) {
             
           } else if
           (all( barplot_head %in% colnames(temp_data))){
-            temp_plot <- JPL_barplot(temp_data,
-                                     hot_to_df(input$colour_key_hot),
-                                     ylab_split=input$ylab_split,
-                                     font = input$font,
-                                     dotsize = input$dotsize,
-                                     space_top = input$space_top,
-                                     var_equal = input$var_equal,
-                                     Show_ns = input$Show_ns,
-                                     legend_loc = "none")
+         
+            
+            temp_data <- temp_data |> 
+              mutate(Annotation_1_Symbol = NA,
+                     Annotation_1_label = NA,
+                     Annotation_2_Symbol = NA,
+                     Annotation_2_label = NA)
+                     
+            
+            
+            temp_plot <- JPL_barplot_annotation(temp_data,
+                                                hot_to_df(input$colour_key_hot),
+                                                ylab_split=input$ylab_split,
+                                                font = input$font,
+                                                dotsize = input$dotsize,
+                                                space_top = input$space_top,
+                                                var_equal = input$var_equal,
+                                                Show_ns = input$Show_ns,
+                                                legend_loc = "none")
+            
+            
+            # temp_plot <- JPL_barplot(temp_data,
+            #                          hot_to_df(input$colour_key_hot),
+            #                          ylab_split=input$ylab_split,
+            #                          font = input$font,
+            #                          dotsize = input$dotsize,
+            #                          space_top = input$space_top,
+            #                          var_equal = input$var_equal,
+            #                          Show_ns = input$Show_ns,
+            #                          legend_loc = "none")
             
             nbars <- temp_data |> 
               select(Sample,Annotation) |>

@@ -51,7 +51,7 @@ Server_figure_builder <- function(id) {
       
 
       observeEvent(input$predict_Offsets, {
-
+    
         Layout <- hot_to_df(input$Layout_hot) |>
           filter(`Panel Name` %in% input$files$name) |>
           rowwise() |>
@@ -98,13 +98,28 @@ Server_figure_builder <- function(id) {
           arrange(desc(g_start))
         
         for(n in c(1:panel_number)){
-         
-        if(grepl("transform=",svg_code[g_code_lines$g_start[n]])){
+         # browser()
+          
+        if(grepl("transform=\"translate",svg_code[g_code_lines$g_start[n]])){
+          string <- svg_code[g_code_lines$g_start[n]]
+          temp <- regmatches(string,regexec("transform=\"translate\\((.*)\\)\"",string))[[1]][2]
+          temp <- strsplit(temp," ")
+          svg_code[g_code_lines$g_start[n]] <- gsub(pattern = "transform=\"translate\\(.+\\)\"",
+                 replacement = paste0("transform=\"translate(",layout$x[i]+as.numeric(temp[[1]][1])
+                                      ,",",layout$y[i]+as.numeric(temp[[1]][2]),")\""),svg_code[g_code_lines$g_start[n]])
+            
+          
+          svg_code[g_code_lines$g_start[n]] <- gsub(pattern = "id='..'",replacement = paste0("id='",panel_name,"'"),svg_code[g_code_lines$g_start[n]])
+          svg_code[g_code_lines$g_start[n]]
+          
+          
+        } else if(grepl("transform=\"matrix",svg_code[g_code_lines$g_start[n]])){
           
           
           matrix <- str_match(pattern = "\\(.+\\)",svg_code[g_code_lines$g_start[n]])
           matrix <- substr(matrix[1],2,nchar(matrix[1])-1) 
-          matrix <- strsplit(matrix,",")[[1]]
+          #changed to use a space as separator?
+          matrix <- strsplit(matrix," ")[[1]]
           matrix <- as.numeric(matrix)
           matrix[5]=matrix[5]+layout$x[i]-0
           matrix[6]=matrix[6]+layout$y[i]-0

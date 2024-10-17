@@ -366,39 +366,64 @@ JPL_barplot_annotation=function(df,
     theme(plot.margin = unit(c(5,0,25,15), "mm"),
           axis.text.x = element_blank(),
           axis.line.x = element_blank())+
-    geom_hline(yintercept = 0, color = 1, lwd = 0.2)
+    geom_hline(yintercept = 0, color = "#111111", lwd = 0.1)
     }
 
 
 
 
 find_svg_offset <- function(svg_file){
-  
   svg_code=readLines(svg_file)
   
+  
+  if(any(grepl("<polyline points",svg_code))){
+  
   # find the coordinates of polylines and determine their lengths 
-  lines <- tibble::tibble(polylines = grep("<polyline points",svg_code,value = T)) |>
+  lines1 <- tibble::tibble(polylines = grep("<polyline points",svg_code,value = T)) |>
     separate(polylines,sep = "'",into = c(NA,"coordinates"),extra = "drop") |> 
     separate(coordinates,sep = " ",into = c("a","b")) |> 
-    separate(a,sep = ",",into = c("x_1","y_1")) |> 
-    separate(b,sep = ",",into = c("x_2","y_2")) |> 
+    separate(a,sep = ",",into = c("x1","y1")) |> 
+    separate(b,sep = ",",into = c("x2","y2")) |> 
     mutate_all(as.numeric) |> 
-    rowwise() |> 
-    mutate(x_start = min(x_1, x_2),
-           x_end = max(x_1, x_2),
-           y_start = min(y_1, y_2),
-           y_end = max(y_1, y_2),.keep = c("unused")) |> 
+    mutate(x_start = min(x1, x2),
+           x_end = max(x1, x2),
+           y_start = min(y1, y2),
+           y_end = max(y1, y2),.keep = c("unused")) |>
     mutate(x_length = x_end - x_start,
-           y_length = y_end - y_start)
+           y_length = y_end - y_start)} else {
+      lines1 <- tibble::tibble(x_start = 0,
+                               y_start = 0,
+                               x_length = 0,
+                               y_length = 0)}
   
-  # Assuming the longest polyline is the x and y axis and their cross over is the desired origin to
-  # work from when merging svgs determine the offsetof that 
+  if(any(grepl("<line",svg_code))){
+    extract_number <- function (pattern,string){
+      as.numeric(regmatches(string,regexec(paste0("",pattern,"='([0-9]+\\.[0-9]+)"),string))[[1]][2])}
+    
+    lines2 <- tibble::tibble(lines = grep("<line",svg_code,value = T)) |>
+      rowwise() |>
+      transmute(x1=extract_number("x1",lines),
+                x2=extract_number("x2",lines),
+                y1=extract_number("y1",lines),
+                y2=extract_number("y2",lines)) |> 
+      mutate(x_start = min(x1, x2),
+             x_end = max(x1, x2),
+             y_start = min(y1, y2),
+             y_end = max(y1, y2),.keep = c("unused")) |>
+      mutate(x_length = x_end - x_start,
+             y_length = y_end - y_start)} else {
+                  lines2 <- tibble::tibble()}
+
+    
+  lines <- bind_rows(lines1,lines2)
+
   
   offset <- list(
     x_offset = lines$x_start[which.max(lines$x_length)],
     y_offset = lines$y_start[which.max(lines$y_length)])
-  return(offset)
+  
 }
+
 # library(extrafont)
 # font_import()
 # loadfonts(device = "win")
