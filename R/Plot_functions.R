@@ -191,7 +191,8 @@ JPL_barplot_flip=function(df,
   
 }
 
-JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
+JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
+  # browser()
   
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
@@ -210,13 +211,12 @@ JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_t
                pch=21,
                stroke = 0.2)+
     geom_errorbar(aes(ymin=mean-se,ymax=mean+se),width=0.3,linewidth=0.1)+
-    {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
-                                 labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))}+
-
     geom_line()+
-    {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
+    scale_color_manual(values = colour_key_vector)+
+    scale_fill_manual(values = colour_key_vector)+
     coord_cartesian(ylim = c(NA, max_y), clip = "off")+
-    ylab(str_wrap(df$Unit[1],width = ylab_split))+ 
+    # ylab(str_wrap(df$Unit[1],width = ylab_split))+ 
+    ylab(latex2exp::TeX(str_wrap(df$Unit[1],width = ylab_split))) +
     JPL_genral_theme(font = font,legend_loc = legend_loc)
 
   
@@ -224,7 +224,7 @@ JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",scale=F,space_t
 
 
 
-JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=2000
+JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2000
                           # ,
                           # dotsize = input$dotsize,
                           # space_top = input$space_top,
@@ -238,14 +238,21 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="right",ylab_split=
     colour_key_vector <- colour_key %>% 
       filter(Sample %in% unique(df$Sample))
       }
-  
   survdiff(Surv(Day, Mouse_status) ~ Sample,data = df)
   fit <- survfit(Surv(Day, Mouse_status) ~ Sample,data = df)
-  plot <- ggsurvplot(fit, data = df, pval = T,palette = colour_key_vector$fill,linewidth=0.1)
+  plot <- ggsurvplot(fit, data = df, pval = T, 
+                     onf.int = TRUE,
+                     # Add risk table
+                     pval.size=font/.pt,
+                     risk.table = TRUE,
+                     tables.height = 0.2,
+                     tables.theme = theme_cleantable(),
+                     palette = colour_key_vector$color_hex)
   plot <- plot$plot
   plot +
     ylab(str_wrap(df$Unit[1],width = ylab_split))+
-    JPL_genral_theme(font = font,legend_loc = legend_loc)
+    JPL_genral_theme(font = font,legend_loc = legend_loc)+
+    theme()
 
 }
 JPL_barplot_annotation=function(df,
