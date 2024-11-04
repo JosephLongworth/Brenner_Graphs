@@ -72,7 +72,7 @@ Server_batchplot <- function(id) {
         
         
         for(j in excel_sheets(excel_path)[-1]){
-                    temp_data <- read_excel(excel_path,sheet = j)
+                    temp_data <- read_excel(excel_path,sheet = j,na = c("","NA","na","N/A","n/a","NaN","nan","NAN","Nan"))
           
           sheet_count <- sheet_count + 1
           sheet_count/sheet_count_total*100
@@ -229,6 +229,9 @@ Server_batchplot <- function(id) {
                          width = unit(plot_width, "mm"),
                          height = unit(input$height,"mm"))
         }
+        # progress <- shiny::Progress$close()
+        
+        
         # files within the folder output
         list.files(outfile_zip,full.names = TRUE)
         
