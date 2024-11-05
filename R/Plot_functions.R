@@ -25,6 +25,19 @@ theme_classic()+
 JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
   # browser()
   
+  # # Create a enviroment for local debugging while developing
+  # df <- read_csv("Data/temp3.csv")
+  # colour_key=NA;font=7;legend_loc="right";space_top=1;dotsize=1.2;display_N=F;ylab_split=2000
+  
+  df |> 
+    select(where(~ !all(is.na(.)))) |> 
+    glimpse()
+  
+  if("Unit_lineplot" %in% colnames(df)){
+    df <- df %>%
+      mutate(Unit = Unit_lineplot,.keep = c("unused"))}
+  
+  
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
   
@@ -99,7 +112,7 @@ JPL_barplot_annotation=function(df,
                                 ylab_split=2000,
                                 label = "italic(p) = {p.adj.format}"){
 
-  # Create a enviroment for local debugging while developing 
+  # # Create a enviroment for local debugging while developing
   # df=read_csv("Data/example_barplot_annotation.csv")
   # colour_key=NA;font=7;legend_loc="right";Show_ns=F;var_equal=T;scale=F;
   # space_top=1.1;dotsize=1.2;display_N=F;ylab_split=2000;label = "italic(p) = {p.adj.format}"
@@ -205,11 +218,14 @@ JPL_barplot_annotation=function(df,
       } else if ("Annotation_1_Symbol" %in% colnames(df)) {mutate(.,condition = Annotation_1_Symbol)
         } else {mutate(.,condition = "")}} |> 
     group_by(condition) %>%
+    {if(log_scale){mutate(.,Value2=log10(Value))}else{mutate(.,Value2=Value)}} %>% 
     {full_join(x=.,y =group_by(.,Sample,condition) %>%
-                 summarise(mean=mean(Value,na.rm = T),
+                 summarise(mean=mean(Value2,na.rm = T),
                            sd=sd(Value,na.rm = T),
                            n=n()) %>%
                  mutate(se=sd/n))} %>%
+    {if(log_scale){mutate(.,mean=10^mean)}else{mutate(.,mean=mean)}} %>% 
+    glimpse() |> 
     group_by(Sample,condition) %>%
     mutate(Count = n()) %>%
     ungroup() %>%
@@ -258,8 +274,6 @@ JPL_barplot_annotation=function(df,
           axis.text.x = element_blank(),
           axis.line.x = element_blank())+
     geom_hline(yintercept = yintercept, color = "#111111", lwd = 0.1)
-  
-  
   }
 
 
