@@ -22,175 +22,6 @@ theme_classic()+
     axis.line=element_line(color = "#111111",linewidth = 0.1),
     axis.ticks.y =element_line(color = "#111111",linewidth = 0.1))}
 
-
-# JPL_barplot=function(df,
-#                      colour_key=NA,
-#                      stat_ref=1,
-#                      font=7,
-#                      legend_loc="right",
-#                      scale=F,
-#                      space_top=1.1,
-#                      dotsize=1.2,
-#                      display_N=F,
-#                      ylab_split=2000,
-#                      Show_ns=F,
-#                      var_equal=T,
-#                      label = "italic(p) = {p.adj.format}"){
-#   
-#   
-#   if(length(colour_key)>1){
-#     colour_key_vector <- deframe(colour_key)}
-#   
-#   
-#   if("Unit_barplot" %in% colnames(df)){
-#     df <- df %>%
-#       mutate(Unit = Unit_barplot,.keep = c("unused"))}
-#   
-#   df <- df |> 
-#     mutate(Annotation = as.character(Annotation)) |>
-#     mutate(Annotation=replace_na(Annotation,""))
-#   
-#   max_y=max(df$Value)*space_top
-#   
-#   df |>     
-#     mutate(Annotation=as_factor(Annotation)) |> 
-#     mutate(Sample=as_factor(Sample)) |> 
-#     filter(!is.na(Value)) %>%
-#     mutate(Sample = as_factor(Sample)) %>%
-#     {full_join(x=.,y =. |> 
-#                  summarise(mean=mean(Value),
-#                            sd=sd(Value),
-#                            n=n(),
-#                            .by = c(Sample,Annotation)) %>%
-#                  mutate(se=sd/n))} %>%
-#     ungroup() %>%
-#     ggplot(aes(x=Annotation, y=Value))+
-#     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
-#              colour="black",width = 0.65,linewidth=0.1,alpha=0.5,
-#              position = position_dodge(width = 0.85))+
-#     geom_point(aes(fill = Sample),
-#                size=dotsize,
-#                pch=21,
-#                stroke = 0.2,
-#                # width = 0.65,
-#                position =  (position_jitterdodge(dodge.width = 0.85)))+
-#     {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
-#     geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,symbol=Sample), width = 0.3,linewidth=0.1,
-#                   position = position_dodge(width = 0.85)) +
-#     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
-#     {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
-#                                  labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))}+
-#     geom_pwc(aes(group = Sample),
-#              ref.group = stat_ref,
-#              tip.length = 0,
-#              method = "t_test",
-#              method.args = list(var.equal = var_equal),
-#              p.adjust.method="bonferroni",
-#              label = label,
-#              label.size =  font/.pt,size = 0.1,
-#              hide.ns = !Show_ns,
-#              colour = "#111111",
-#              family = family
-#     )+
-#     {if(display_N)
-#       geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
-#                 hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
-#     coord_cartesian(ylim = c(0, max_y), clip = "off")+
-#     ylab(str_wrap(df$Unit[1],width = ylab_split))+
-#     JPL_genral_theme(font = font,legend_loc = legend_loc)
-#   
-#   
-# }
-
-# JPL_barplot_flip=function(df,
-#                      colour_key=NA,
-#                      stat_ref=1,
-#                      font=7,
-#                      legend_loc="right",
-#                      scale=F,
-#                      space_top=1.1,
-#                      dotsize=1.2,
-#                      display_N=F,
-#                      ylab_split=2000,
-#                      Show_ns=F,
-#                      var_equal=T,
-#                      label = "italic(p) = {p.adj.format}"){
-#   
-#   
-#   # colour_key=NA;stat_ref=1;font=7;legend_loc="right";scale=F;space_top=1.1;dotsize=1.2;display_N=F
-#   # ylab_split=2000;Show_ns=F;var_equal=T;label = "italic(p) = {p.adj.format}"
-# 
-#   if(length(colour_key)>1){
-#     colour_key_vector <- deframe(colour_key)}
-#   
-#   
-#   if("Unit_barplot" %in% colnames(df)){
-#   df <- df %>%
-#     mutate(Unit = Unit_barplot,.keep = c("unused"))}
-#   
-#   df <- df |> 
-#     mutate(Annotation = as.character(Annotation)) |>
-#     mutate(Annotation=replace_na(Annotation,""))
-#   
-#   max_y=max(df$Value)*space_top
-#   
-#   test <<- df
-#   # df <- test
-#   df |> 
-#     mutate(Annotation=as_factor(Annotation)) |> 
-#     mutate(Sample=as_factor(Sample)) |> 
-#     filter(!is.na(Value)) %>%
-#     mutate(Sample = as_factor(Sample)) %>%
-#     {full_join(x=.,y =. |> 
-#                  summarise(mean=mean(Value),
-#                            sd=sd(Value),
-#                            n=n(),
-#                            .by = c(Sample,Annotation)) %>%
-#                  mutate(se=sd/n))} %>%
-#     ungroup() %>%
-#     ggplot(aes(x=Annotation, y=Value))+
-#     geom_bar(aes(symbol=Annotation,fill = Annotation),stat = "summary", fun = "mean",
-#              colour="black",width = 0.65,linewidth=0.1,alpha=0.5,
-#              position = position_dodge(width = 0.85))+
-#     geom_point(aes(fill = Annotation),
-#                size=dotsize,
-#                pch=21,
-#                stroke = 0.2,
-#                # width = 0.65,
-#                # position =  (position_dodge2(width = 0.85,padding = 0))
-#                position =  (position_jitterdodge(dodge.width = 0.85))
-#                )+
-#     {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
-#     geom_errorbar(aes(x=Annotation,ymin=mean-se,ymax=mean+se,symbol=Annotation), width = 0.3,linewidth=0.1,
-#                   position = position_dodge(width = 0.85)) +
-#     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
-#     {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
-#                                  labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))}+
-#     geom_pwc(aes(group = Annotation),
-#              ref.group = stat_ref,
-#              tip.length = 0,
-#              method = "t_test",
-#              method.args = list(var.equal = var_equal),
-#              p.adjust.method="bonferroni",
-#              label = label,
-#              label.size =  font/.pt,size = 0.1,
-#              hide.ns = !Show_ns,
-#              colour = "#111111",
-#              family = family
-#              )+
-#     {if(display_N)
-#     geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
-#               hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
-#     coord_cartesian(ylim = c(0, max_y), clip = "off")+
-#     ylab(str_wrap(df$Unit[1],width = ylab_split)) +
-#     facet_wrap(~Sample,strip.position = "bottom") +
-#     JPL_genral_theme(font = font,legend_loc = legend_loc)+
-#     theme(axis.text.x = element_blank(),
-#           strip.background = element_blank())
-# 
-#   
-# }
-
 JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
   # browser()
   
@@ -268,11 +99,12 @@ JPL_barplot_annotation=function(df,
                                 ylab_split=2000,
                                 label = "italic(p) = {p.adj.format}"){
 
+  # Create a enviroment for local debugging while developing 
+  # df=read_csv("Data/example_barplot_annotation.csv")
+  # colour_key=NA;font=7;legend_loc="right";Show_ns=F;var_equal=T;scale=F;
+  # space_top=1.1;dotsize=1.2;display_N=F;ylab_split=2000;label = "italic(p) = {p.adj.format}"
 
   
-  
-  # df=read_csv("Data/example_barplot_annotation.csv")
-  # df=read_csv("Data/temp.csv")
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
 
@@ -347,6 +179,23 @@ JPL_barplot_annotation=function(df,
   }
 
  
+  # check id a log scale should be used based on the presence of the term "pfu/organ"in the ylab
+  
+  if(grepl("pfu/organ",df$Unit[1])){
+    log_scale = T
+    yintercept = 1
+    cartesian_ylim = c((min(c(min_y,1))),(max(c(max_y,1))+((range/10)*1)))
+    annotation_1_y = 0.2
+    annotation_2_y = 0.1
+  } else {
+    log_scale = F
+    yintercept = 0
+    cartesian_ylim = c(min(c(min_y,0)),max(c(max_y,0))+((range/10)*1))
+    annotation_1_y=min(c(min_y,0)) - ((range/10)*1)
+    annotation_2_y=min(c(min_y,0)) - ((range/10)*2)
+  }
+  
+  
   
   df %>%
     filter(!is.na(Value)) %>%
@@ -398,22 +247,19 @@ JPL_barplot_annotation=function(df,
       # geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
       #           hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
     ylab(latex2exp::TeX(str_wrap(df$Unit[1],width = ylab_split))) +
-    # coord_cartesian(ylim = c(0, max_y), clip = "off") +
-    # coord_cartesian(ylim = c((-max_y/10)*2, max_y), clip = "off")+
-    # annotate("text",x = 0.4,y = -max_y/10,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family) +
-    # annotate("text", x = c(1:nrow(df_anno)) ,y = -max_y/10, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)+
-    
-    coord_cartesian(ylim = c(min(c(min_y,0)),max(c(max_y,0))+((range/10)*1)), clip = "off") +
-    {if("Annotation_1_label" %in% colnames(df)){annotate("text",x = 0.4,y = min(c(min_y,0))- ((range/10)*1),label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
-    {if("Annotation_1_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = min(c(min_y,0))- ((range/10)*1), label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
-    {if("Annotation_2_label" %in% colnames(df)){annotate("text",x = 0.4,y =min(c(min_y,0))- ((range/10)*2),label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
-    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = min(c(min_y,0))- ((range/10)*2), label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
+    {if(log_scale)scale_y_log10()}+
+    coord_cartesian(ylim = cartesian_ylim, clip = "off") +
+    {if("Annotation_1_label" %in% colnames(df)){annotate("text",x = 0.4,y =annotation_1_y,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
+    {if("Annotation_1_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = annotation_1_y, label = df_anno$Annotation_1_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
+    {if("Annotation_2_label" %in% colnames(df)){annotate("text",x = 0.4,y =annotation_2_y,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
+    {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = annotation_2_y, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
     JPL_genral_theme(font = font,legend_loc = legend_loc)+
     theme(plot.margin = unit(c(5,0,25,15), "mm"),
           axis.text.x = element_blank(),
           axis.line.x = element_blank())+
-    geom_hline(yintercept = 0, color = "#111111", lwd = 0.1)
-    
+    geom_hline(yintercept = yintercept, color = "#111111", lwd = 0.1)
+  
+  
   }
 
 
@@ -470,27 +316,4 @@ find_svg_offset <- function(svg_file){
     y_offset = lines$y_start[which.max(lines$y_length)])
   
 }
-
-# library(extrafont)
-# font_import()
-# loadfonts(device = "win")
-
-# #
-# df <- read_csv("Data/example_barplot_annotation.csv")
-# colour_key <- read_csv("Data/example_colour_key.csv")
-# 
-# plot2 <- JPL_barplot_annotation(df,colour_key,Show_ns=T)
-# plot2  
-# # theme(rect = element_rect(fill = "transparent"))
-# set_panel_size(plot, file = "outfile2.svg" ,
-#                width = unit(40, "mm"),
-#                height = unit(30,"mm"))
-# 
-# df <- read_csv("Data/example_barplot.csv")
-# colour_key <- read_csv("Data/example_colour_key.csv")
-# # 
-# JPL_barplot(df,colour_key)
-# set_panel_size(plot, file = "outfile2.svg" ,
-#                width = unit(40, "mm"),
-#                height = unit(30,"mm"))
 
