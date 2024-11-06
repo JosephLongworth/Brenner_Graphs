@@ -24,11 +24,11 @@ theme_classic()+
 
 JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
   # browser()
-  
-  # # Create a enviroment for local debugging while developing
+
+  # Create a enviroment for local debugging while developing
   # df <- read_csv("Data/temp3.csv")
-  # colour_key=NA;font=7;legend_loc="right";space_top=1;dotsize=1.2;display_N=F;ylab_split=2000
-  
+  # colour_key=NA;font=14;legend_loc="right";space_top=1;dotsize=1.2;display_N=F;ylab_split=2000
+  # 
   df |> 
     select(where(~ !all(is.na(.)))) |> 
     glimpse()
@@ -42,8 +42,8 @@ JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dot
     colour_key_vector <- deframe(colour_key)}
   
     max_y=max(df$Value)*space_top
-  
-  df %>% 
+
+df %>% 
     group_by(Sample,`Days post infection`) %>%
     summarise(mean=mean(Value),
               sd=sd(Value),
@@ -56,17 +56,15 @@ JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dot
                stroke = 0.2)+
     geom_errorbar(aes(ymin=mean-se,ymax=mean+se),width=0.3,linewidth=0.1)+
     geom_line()+
-    scale_color_manual(values = colour_key_vector)+
-    scale_fill_manual(values = colour_key_vector)+
+    {if(length(colour_key)>1)scale_fill_manual(values = colour_key_vector)}+
+    {if(length(colour_key)>1)scale_colour_manual(values = colour_key_vector)}+
     coord_cartesian(ylim = c(NA, max_y), clip = "off")+
-    # ylab(str_wrap(df$Unit[1],width = ylab_split))+ 
-    ylab(latex2exp::TeX(str_wrap(df$Unit[1],width = ylab_split))) +
-    JPL_genral_theme(font = font,legend_loc = legend_loc)
+    labs(y=df$Unit[1])+
+    JPL_genral_theme(font = font,legend_loc = legend_loc)+
+    theme(axis.title.y = ggtext::element_markdown())
 
   
 }
-
-
 
 JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2000
                           # ,
@@ -94,9 +92,9 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2
                      palette = colour_key_vector$color_hex)
   plot <- plot$plot
   plot +
-    ylab(str_wrap(df$Unit[1],width = ylab_split))+
+    ylab(df$Unit[1])+
     JPL_genral_theme(font = font,legend_loc = legend_loc)+
-    theme()
+    theme(axis.title.y = ggtext::element_markdown())
 
 }
 JPL_barplot_annotation=function(df,
@@ -262,7 +260,7 @@ JPL_barplot_annotation=function(df,
     # {if(display_N)
       # geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
       #           hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
-    ylab(latex2exp::TeX(str_wrap(df$Unit[1],width = ylab_split))) +
+    ylab(df$Unit[1]) +
     {if(log_scale)scale_y_log10()}+
     coord_cartesian(ylim = cartesian_ylim, clip = "off") +
     {if("Annotation_1_label" %in% colnames(df)){annotate("text",x = 0.4,y =annotation_1_y,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
@@ -273,7 +271,8 @@ JPL_barplot_annotation=function(df,
     theme(plot.margin = unit(c(5,0,25,15), "mm"),
           axis.text.x = element_blank(),
           axis.line.x = element_blank())+
-    geom_hline(yintercept = yintercept, color = "#111111", lwd = 0.1)
+    geom_hline(yintercept = yintercept, color = "#111111", lwd = 0.1)  +
+    theme(axis.title.y = ggtext::element_markdown())
   }
 
 
