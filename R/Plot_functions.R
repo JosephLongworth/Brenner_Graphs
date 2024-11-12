@@ -25,7 +25,7 @@ theme_classic()+
 JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
   # browser()
 
-  # Create a enviroment for local debugging while developing
+  # Create a environment for local debugging while developing
   # df <- read_csv("Data/temp3.csv")
   # colour_key=NA;font=14;legend_loc="right";space_top=1;dotsize=1.2;display_N=F;ylab_split=2000
   # 
@@ -66,15 +66,12 @@ df %>%
   
 }
 
-JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2000
-                          # ,
-                          # dotsize = input$dotsize,
-                          # space_top = input$space_top,
-                          # var_equal = input$var_equal,
-                          # Show_ns = input$Show_ns,
-                          # legend_loc = "none"
-                          ){
+JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2000){
   
+  
+  # # Create a enviroment for local debugging while developing
+  # df=read_csv("Data/example_survivalplot.csv")
+  # colour_key=NA;font=7;legend_loc="none";ylab_split=2000
 
   if(length(colour_key)>1){
     colour_key_vector <- colour_key %>% 
@@ -82,7 +79,13 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2
       }
   survdiff(Surv(Day, Mouse_status) ~ Sample,data = df)
   fit <- survfit(Surv(Day, Mouse_status) ~ Sample,data = df)
-  plot <- ggsurvplot(fit, data = df, pval = T, 
+  
+  
+  fit$std.err
+      fit$logse
+  
+  
+  plot <- ggsurvplot(fit, data = df, pval = F, 
                      onf.int = TRUE,
                      # Add risk table
                      pval.size=font/.pt,
@@ -90,6 +93,8 @@ JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2
                      tables.height = 0.2,
                      tables.theme = theme_cleantable(),
                      palette = colour_key_vector$color_hex)
+  plot$data.survtable
+  
   plot <- plot$plot
   plot +
     ylab(df$Unit[1])+
