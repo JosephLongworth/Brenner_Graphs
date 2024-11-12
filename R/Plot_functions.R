@@ -115,7 +115,7 @@ JPL_barplot_annotation=function(df,
                                 ylab_split=2000,
                                 label = "italic(p) = {p.adj.format}"){
 
-  # # Create a enviroment for local debugging while developing
+  # Create a enviroment for local debugging while developing
   # df=read_csv("Data/example_barplot_annotation.csv")
   # colour_key=NA;font=7;legend_loc="right";Show_ns=F;var_equal=T;scale=F;
   # space_top=1.1;dotsize=1.2;display_N=F;ylab_split=2000;label = "italic(p) = {p.adj.format}"
@@ -147,14 +147,12 @@ JPL_barplot_annotation=function(df,
     
     df <- df |> 
       mutate(Annotation_1_Symbol = na_if(Annotation_1_Symbol, ""),
-             Annotation_2_Symbol = na_if(Annotation_2_Symbol, "")
-             # ,
-             # Annotation_1_label = na_if(Annotation_1_label, ""),
-             # Annotation_2_label = na_if(Annotation_2_label, "")
-             ) |>
+             Annotation_2_Symbol = na_if(Annotation_2_Symbol, "")) |>
       mutate(
         Annotation_1_Symbol = factor(Annotation_1_Symbol,levels = unique(Annotation_1_Symbol),ordered = T),
-        Annotation_2_Symbol = factor(Annotation_2_Symbol,levels = unique(Annotation_2_Symbol),ordered = T)) |>
+        Annotation_2_Symbol = factor(Annotation_2_Symbol,levels = unique(Annotation_2_Symbol),ordered = T),
+        condition = paste(Annotation_1_Symbol,Annotation_2_Symbol,sep = "_"),
+        condition = factor(condition,levels = unique(condition),ordered = T)) |>
       select(where(~ !all(is.na(.)))) |> 
       glimpse()
     
@@ -175,12 +173,10 @@ JPL_barplot_annotation=function(df,
   } else if("Annotation_1_Symbol" %in% colnames(df)){
     
     df <- df |> 
-      mutate(Annotation_1_Symbol = na_if(Annotation_1_Symbol, "")
-             # ,
-             # Annotation_1_label = na_if(Annotation_1_label, "")
-             ) |>
+      mutate(Annotation_1_Symbol = na_if(Annotation_1_Symbol, "")) |>
       mutate(
-        Annotation_1_Symbol = factor(Annotation_1_Symbol,levels = unique(Annotation_1_Symbol),ordered = T)) |>
+        Annotation_1_Symbol = factor(Annotation_1_Symbol,levels = unique(Annotation_1_Symbol),ordered = T),
+        condition = Annotation_1_Symbol) |>
       select(where(~ !all(is.na(.)))) |> 
       glimpse()
     
@@ -191,6 +187,10 @@ JPL_barplot_annotation=function(df,
                                    "-" = "NO",
                                    "+" = "YES"))
   } else {
+    
+    
+    df <- df |> 
+      mutate(condition = "") 
     df_anno <- tibble::tibble(Annotation_1_Symbol = "NA")
   }
 
@@ -214,12 +214,10 @@ JPL_barplot_annotation=function(df,
   
   
   df %>%
+    glimpse() |> 
     filter(!is.na(Value)) %>%
     mutate(Value=as.double(Value)) |> 
     mutate(Sample = as_factor(Sample)) %>%
-    {if("Annotation_2_Symbol" %in% colnames(df)){mutate(.,condition = paste(Annotation_1_Symbol,Annotation_2_Symbol,sep = "_"))
-      } else if ("Annotation_1_Symbol" %in% colnames(df)) {mutate(.,condition = Annotation_1_Symbol)
-        } else {mutate(.,condition = "")}} |> 
     group_by(condition) %>%
     {if(log_scale){mutate(.,Value2=log10(Value))}else{mutate(.,Value2=Value)}} %>% 
     {full_join(x=.,y =group_by(.,Sample,condition) %>%
@@ -236,7 +234,7 @@ JPL_barplot_annotation=function(df,
     ggplot(aes(x=condition, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
              colour="#111111",width = 0.65,linewidth=0.1,alpha=0.5,
-             position = position_dodge(width = 0.85))+
+             position = position_dodge(width = 0.85)) +
     geom_point(aes(fill = Sample),
                size=dotsize,
                pch=21,
