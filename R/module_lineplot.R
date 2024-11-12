@@ -3,7 +3,6 @@ UI_lineplot <- function(id) {
   fluidPage(
     fluidRow(
     box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-        numericInput(ns("ylab_split"), "Paper ylab split", 20),
         splitLayout(
           cellWidths = c("50%", "50%"),
           numericInput(ns("width"), "Plot width mm", 40),
@@ -61,7 +60,6 @@ Server_lineplot <- function(id) {
           theme_void()
         plot <- JPL_lineplot(hot_to_df(input$hot),
                         hot_to_df(input$colour_key_hot),
-                        ylab_split=input$ylab_split,
                         font = input$font,
                         dotsize = input$dotsize,
                         space_top = input$space_top,

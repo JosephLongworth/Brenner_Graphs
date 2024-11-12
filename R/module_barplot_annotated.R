@@ -5,7 +5,6 @@ UI_barplot_annotated <- function(id) {
               box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
                   radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
                                selected = "Paper",inline = T),
-                  numericInput(ns("ylab_split"), "Paper ylab split", 100),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("width"), "Plot width mm (per bar)", 7.5),
@@ -22,8 +21,8 @@ UI_barplot_annotated <- function(id) {
                   
               ),
               box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
-                  downloadButton(ns("downloadPaper"), "Paper SVG"),
-                  downloadButton(ns("downloadPaperpng"), "Paper PNG"),
+                  downloadButton(ns("downloadPaper"), "SVG"),
+                  downloadButton(ns("downloadPaperpng"), "PNG"),
                   plotOutput(ns("plot")) %>% 
                     shinycustomloader::withLoader()
               )
@@ -81,7 +80,6 @@ Server_barplot_annotated <- function(id) {
           theme_void()
         plot <- JPL_barplot_annotation(hot_to_df(input$hot),
                                        hot_to_df(input$colour_key_hot),
-                                       ylab_split=input$ylab_split,
                                        font = input$font,
                                        dotsize = input$dotsize,
                                        space_top = input$space_top,

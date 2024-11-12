@@ -24,22 +24,20 @@ ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),
       menuItem("Batch Plot", tabName = "batchplot", icon = icon("dashboard")),
-      menuItem("FlowJo", tabName = "FlowJo", icon = icon("home")),
-      menuItem("Barplot", tabName = "barplot", icon = icon("dashboard")),
-      menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
-      menuItem("Counter", tabName = "Counter", icon = icon("dashboard")),
-            menuItem("Line Plot", tabName = "lineplot", icon = icon("dashboard")),
-      menuItem("Survival Plot", tabName = "survivalplot", icon = icon("dashboard"))
+      menuItem("Line Plot", tabName = "lineplot", icon = icon("dashboard")),
+      menuItem("Survival Plot", tabName = "survivalplot", icon = icon("dashboard")),
+      menuItem("FlowJo", tabName = "FlowJo", icon = icon("home"))
     )
   ),
   dashboardBody(
     tabItems(
-      tabItem(tabName = "Counter",counterButton("counter1", "Counter #1")),
+      # tabItem(tabName = "Counter",counterButton("counter1", "Counter #1")),
       tabItem(tabName = "barplot_annotated",UI_barplot_annotated("barplot_annotated")),
       tabItem(tabName = "batchplot",UI_batchplot("batchplot")),
-      tabItem(tabName = "barplot",UI_barplot("barplot")),
+      # tabItem(tabName = "barplot",UI_barplot("barplot")),
       tabItem(tabName = "lineplot",UI_lineplot("lineplot")),
       tabItem(tabName = "survivalplot",UI_survivalplot("survivalplot")),
       tabItem(tabName = "figure_builder",UI_figure_builder("figure_builder")),
@@ -52,7 +50,7 @@ server = function(input, output) {
   counterServer("counter1")
   Server_barplot_annotated("barplot_annotated")
   Server_batchplot("batchplot")
-  Server_barplot("barplot")
+  # Server_barplot("barplot")
   Server_lineplot("lineplot")
   Server_survivalplot("survivalplot")
   Server_figure_builder("figure_builder")

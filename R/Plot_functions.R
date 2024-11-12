@@ -22,12 +22,12 @@ theme_classic()+
     axis.line=element_line(color = "#111111",linewidth = 0.1),
     axis.ticks.y =element_line(color = "#111111",linewidth = 0.1))}
 
-JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F,ylab_split=2000){
+JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F){
   # browser()
 
   # Create a environment for local debugging while developing
   # df <- read_csv("Data/temp3.csv")
-  # colour_key=NA;font=14;legend_loc="right";space_top=1;dotsize=1.2;display_N=F;ylab_split=2000
+  # colour_key=NA;font=14;legend_loc="right";space_top=1;dotsize=1.2;display_N=F
   # 
   df |> 
     select(where(~ !all(is.na(.)))) |> 
@@ -66,12 +66,12 @@ df %>%
   
 }
 
-JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none",ylab_split=2000){
+JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none"){
   
   
   # # Create a enviroment for local debugging while developing
   # df=read_csv("Data/example_survivalplot.csv")
-  # colour_key=NA;font=7;legend_loc="none";ylab_split=2000
+  # colour_key=NA;font=7;legend_loc="none"
 
   if(length(colour_key)>1){
     colour_key_vector <- colour_key %>% 
@@ -112,13 +112,12 @@ JPL_barplot_annotation=function(df,
                                 space_top=1.1,
                                 dotsize=1.2,
                                 display_N=F,
-                                ylab_split=2000,
                                 label = "italic(p) = {p.adj.format}"){
 
   # Create a enviroment for local debugging while developing
   # df=read_csv("Data/example_barplot_annotation.csv")
   # colour_key=NA;font=7;legend_loc="right";Show_ns=F;var_equal=T;scale=F;
-  # space_top=1.1;dotsize=1.2;display_N=F;ylab_split=2000;label = "italic(p) = {p.adj.format}"
+  # space_top=1.1;dotsize=1.2;display_N=F;label = "italic(p) = {p.adj.format}"
 
   
   if(length(colour_key)>1){

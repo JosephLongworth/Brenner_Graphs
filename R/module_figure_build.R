@@ -1,11 +1,20 @@
 UI_figure_builder <- function(id) {
   ns <- NS(id)
   fluidPage(
-     box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 4, collapsed = FALSE,
+    # tags$style(
+    #   HTML("
+    #   .full-height-tabbox .nav-tabs-custom {
+    #     height: calc(100vh - 100px); /* Adjust 100px based on your header/footer or other UI elements */
+    #   }
+    # ")
+    # ),
+     box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "primary",
+         width = 5,height = "calc(100vh - 100px)", collapsed = FALSE,
          fileInput(ns("files"), "Upload SVG File", multiple = TRUE,
                 accept = c(".svg")),
       tags$hr(),
       shinyjs::useShinyjs(),
+      actionButton(ns("Run_Plots"), "Update Figure"),
       downloadButton(ns("downloadPlot"), "Download"),
       tags$hr(),
       
@@ -14,9 +23,9 @@ UI_figure_builder <- function(id) {
       tags$hr(),
       rHandsontableOutput(ns("Labels_hot"))
       ),
-     box(title = "Plot Preview", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 8, collapsed = FALSE,
-         actionButton(ns("Run_Plots"), "Update Figure"),
-         imageOutput(ns("plot_preview"))
+     box(title = "Plot Preview", collapsible = TRUE, solidHeader = TRUE, status = "info",
+         width = 7,height = "842px", collapsed = FALSE,
+         imageOutput(ns("plot_preview"),height = "842px")
      )
      
     )
