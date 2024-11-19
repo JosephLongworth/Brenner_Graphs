@@ -76,7 +76,7 @@ Server_FlowJo <- function(id) {
         req(input$file1)
         shinyjs::disable("downloadData")
         excel_path <- input$file1$datapath
-        
+        # browser()
         df=read_excel(input$file1$datapath)
         colnames(df)[1]="Sample"
         
@@ -115,7 +115,7 @@ Server_FlowJo <- function(id) {
           separate_wider_delim(Sample,delim = "_",names = c("Genotype","Treatment","loaction"),too_many = "merge") |>
           mutate(across(!c(Genotype,Treatment,loaction),~as.double(gsub("%","",.x)))) |>
           pivot_longer(cols = -c(Genotype,Treatment,loaction),names_to = "Unit",values_to = "Value") |>
-          rename(Sample = Genotype,Annotation = Treatment) |>
+          rename(Annotation_1_Symbol = Genotype,Sample = Treatment) |>
           # filter(Unit == "Lymphocytes/Single Cells/Live | Freq. of Parent") |>
           glimpse()
         
@@ -140,10 +140,9 @@ Server_FlowJo <- function(id) {
           req(input$file1)
           req(!input$Subset=="")
           if(input$Compare=="Sample"){
-            plot <- JPL_barplot(hot_to_df(input$hot),
+            plot <- JPL_barplot_annotation(hot_to_df(input$hot),
                                 hot_to_df(input$colour_key_hot),
-                                ylab_split=input$ylab_split,
-                                stat_ref = input$stat_ref,
+                                # stat_ref = input$stat_ref,
                                 font = input$font,
                                 dotsize = input$dotsize,
                                 space_top = input$space_top,
@@ -153,9 +152,8 @@ Server_FlowJo <- function(id) {
                                 label = input$Stat_type) +
               theme(rect = element_rect(fill = "transparent"))}
           if(input$Compare=="Annotation"){
-          plot <- JPL_barplot_flip(hot_to_df(input$hot),
-                                   ylab_split=input$ylab_split,
-                                   stat_ref = input$stat_ref,
+          plot <- JPL_barplot_annotation(hot_to_df(input$hot),
+                                   # stat_ref = input$stat_ref,
                                    font = input$font,
                                 dotsize = input$dotsize,
                                 space_top = input$space_top,
