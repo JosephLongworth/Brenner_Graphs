@@ -20,7 +20,9 @@ theme_classic()+
     axis.ticks.x=element_blank(),
     # axis.line.x.bottom=element_line(color="#111111"),
     axis.line=element_line(color = "#111111",linewidth = 0.1),
-    axis.ticks.y =element_line(color = "#111111",linewidth = 0.1))}
+    axis.ticks.y = element_line(color = "#111111",linewidth = 0.1),
+    legend.text = ggtext::element_markdown(),
+    axis.title.y = ggtext::element_markdown())}
 
 JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F){
   # browser()
@@ -109,16 +111,28 @@ JPL_barplot_annotation=function(df,
                                 Show_ns=F,
                                 var_equal=var_equal,
                                 scale=F,
-                                space_top=1.1,
+                                top=5,
                                 dotsize=1.2,
                                 display_N=F,
+                                Flip=F,
+                                Group_Stats = T,
+                                Sample_Stats = F,
                                 label = "italic(p) = {p.adj.format}"){
 
-  # Create a enviroment for local debugging while developing
+  # # Create a enviroment for local debugging while developing
   # df=read_csv("Data/example_barplot_annotation.csv")
-  # colour_key=NA;font=7;legend_loc="right";Show_ns=F;var_equal=T;scale=F;
-  # space_top=1.1;dotsize=1.2;display_N=F;label = "italic(p) = {p.adj.format}"
+  # colour_key=NA;font=14;legend_loc="right";Show_ns=T;var_equal=T;scale=F;
+  # top=1.1;dotsize=3;display_N=F;label = "italic(p) = {p.adj.format}"
 
+  if(Flip){
+    df <- df |> 
+      mutate(temp = Annotation_1_Symbol,
+             Annotation_1_Symbol = Sample,
+             Sample = temp) |> 
+      select(!temp)
+  }
+  
+  
   
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)}
@@ -229,6 +243,7 @@ JPL_barplot_annotation=function(df,
     group_by(Sample,condition) %>%
     mutate(Count = n()) %>%
     ungroup() %>%
+    glimpse() |> 
     # left_join(colour_key) %>%
     ggplot(aes(x=condition, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
@@ -249,7 +264,10 @@ JPL_barplot_annotation=function(df,
     scale_y_continuous(expand = expansion(mult = c(0, 0)))+
     {if(scale)scale_y_continuous(expand = expansion(mult = c(0.05, 0.15)),
                                  labels = unit_format(unit = "e+06", scale = 1 / 1e+06, digits = 2))} +
+    {if(Group_Stats){
     geom_pwc(aes(group = Sample), tip.length = 0,
+             # ref.group = 1,
+             group.by = "x.var",
              method = "t_test",
              method.args = list(var.equal = var_equal),
              p.adjust.method="bonferroni",
@@ -258,7 +276,33 @@ JPL_barplot_annotation=function(df,
              hide.ns = !Show_ns,
              colour = "#111111",
              family = family
-    )+
+    )}}+
+    {if(Sample_Stats){
+    geom_pwc(aes(group = Sample), tip.length = 0,
+             # ref.group = "all",
+             group.by = "legend.var",
+             bracket.group.by = "legend.var",
+             dodge = 0.85,
+             method = "t_test",
+             method.args = list(var.equal = var_equal),
+             p.adjust.method="bonferroni",
+             label = label,
+             label.size =  font/.pt,size = 0.1,
+             hide.ns = !Show_ns,
+             bracket.nudge.y=0.2,
+             colour = "#111111",
+             family = family
+    )}}+
+    # geom_pwc(aes(group = Sample), tip.length = 0,
+    #          method = "t_test",
+    #          method.args = list(var.equal = var_equal),
+    #          p.adjust.method="bonferroni",
+    #          label = label,
+    #          label.size =  font/.pt,size = 0.1,
+    #          hide.ns = !Show_ns,
+    #          colour = "#111111",
+    #          family = family
+    # )+
     # {if(display_N)
       # geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
       #           hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
@@ -270,12 +314,22 @@ JPL_barplot_annotation=function(df,
     {if("Annotation_2_label" %in% colnames(df)){annotate("text",x = 0.4,y =annotation_2_y,label = df$Annotation_2_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
     {if("Annotation_2_Symbol" %in% colnames(df)){annotate("text", x = c(1:nrow(df_anno)) ,y = annotation_2_y, label = df_anno$Annotation_2_Symbol,size=font/.pt,colour = "#111111",family = family)}}+
     JPL_genral_theme(font = font,legend_loc = legend_loc)+
-    theme(plot.margin = unit(c(5,0,25,15), "mm"),
+    # theme(plot.margin = unit(c(5,0,25,15), "mm"),
+    theme(plot.margin = unit(c(top,0,25,15), "mm"),
           axis.text.x = element_blank(),
           axis.line.x = element_blank())+
-    geom_hline(yintercept = yintercept, color = "#111111", lwd = 0.1)  +
-    theme(axis.title.y = ggtext::element_markdown())
+    geom_hline(yintercept = yintercept, color = "#111111", lwd = 0.1)
+  
   }
+
+
+
+
+
+
+
+
+
 
 
 

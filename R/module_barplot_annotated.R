@@ -13,7 +13,11 @@ UI_barplot_annotated <- function(id) {
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("font"), "Plot font size", 7),
                     numericInput(ns("dotsize"), "Plot dotsize", 1)),
-                  numericInput(ns("space_top"), "Plot space top", 1.1, step = 0.1),
+                  splitLayout(
+                    cellWidths = c("50%", "50%"),
+                    checkboxInput(ns("Group_Stats"), "Group Stats", value = T),
+                    checkboxInput(ns("Sample_Stats"), "Sample Stats", value = F)),
+                  numericInput(ns("top"), "Plot space top mm", 5, step = 1),
                   checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
                   checkboxInput(ns("Show_ns"), "Show NS", value = F),
                   selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "none"),
@@ -82,11 +86,14 @@ Server_barplot_annotated <- function(id) {
                                        hot_to_df(input$colour_key_hot),
                                        font = input$font,
                                        dotsize = input$dotsize,
-                                       space_top = input$space_top,
+                                       top = input$top,
                                        var_equal = input$var_equal,
                                        Show_ns = input$Show_ns,
                                        legend_loc = input$legend_loc,
-                                       label = input$Stat_type) +
+                                       label = input$Stat_type,
+                                       Group_Stats = input$Group_Stats,
+                                       Sample_Stats = input$Sample_Stats
+                                       ) +
         theme(rect = element_rect(fill = "transparent"))
         
         nbars <- hot_to_df(input$hot) |> 

@@ -2,7 +2,6 @@ UI_batchplot <- function(id) {
   ns <- NS(id)
   fluidPage(
     box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-        numericInput(ns("ylab_split"), "ylab split", 50),
         splitLayout(
           cellWidths = c("50%", "50%"),
           numericInput(ns("width"), "Plot width mm (per bar)", 7.5),
@@ -17,7 +16,6 @@ UI_batchplot <- function(id) {
           cellWidths = c("50%", "50%"),
           numericInput(ns("font"), "Plot font size", 7),
           numericInput(ns("dotsize"), "Plot dotsize", 1)),
-        numericInput(ns("space_top"), "Plot space top", 1.1),
         checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
         checkboxInput(ns("Show_ns"), "Show NS", value = F)
     ),
@@ -125,25 +123,14 @@ Server_batchplot <- function(id) {
             
             temp_plot <- JPL_barplot_annotation(temp_data,
                                                 hot_to_df(input$colour_key_hot),
-                                                ylab_split=input$ylab_split,
                                                 font = input$font,
                                                 dotsize = input$dotsize,
-                                                space_top = input$space_top,
                                                 var_equal = input$var_equal,
                                                 Show_ns = input$Show_ns,
                                                 legend_loc = "none")
             
             
-            # temp_plot <- JPL_barplot(temp_data,
-            #                          hot_to_df(input$colour_key_hot),
-            #                          ylab_split=input$ylab_split,
-            #                          font = input$font,
-            #                          dotsize = input$dotsize,
-            #                          space_top = input$space_top,
-            #                          var_equal = input$var_equal,
-            #                          Show_ns = input$Show_ns,
-            #                          legend_loc = "none")
-            
+
             nbars <- temp_data |> 
               select(Sample,Annotation) |>
               distinct() |>
@@ -163,10 +150,8 @@ Server_batchplot <- function(id) {
             
             temp_plot <- JPL_lineplot(temp_data,
                                       colour_key = hot_to_df(input$colour_key_hot),
-                                      ylab_split = input$ylab_split,
                                       font = input$font,
                                       dotsize = input$dotsize,
-                                      space_top = input$space_top,
                                       legend_loc = "none")
             plot_width <- input$width_lineplot
           } else if(all(survivalplot_head %in% colnames(temp_data))){
@@ -181,8 +166,7 @@ Server_batchplot <- function(id) {
             temp_plot <- JPL_survivalplot(df = temp_data,
                                           colour_key = hot_to_df(input$colour_key_hot),
                                           font = input$font,
-                                          legend_loc = "none",
-                                          ylab_split=input$ylab_split
+                                          legend_loc = "none"
                                           )
             
             testing <<- temp_plot
@@ -200,10 +184,8 @@ Server_batchplot <- function(id) {
             }else{
             temp_plot <- JPL_barplot_annotation(temp_data,
                                                 colour_key=  hot_to_df(input$colour_key_hot),
-                                                ylab_split=input$ylab_split,
                                                 font = input$font,
                                                 dotsize = input$dotsize,
-                                                space_top = input$space_top,
                                                 var_equal = input$var_equal,
                                                 Show_ns = input$Show_ns,
                                                 legend_loc = "none")

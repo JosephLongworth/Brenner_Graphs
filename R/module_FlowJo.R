@@ -2,12 +2,22 @@ UI_FlowJo <- function(id) {
   ns <- NS(id)
   fluidPage(
     fluidRow(
-              box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
+      tabBox(title = "Plot Parameters", width = 3,
+             tabPanel("Genral",
+                  fileInput(ns("file1"), "Choose Excell File",
+                            accept = c(
+                              ".xlsx",
+                              ".xls")),
+                  selectizeInput(ns("Subset"), "Subset", choices = NULL),
                   radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
                                selected = "Paper",inline = T),
                   selectizeInput(ns("Compare"), "Compare", choices = c("Sample","Annotation"), selected = "Sample"),
-                  textInput(ns("stat_ref"), "Stat ref", "all"),
-                  numericInput(ns("ylab_split"), "Paper ylab split", 50),
+                  splitLayout(
+                    cellWidths = c("50%", "50%"),
+                    checkboxInput(ns("Group_Stats"), "Group Stats", value = T),
+                    checkboxInput(ns("Sample_Stats"), "Sample Stats", value = F)),
+                    numericInput(ns("top"), "Plot space top mm", 5, step = 1)),
+             tabPanel("Advanced",
                   splitLayout(
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("width"), "Plot width mm (per bar)", 150),
@@ -16,20 +26,16 @@ UI_FlowJo <- function(id) {
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("font"), "Plot font size", 7),
                     numericInput(ns("dotsize"), "Plot dotsize", 1)),
-                  numericInput(ns("space_top"), "Plot space top", 1.5, step = 0.1),
+                  textInput(ns("stat_ref"), "Stat ref", "all"),
                   checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
                   checkboxInput(ns("Show_ns"), "Show NS", value = F),
                   selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "right"),
                   selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}","p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
+             )
                   
               ),
-              box(title = "Input", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 9, collapsed = FALSE,
-                  fileInput(ns("file1"), "Choose Excell File",
-                            accept = c(
-                              ".xlsx",
-                              ".xls")),
-                  selectizeInput(ns("Subset"), "Subset", choices = NULL)),
-              box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
+              box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9,
+                  height = "calc(100vh - 100px)",collapsed = FALSE,
                   downloadButton(ns("download_svg"), "SVG"),
                   downloadButton(ns("download_png"), "PNG"),
                   plotOutput(ns("plot")) %>% 
@@ -37,12 +43,13 @@ UI_FlowJo <- function(id) {
               )
             ),
     fluidRow(
-      box(title = "Data", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 6, collapsed = FALSE,
-          rHandsontableOutput(ns("hot"))
-      ),
-      box(title = "Colour Key", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 6, collapsed = FALSE,
-          rHandsontableOutput(ns("colour_key_hot"))
-      )
+      tabBox(width=12,
+             tabPanel("Data",
+                      rHandsontableOutput(ns("hot"))
+             ),
+             tabPanel("Colour Key",
+                      rHandsontableOutput(ns("colour_key_hot"))
+      ))
     )
     )
 
@@ -139,28 +146,35 @@ Server_FlowJo <- function(id) {
         output$plot <- renderImage({
           req(input$file1)
           req(!input$Subset=="")
+          # browser()
           if(input$Compare=="Sample"){
             plot <- JPL_barplot_annotation(hot_to_df(input$hot),
                                 hot_to_df(input$colour_key_hot),
                                 # stat_ref = input$stat_ref,
                                 font = input$font,
                                 dotsize = input$dotsize,
-                                space_top = input$space_top,
+                                top = input$top,
                                 var_equal = input$var_equal,
                                 Show_ns = input$Show_ns,
                                 legend_loc = input$legend_loc,
-                                label = input$Stat_type) +
-              theme(rect = element_rect(fill = "transparent"))}
+                                label = input$Stat_type,
+                                Group_Stats = input$Group_Stats,
+                                Sample_Stats = input$Sample_Stats) +
+              theme(rect = element_rect(fill = "transparent"))
+            }
           if(input$Compare=="Annotation"){
           plot <- JPL_barplot_annotation(hot_to_df(input$hot),
                                    # stat_ref = input$stat_ref,
                                    font = input$font,
                                 dotsize = input$dotsize,
-                                space_top = input$space_top,
+                                top = input$top,
                                 var_equal = input$var_equal,
                                 Show_ns = input$Show_ns,
                                 legend_loc = input$legend_loc,
-                                label = input$Stat_type) +
+                                label = input$Stat_type,
+                                Group_Stats = input$Group_Stats,
+                                Sample_Stats = input$Sample_Stats,
+                                Flip=T) +
             theme(rect = element_rect(fill = "transparent"))}
           
           
