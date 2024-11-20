@@ -82,6 +82,7 @@ Server_barplot_annotated <- function(id) {
         req(input$hot)
         empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
           theme_void()
+        # browser()
         plot <- JPL_barplot_annotation(hot_to_df(input$hot),
                                        hot_to_df(input$colour_key_hot),
                                        font = input$font,
@@ -96,7 +97,7 @@ Server_barplot_annotated <- function(id) {
                                        ) +
         theme(rect = element_rect(fill = "transparent"))
         
-        nbars <- hot_to_df(input$hot) |> 
+        nbars <- hot_to_df(input$hot) |>
           select(Sample,Annotation_1_Symbol,Annotation_2_Symbol) |>
           distinct() |>
           summarise(nbars=n()) |>

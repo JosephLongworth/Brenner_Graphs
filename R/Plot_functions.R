@@ -142,12 +142,13 @@ JPL_barplot_annotation=function(df,
     df <- df %>%
       mutate(Unit = Unit_barplot_annotation,.keep = c("unused"))}
 
-  
   df <- df |> 
     # glimpse() |> 
     # mutate(Value=as.double(Value)) |>
     # filter(!is.na(Value)) |>
-    select(where(~ !all(is.na(.)))) 
+    select(where(~ !all(is.na(.)))) |> 
+    select(where(~ !all(. == ""))) |>
+    glimpse()
   
   max_y=max(na.omit(df$Value))
   min_y=min(na.omit(df$Value))
