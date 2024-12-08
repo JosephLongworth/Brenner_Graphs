@@ -1,5 +1,5 @@
 Sample,Value,Unit_barplot_annotation,Annotation_1_label,Annotation_1_Symbol,Annotation_2_label,Annotation_2_Symbol
-Ubc13fl/fl,1.80601177,\textit{Ifnb1} (fold change),poly(I:C),NO,VBIT-4,NO
+Ubc13fl/fl,1.80601177,<i>Ifnb1</i> (fold change),poly(I:C),NO,VBIT-4,NO
 Ubc13fl/fl,0.58616597,,,NO,,NO
 Ubc13fl/fl,0.94462367,,,NO,,NO
 LysMcre-Ubc13fl/fl,2.89436844,,,NO,,NO

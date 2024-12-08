@@ -10,7 +10,7 @@ UI_FlowJo <- function(id) {
                               ".xls")),
                   selectizeInput(ns("Subset"), "Subset", choices = NULL),
                   radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
-                               selected = "Paper",inline = T),
+                               selected = "Presentation",inline = T),
                   selectizeInput(ns("Compare"), "Compare", choices = c("Sample","Annotation"), selected = "Sample"),
                   splitLayout(
                     cellWidths = c("50%", "50%"),

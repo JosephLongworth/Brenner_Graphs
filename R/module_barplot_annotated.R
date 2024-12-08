@@ -4,7 +4,7 @@ UI_barplot_annotated <- function(id) {
     fluidRow(
               box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
                   radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
-                               selected = "Paper",inline = T),
+                               selected = "Presentation",inline = T),
                   splitLayout(
                     cellWidths = c("50%", "50%"),
                     numericInput(ns("width"), "Plot width mm (per bar)", 7.5),
@@ -63,7 +63,7 @@ Server_barplot_annotated <- function(id) {
         }
       })
       
-      df <- read_csv("Data/example_barplot_annotation.csv",show_col_types = FALSE)
+      df <- read_csv("Data/example_barplot_annotation2.csv",show_col_types = FALSE)
       
       if("Unit_barplot" %in% colnames(df)){
           df <- df %>%
