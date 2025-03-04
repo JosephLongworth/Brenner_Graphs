@@ -24,6 +24,7 @@ ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("qPCR", tabName = "qPCR", icon = icon("dashboard")),
       menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),
       menuItem("Batch Plot", tabName = "batchplot", icon = icon("dashboard")),
@@ -35,6 +36,7 @@ ui = dashboardPage(
   dashboardBody(
     tabItems(
       # tabItem(tabName = "Counter",counterButton("counter1", "Counter #1")),
+      tabItem(tabName = "qPCR",UI_qPCR("qPCR")),
       tabItem(tabName = "barplot_annotated",UI_barplot_annotated("barplot_annotated")),
       tabItem(tabName = "batchplot",UI_batchplot("batchplot")),
       # tabItem(tabName = "barplot",UI_barplot("barplot")),
@@ -48,6 +50,7 @@ ui = dashboardPage(
 
 server = function(input, output) {
   counterServer("counter1")
+  Server_qPCR("qPCR")
   Server_barplot_annotated("barplot_annotated")
   Server_batchplot("batchplot")
   # Server_barplot("barplot")
