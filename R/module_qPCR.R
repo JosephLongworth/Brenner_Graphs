@@ -179,7 +179,7 @@ Server_qPCR <- function(id) {
       outfile <- tempfile(fileext='.svg')
       outfile_png <- tempfile(fileext='.png')
       
-      
+      observeEvent(input$hot_Genotype,{
       output$plot <- renderPlot({
         # browser()
       
@@ -196,6 +196,7 @@ Server_qPCR <- function(id) {
         plate_size = 384,
         plate_type = "square"
       )
+      })
       })
       
       # output$plot <- renderImage({
