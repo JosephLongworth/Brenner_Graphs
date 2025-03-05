@@ -15,6 +15,7 @@ library(egg)
 library(svglite)
 library(scales)
 library(readxl)
+library(writexl)
 # library(data.table)
 library(survminer)
 library(survival)
@@ -22,6 +23,7 @@ library(latex2exp)
 library(DT)
 library(wellr)
 library(ggplate)
+
 
 ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
@@ -39,7 +41,16 @@ ui = dashboardPage(
   dashboardBody(
     tabItems(
       # tabItem(tabName = "Counter",counterButton("counter1", "Counter #1")),
-      tabItem(tabName = "qPCR",UI_qPCR("qPCR")),
+      tabItem(tabName = "qPCR",
+              navbarPage("qPCR",
+                         tabPanel("Plate Design",UI_qPCR("qPCR")),
+                         tabPanel("Ploting")
+              )
+              ),
+      
+      
+      
+      # tabItem(tabName = "qPCR",UI_qPCR("qPCR")),
       tabItem(tabName = "barplot_annotated",UI_barplot_annotated("barplot_annotated")),
       tabItem(tabName = "batchplot",UI_batchplot("batchplot")),
       # tabItem(tabName = "barplot",UI_barplot("barplot")),

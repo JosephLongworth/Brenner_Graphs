@@ -1,257 +1,264 @@
 UI_qPCR <- function(id) {
   ns <- NS(id)
-  fluidPage(
-fluidRow(
-      tabBox(width=12,
-        tabPanel("Layout_Table",
-          fluidRow(
-            box(width=6,solidHeader = TRUE,
-                DTOutput(ns("layout_table"))
-                ),
-            box(width=6,solidHeader = TRUE,
-                imageOutput(ns("plot")) |> 
-                  shinycustomloader::withLoader(),
-                downloadButton(ns("downloadPaperpng"), "PNG")
-                )
-          )
+  fluidPage(fluidRow(
+    tabBox(
+      width = 12,
+      tabPanel("Layout_Table", fluidRow(
+        box(
+          width = 4,
+          solidHeader = TRUE,
+          DTOutput(ns("layout_table")),
+          splitLayout(
+            cellWidths = c("50%", "50%"),
+            fileInput(
+              ns("upload_layout_table"),
+              label = NULL,
+              buttonLabel = "Upload Excel",
+              accept = c(".xlsx")
+            ),
+            downloadButton(ns("download_layout_table"), "Download Excel")
           ),
-        # tabPanel("Long",rHandsontableOutput(ns("hot_Long"))),
-        tabPanel("Gene",rHandsontableOutput(ns("hot_Gene"))),
-        tabPanel("Genotype",rHandsontableOutput(ns("hot_Genotype"))),
-        tabPanel("Treatment",rHandsontableOutput(ns("hot_Treatment")))
-             # tabPanel("Replicate",rHandsontableOutput(ns("hot"))),
-      )
-    ),
-fluidRow(
-  box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-      radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
-                   selected = "Presentation",inline = T),
-      selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "none"),
-      selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}","p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
-      
-  ),
-  box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE
-      # downloadButton(ns("downloadPaper"), "SVG"),
-      # downloadButton(ns("downloadPaperpng"), "PNG"),
-     
-  )
-)
+          splitLayout(
+            cellWidths = c("33%", "33%", "33%"),
+            downloadButton(ns("downloadlayout_pdf"), "Layout PDF"),
+            downloadButton(ns("downloadlayout_png"), "Layout PNG"),
+            downloadButton(ns("downloadlayout_svg"), "Layout SVG")
+          )
+          
+        ),
+        box(
+          width = 8,
+          solidHeader = TRUE,
+          imageOutput(ns("plot")) |>
+            shinycustomloader::withLoader()
+        )
+      )),
+      tabPanel("Gene", rHandsontableOutput(ns("hot_Gene"))),
+      tabPanel("Sample", rHandsontableOutput(ns("hot_Sample"))),
+      tabPanel("Sample Key", rHandsontableOutput(ns("hot_sample_key"))),
     )
-
+  ))
+  
 }
 
 Server_qPCR <- function(id) {
-  moduleServer(
-    id,
-    function(input, output, session) {
-      
-      
-      observeEvent(input$defaults,{
-        if(input$defaults == "Paper"){
-          updateNumericInput(session, "width", "Plot width mm (per bar)", value = 7.5)
-          updateNumericInput(session, "height", "Plot height mm", value = 25)
-          updateNumericInput(session, "font", "Plot font size", value = 7)
-          updateNumericInput(session, "dotsize", "Plot dotsize", value = 1)
-        } else {
-          updateNumericInput(session, "width", "Plot width mm (per bar)", value = 15)
-          updateNumericInput(session, "height", "Plot height mm", value = 60)
-          updateNumericInput(session, "font", "Plot font size", value = 12)
-          updateNumericInput(session, "dotsize", "Plot dotsize", value = 2)
-        }
-      })
-      
-      session$userData$vars$df <- tibble(
-        Well = wellr::well_from_index(1:384, plate = 384,num_width = 0),
-        Gene = NA_character_,
-        # Sample = NA_character_,
-        Genotype = NA_character_,
-        Treatment = NA_character_,
-        Replicate = NA_character_
-      )
-      
-      outfile <- tempfile(fileext='.svg')
-      outfile_png <- tempfile(fileext='.png')
-      
-      # df_reactive <- reactive({ session$userData$vars$df})
+  moduleServer(id, function(input, output, session) {
+    session$userData$vars$qPCR_layout <- tibble(
+      Well = wellr::well_from_index(1:384, plate = 384, num_width = 0),
+      Gene = NA_character_,
+      Sample = NA_integer_,
+      Genotype = NA_character_,
+      Treatment = NA_character_,
+      Replicate = NA_character_
+    )
+    
+    outfile_svg <- tempfile(fileext = '.svg')
+    outfile_pdf <- tempfile(fileext = '.pdf')
+    outfile_png <- tempfile(fileext = '.png')
+    
+    
 
+    
+    observeEvent(input$upload_layout_table, {
+      req(input$upload_layout_table)
       
+      file_path <- input$upload_layout_table$datapath
+      df <- read_xlsx(file_path)
       
-      output$plot <- renderImage({
-        plate_plot <- session$userData$vars$df |>
-          mutate(Well = gsub("([A-P])0([1-9])", "\\1\\2", Well)) |>
-          ggplate::plate_plot(
-            position = Well,
-            value = Gene,
-            label = paste(Genotype,"\n",Treatment),
-            plate_size = 384,,
-            legend_n_row = 8,  
-            plate_type = "square")
-        
-        set_panel_size(plate_plot, file = outfile,
-                       width = unit(120, "mm"),
-                       height = unit(80,"mm"))
-        list(src = outfile,
-             alt = "This is alternate text")
-        
-        }) |>
-        bindEvent(c(input$hot_Gene,
-                    input$hot_Genotype,
-                    input$hot_Treatment),
-                  ignoreNULL = F)
+      # Ensure required columns exist
+      required_cols <- c("Well", "Gene", "Sample", "Genotype", "Treatment", "Replicate")
       
-      
-        output$layout_table <- renderDT({
-          # browser()
-          # df_reactive <- reactive({ session$userData$vars$df})
-          datatable(session$userData$vars$df, 
-                    options = list(
-                      pageLength = 10,  # Show 10 rows per page
-                      autoWidth = TRUE, 
-                      searching = TRUE, # Enable search
-                      dom = 'tip'  # Remove unnecessary elements, keep table, search, pagination
-                    ),
-                    class = "display nowrap compact") }) |> 
-          bindEvent(c(input$hot_Gene,
-                      input$hot_Genotype,
-                      input$hot_Treatment),
-                    ignoreNULL = F)
-        
-        
- 
-      
-      
-      
-      
-### Update main layout df based on inputs from hot tables
-### 
-      observeEvent(input$hot_Gene,{
-        session$userData$vars$df$Gene <- hot_to_df(input$hot_Gene) |>
-          pivot_longer(everything(),names_to = "Col",values_to = "Gene") |>
-          select(Gene) |>
-          unlist() |> 
-          as.vector()
-      })
-      
-      observeEvent(input$hot_Genotype,{
-        session$userData$vars$df$Genotype <- hot_to_df(input$hot_Genotype) |>
-          pivot_longer(everything(),names_to = "Col",values_to = "Genotype") |>
-          select(Genotype) |>
-          unlist() |> 
-          as.vector()
-      })
-      observeEvent(input$hot_Treatment,{
-        session$userData$vars$df$Treatment <- hot_to_df(input$hot_Treatment) |>
-          pivot_longer(everything(),names_to = "Col",values_to = "Treatment") |>
-          select(Treatment) |>
-          unlist() |> 
-          as.vector()
-      })
-      
-### Prepare Hot tables for Gene Genotype and Treatment
-      
-
-      output$hot_Gene = renderRHandsontable({
-        rhandsontable({
-          session$userData$vars$df |>
-            select(Well,Gene) |>
-            mutate(Col = wellr::well_to_col_num(Well),
-                   Row = wellr::well_to_row_let(Well),.keep = "unused") |>
-            pivot_wider(names_from = Col,values_from = Gene) |>
-            column_to_rownames(var = "Row")
-        })
-      })
-      output$hot_Genotype = renderRHandsontable({
-        rhandsontable({
-          session$userData$vars$df |>
-            select(Well,Genotype) |>
-            mutate(Col = wellr::well_to_col_num(Well),
-                   Row = wellr::well_to_row_let(Well),.keep = "unused") |>
-            pivot_wider(names_from = Col,values_from = Genotype) |>
-            column_to_rownames(var = "Row")
-        })
-      })
-
-      output$hot_Treatment = renderRHandsontable({
-        rhandsontable({
-          session$userData$vars$df |>
-            select(Well,Treatment) |>
-            mutate(Col = wellr::well_to_col_num(Well),
-                   Row = wellr::well_to_row_let(Well),.keep = "unused") |>
-            pivot_wider(names_from = Col,values_from = Treatment) |>
-            column_to_rownames(var = "Row")
-        })
-      })
-      
-      
-
-      
-      # output$plot <- renderImage({
-      #   req(input$hot)
-      #   empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
-      #     theme_void()
-      #   # browser()
-      #   plot <- JPL_barplot_annotation(hot_to_df(input$hot),
-      #                                  hot_to_df(input$colour_key_hot),
-      #                                  font = input$font,
-      #                                  dotsize = input$dotsize,
-      #                                  top = input$top,
-      #                                  var_equal = input$var_equal,
-      #                                  Show_ns = input$Show_ns,
-      #                                  legend_loc = input$legend_loc,
-      #                                  label = input$Stat_type,
-      #                                  Group_Stats = input$Group_Stats,
-      #                                  Sample_Stats = input$Sample_Stats
-      #                                  ) +
-      #   theme(rect = element_rect(fill = "transparent"))
-      # 
-      #   nbars <- hot_to_df(input$hot) |>
-      #     select(Sample,Annotation_1_Symbol,Annotation_2_Symbol) |>
-      #     distinct() |>
-      #     summarise(nbars=n()) |>
-      #     as.double()
-      # 
-      #   set_panel_size(plot, file = outfile ,
-      #                  width = unit(nbars * input$width, "mm"),
-      #                  height = unit(input$height,"mm"))
-      #   set_panel_size(plot, file = outfile_png,
-      #                  width = unit(nbars * input$width, "mm"),
-      #                  height = unit(input$height,"mm"))
-      #   list(src = outfile,
-      #        alt = "This is alternate text")
-      # }, deleteFile = F)
-      # 
-      # 
-
-
-
-
-
-
-      output$downloadPaper <- downloadHandler(
-        filename = function() {
-          paste("PaperSize-", Sys.Date(), ".svg", sep="")
-        },
-        content = function(file) {
-          file.copy(
-            from = outfile,
-            to = file
-          )
-        }
-      )
-      output$downloadPaperpng <- downloadHandler(
-        filename = function() {
-          paste("PaperSize-", Sys.Date(), ".png", sep="")
-        },
-        content = function(file) {
-          file.copy(
-            from = outfile_png,
-            to = file
-          )
-        }
-      )
-      
-      
+      if (!all(required_cols %in% colnames(df))) {
+        showNotification("Error: Missing required columns!", type = "error")
+        return()
       }
-  )
-}
+      session$userData$vars$qPCR_layout <- df  # Update the dataset only if valid
+    })
+    
 
+    output$plot <- renderImage({
+      plate_plot <- session$userData$vars$qPCR_layout |>
+        mutate(Well = gsub("([A-P])0([1-9])", "\\1\\2", Well)) |>
+        ggplate::plate_plot(
+          position = Well,
+          value = Gene,
+          # label = paste(Sample, Replicate, "\n", Treatment),
+          label = Sample,
+          plate_size = 384,
+          legend_n_row = 8,
+          plate_type = "square",
+          scale = 2
+          # ,
+          # label_size = .6
+        )
+      
+      set_panel_size(
+        plate_plot,
+        file = outfile_png,
+        width = unit(210, "mm"),
+        height = unit(115, "mm")
+      )
+      set_panel_size(
+        plate_plot,
+        file = outfile_pdf,
+        width = unit(297, "mm"),
+        height = unit(210, "mm")
+      )
+      set_panel_size(
+        plate_plot,
+        file = outfile_svg,
+        width = unit(200, "mm"),
+        height = unit(100, "mm")
+      )
+      list(src = outfile_svg, alt = "This is alternate text")
+    }, deleteFile = F) |>
+      bindEvent(
+        c(
+          input$upload_layout_table,
+          input$hot_Gene,
+          input$hot_Sample,
+          input$hot_sample_key
+        ),
+        ignoreNULL = F
+      )
+    
+    
+    output$layout_table <- renderDT({
+      # browser()
+      # df_reactive <- reactive({ session$userData$vars$qPCR_layout})
+      datatable(
+        session$userData$vars$qPCR_layout,
+        options = list(
+          pageLength = 10,
+          # Show 10 rows per page
+          autoWidth = TRUE,
+          searching = TRUE,
+          # Enable search
+          dom = 'tip'  # Remove unnecessary elements, keep table, search, pagination
+        ),
+        class = "display nowrap compact"
+      )
+    }) |>
+      bindEvent(
+        c(
+          input$upload_layout_table,
+          input$hot_Gene,
+          input$hot_Sample,
+          input$hot_sample_key
+        ),
+        ignoreNULL = F
+      )
+    
+    output$download_layout_table <- downloadHandler(
+      filename = function() {
+        paste("qPCR_Layout_Table", Sys.Date(), ".xlsx", sep = "")
+      },
+      content = function(file) {
+        write_xlsx(session$userData$vars$qPCR_layout, file)
+      }
+    )
+    
+    # Update main layout df based on inputs from hot tables---------------------
+    
+    observeEvent(input$hot_Gene, {
+      session$userData$vars$qPCR_layout$Gene <- hot_to_df(input$hot_Gene) |>
+        pivot_longer(everything(),
+                     names_to = "Col",
+                     values_to = "Gene") |>
+        select(Gene) |>
+        unlist() |>
+        as.vector()
+    })
+    
+    observeEvent(input$hot_Sample, {
+      session$userData$vars$qPCR_layout$Sample <- hot_to_df(input$hot_Sample) |>
+        pivot_longer(everything(),
+                     names_to = "Col",
+                     values_to = "Sample") |>
+        select(Sample) |>
+        unlist() |>
+        as.vector()
+    })
+    observeEvent(input$hot_sample_key, {
+      # browser()
+      
+      # test <- session$userData$vars$qPCR_layout
+      session$userData$vars$qPCR_layout <- session$userData$vars$qPCR_layout |> 
+        select(!c(Genotype,Treatment,Replicate)) |>
+        distinct() |> 
+        left_join(hot_to_df(input$hot_sample_key)) |> 
+        filter(!if_all(-Well, is.na)) 
+    })
+    
+    # Prepare Hot tables for Gene Sample and Treatment--------------------------
+    
+    output$hot_Gene = renderRHandsontable({
+      rhandsontable({
+        session$userData$vars$qPCR_layout |>
+          select(Well, Gene) |>
+          mutate(
+            Col = wellr::well_to_col_num(Well),
+            Row = wellr::well_to_row_let(Well),
+            .keep = "unused"
+          ) |>
+          pivot_wider(names_from = Col, values_from = Gene) |>
+          column_to_rownames(var = "Row")
+      })
+    }) |>
+      bindEvent(c(input$upload_layout_table), ignoreNULL = F)
+    
+    
+    output$hot_Sample = renderRHandsontable({
+      rhandsontable({
+        session$userData$vars$qPCR_layout |>
+          select(Well, Sample) |>
+          mutate(
+            Col = wellr::well_to_col_num(Well),
+            Row = wellr::well_to_row_let(Well),
+            .keep = "unused"
+          ) |>
+          pivot_wider(names_from = Col, values_from = Sample) |>
+          column_to_rownames(var = "Row")
+      })
+    }) |>
+      bindEvent(c(input$upload_layout_table), ignoreNULL = F)
+    
+    output$hot_sample_key = renderRHandsontable({
+      rhandsontable({
+        session$userData$vars$qPCR_layout |>
+          select(Sample, Genotype, Treatment, Replicate) |>
+          distinct()
+      })
+    }) |>
+      bindEvent(c(input$upload_layout_table, input$hot_Sample), ignoreNULL = F)
+
+    # Prepare Downloads--------------------------
+    
+    output$downloadlayout_png <- downloadHandler(
+      filename = function() {
+        paste("layout-", Sys.Date(), ".png", sep = "")
+      },
+      content = function(file) {
+        file.copy(from =  outfile_png, to = file)
+      }
+    )
+    output$downloadlayout_svg <- downloadHandler(
+      filename = function() {
+        paste("layout-", Sys.Date(), ".svg", sep = "")
+      },
+      content = function(file) {
+        file.copy(from =  outfile_svg, to = file)
+      }
+    )
+    output$downloadlayout_pdf <- downloadHandler(
+      filename = function() {
+        paste("layout-", Sys.Date(), ".pdf", sep = "")
+      },
+      content = function(file) {
+        file.copy(from =  outfile_pdf, to = file)
+      }
+    )
+    
+    
+  })
+}
