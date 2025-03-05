@@ -44,7 +44,7 @@ ui = dashboardPage(
       tabItem(tabName = "qPCR",
               navbarPage("qPCR",
                          tabPanel("Plate Design",UI_qPCR("qPCR")),
-                         tabPanel("Ploting")
+                         tabPanel("Ploting",UI_qPCR_plot("qPCR_plot"))
               )
               ),
       
@@ -65,6 +65,7 @@ ui = dashboardPage(
 server = function(input, output) {
   counterServer("counter1")
   Server_qPCR("qPCR")
+  Server_qPCR_plot("qPCR_plot")
   Server_barplot_annotated("barplot_annotated")
   Server_batchplot("batchplot")
   # Server_barplot("barplot")
