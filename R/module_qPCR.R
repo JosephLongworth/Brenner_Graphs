@@ -1,45 +1,41 @@
 UI_qPCR <- function(id) {
   ns <- NS(id)
   fluidPage(
-    fluidRow(
-              box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-                  radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
-                               selected = "Presentation",inline = T),
-                  # splitLayout(
-                  #   cellWidths = c("50%", "50%"),
-                  #   numericInput(ns("width"), "Plot width mm (per bar)", 7.5),
-                  #   numericInput(ns("height"), "Plot height mm", 25)),
-                  # splitLayout(
-                  #   cellWidths = c("50%", "50%"),
-                  #   numericInput(ns("font"), "Plot font size", 7),
-                  #   numericInput(ns("dotsize"), "Plot dotsize", 1)),
-                  # splitLayout(
-                  #   cellWidths = c("50%", "50%"),
-                  #   checkboxInput(ns("Group_Stats"), "Group Stats", value = T),
-                  #   checkboxInput(ns("Sample_Stats"), "Sample Stats", value = F)),
-                  # numericInput(ns("top"), "Plot space top mm", 5, step = 1),
-                  # checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
-                  # checkboxInput(ns("Show_ns"), "Show NS", value = F),
-                  selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "none"),
-                  selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}","p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
-                  
-              ),
-              box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
-                  downloadButton(ns("downloadPaper"), "SVG"),
-                  downloadButton(ns("downloadPaperpng"), "PNG"),
-                  plotOutput(ns("plot")) %>%
-                    shinycustomloader::withLoader()
-              )
-            ),
-    fluidRow(
+fluidRow(
       tabBox(width=12,
-        tabPanel("Layout_Table",DTOutput(ns("layout_table"))),
+        tabPanel("Layout_Table",
+          fluidRow(
+            box(width=6,solidHeader = TRUE,
+                DTOutput(ns("layout_table"))
+                ),
+            box(width=6,solidHeader = TRUE,
+                imageOutput(ns("plot")) |> 
+                  shinycustomloader::withLoader(),
+                downloadButton(ns("downloadPaperpng"), "PNG")
+                )
+          )
+          ),
         # tabPanel("Long",rHandsontableOutput(ns("hot_Long"))),
+        tabPanel("Gene",rHandsontableOutput(ns("hot_Gene"))),
         tabPanel("Genotype",rHandsontableOutput(ns("hot_Genotype"))),
         tabPanel("Treatment",rHandsontableOutput(ns("hot_Treatment")))
              # tabPanel("Replicate",rHandsontableOutput(ns("hot"))),
       )
-    )
+    ),
+fluidRow(
+  box(title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
+      radioButtons(inputId = ns("defaults"),label = NULL, choices = c("Paper", "Presentation"),
+                   selected = "Presentation",inline = T),
+      selectizeInput(ns("legend_loc"), "Legend location", choices = c("none","top","bottom","left","right"), selected = "none"),
+      selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}","p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
+      
+  ),
+  box(title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE
+      # downloadButton(ns("downloadPaper"), "SVG"),
+      # downloadButton(ns("downloadPaperpng"), "PNG"),
+     
+  )
+)
     )
 
 }
@@ -64,61 +60,49 @@ Server_qPCR <- function(id) {
         }
       })
       
-      # df <- tibble(Well = wellr::well_from_index(1:384,plate = 384),
-      #              Gene = NA,
-      #              Sample = NA,
-      #              Genotype = NA,
-      #              Treatment = NA,
-      #              Replicate = NA)
-      # 
       session$userData$vars$df <- tibble(
         Well = wellr::well_from_index(1:384, plate = 384,num_width = 0),
         Gene = NA_character_,
-        Sample = NA_character_,
+        # Sample = NA_character_,
         Genotype = NA_character_,
         Treatment = NA_character_,
         Replicate = NA_character_
       )
-    
       
-      # df$Genotype = values[["hot_Genotype"]]$Genotype
+      outfile <- tempfile(fileext='.svg')
+      outfile_png <- tempfile(fileext='.png')
       
-      # df$Well
-      # 
-      # 
-      # well_plate()
-      
-      # wellr::well_platefrom_indexindex(25, plate = 384,num_width = )
-      
-      # df$Genotype <- sample(c("WT","KO"),384,replace = T)
-      
-      
-      df_Genotype <- session$userData$vars$df |>
-        select(Well,Genotype) |>
-        mutate(Col = wellr::well_to_col_num(Well),
-               Row = wellr::well_to_row_let(Well),.keep = "unused") |>
-        pivot_wider(names_from = Col,values_from = Genotype) |>
-        column_to_rownames(var = "Row") |>
-        glimpse()
-      
-      
-      ######
-      ######
-      ######
-      ###### Try to build it with a non hot table for hot long?
-      ######
-      ######
-      
-      
-
-      library(DT)
-
-
+      # df_reactive <- reactive({ session$userData$vars$df})
 
       
-      observeEvent(input$hot_Genotype,{
+      
+      output$plot <- renderImage({
+        plate_plot <- session$userData$vars$df |>
+          mutate(Well = gsub("([A-P])0([1-9])", "\\1\\2", Well)) |>
+          ggplate::plate_plot(
+            position = Well,
+            value = Gene,
+            label = paste(Genotype,"\n",Treatment),
+            plate_size = 384,,
+            legend_n_row = 8,  
+            plate_type = "square")
+        
+        set_panel_size(plate_plot, file = outfile,
+                       width = unit(120, "mm"),
+                       height = unit(80,"mm"))
+        list(src = outfile,
+             alt = "This is alternate text")
+        
+        }) |>
+        bindEvent(c(input$hot_Gene,
+                    input$hot_Genotype,
+                    input$hot_Treatment),
+                  ignoreNULL = F)
+      
+      
         output$layout_table <- renderDT({
           # browser()
+          # df_reactive <- reactive({ session$userData$vars$df})
           datatable(session$userData$vars$df, 
                     options = list(
                       pageLength = 10,  # Show 10 rows per page
@@ -126,43 +110,65 @@ Server_qPCR <- function(id) {
                       searching = TRUE, # Enable search
                       dom = 'tip'  # Remove unnecessary elements, keep table, search, pagination
                     ),
-                    class = "display nowrap compact") # Make it compact
-        })})
+                    class = "display nowrap compact") }) |> 
+          bindEvent(c(input$hot_Gene,
+                      input$hot_Genotype,
+                      input$hot_Treatment),
+                    ignoreNULL = F)
+        
+        
+ 
       
       
       
-      ######
       
-     
-        observeEvent(input$hot_Genotype,{
-          
-          # session$userData$vars$df2 <- hot_to_df(input$hot_Genotype)
-          # session$userData$vars$df$Genotype <- hot_to_df(input$hot_Genotype) |>
-# 
-          session$userData$vars$df$Genotype <- hot_to_df(input$hot_Genotype) |>
-            pivot_longer(everything(),names_to = "Col",values_to = "Genotype") |>
-            select(Genotype) |>
-            unlist() |> 
-            as.vector()
-          
-          # session$userData$vars$df
-          # values[["hot_Genotype"]]
-          
-          # browser()
+### Update main layout df based on inputs from hot tables
+### 
+      observeEvent(input$hot_Gene,{
+        session$userData$vars$df$Gene <- hot_to_df(input$hot_Gene) |>
+          pivot_longer(everything(),names_to = "Col",values_to = "Gene") |>
+          select(Gene) |>
+          unlist() |> 
+          as.vector()
+      })
+      
+      observeEvent(input$hot_Genotype,{
+        session$userData$vars$df$Genotype <- hot_to_df(input$hot_Genotype) |>
+          pivot_longer(everything(),names_to = "Col",values_to = "Genotype") |>
+          select(Genotype) |>
+          unlist() |> 
+          as.vector()
+      })
+      observeEvent(input$hot_Treatment,{
+        session$userData$vars$df$Treatment <- hot_to_df(input$hot_Treatment) |>
+          pivot_longer(everything(),names_to = "Col",values_to = "Treatment") |>
+          select(Treatment) |>
+          unlist() |> 
+          as.vector()
+      })
+      
+### Prepare Hot tables for Gene Genotype and Treatment
+      
+
+      output$hot_Gene = renderRHandsontable({
+        rhandsontable({
+          session$userData$vars$df |>
+            select(Well,Gene) |>
+            mutate(Col = wellr::well_to_col_num(Well),
+                   Row = wellr::well_to_row_let(Well),.keep = "unused") |>
+            pivot_wider(names_from = Col,values_from = Gene) |>
+            column_to_rownames(var = "Row")
         })
-      
-      
-      
-      
-      
-      
-       
-      
-      # output$hot_Long = renderRHandsontable({
-      #   rhandsontable(df)
-      # })
+      })
       output$hot_Genotype = renderRHandsontable({
-        rhandsontable(df_Genotype)
+        rhandsontable({
+          session$userData$vars$df |>
+            select(Well,Genotype) |>
+            mutate(Col = wellr::well_to_col_num(Well),
+                   Row = wellr::well_to_row_let(Well),.keep = "unused") |>
+            pivot_wider(names_from = Col,values_from = Genotype) |>
+            column_to_rownames(var = "Row")
+        })
       })
 
       output$hot_Treatment = renderRHandsontable({
@@ -175,29 +181,9 @@ Server_qPCR <- function(id) {
             column_to_rownames(var = "Row")
         })
       })
-            
-      outfile <- tempfile(fileext='.svg')
-      outfile_png <- tempfile(fileext='.png')
       
-      observeEvent(input$hot_Genotype,{
-      output$plot <- renderPlot({
-        # browser()
       
-        # req(input$hot_Long)
-        # hot_to_df(input$hot_Long) 
-        session$userData$vars$df |>
-        mutate(Well = gsub("([A-P])0([1-9])", "\\1\\2", Well)) |>
-        # mutate(Genotype = sample(c("WT","KO"),384,replace = T))  |>
-        
-      ggplate::plate_plot(
-        # data = data,
-        position = Well,
-        value = Genotype,
-        plate_size = 384,
-        plate_type = "square"
-      )
-      })
-      })
+
       
       # output$plot <- renderImage({
       #   req(input$hot)
@@ -217,13 +203,13 @@ Server_qPCR <- function(id) {
       #                                  Sample_Stats = input$Sample_Stats
       #                                  ) +
       #   theme(rect = element_rect(fill = "transparent"))
-      #   
+      # 
       #   nbars <- hot_to_df(input$hot) |>
       #     select(Sample,Annotation_1_Symbol,Annotation_2_Symbol) |>
       #     distinct() |>
       #     summarise(nbars=n()) |>
       #     as.double()
-      #   
+      # 
       #   set_panel_size(plot, file = outfile ,
       #                  width = unit(nbars * input$width, "mm"),
       #                  height = unit(input$height,"mm"))
@@ -233,6 +219,14 @@ Server_qPCR <- function(id) {
       #   list(src = outfile,
       #        alt = "This is alternate text")
       # }, deleteFile = F)
+      # 
+      # 
+
+
+
+
+
+
       output$downloadPaper <- downloadHandler(
         filename = function() {
           paste("PaperSize-", Sys.Date(), ".svg", sep="")

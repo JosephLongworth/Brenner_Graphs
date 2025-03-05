@@ -19,6 +19,9 @@ library(readxl)
 library(survminer)
 library(survival)
 library(latex2exp)
+library(DT)
+library(wellr)
+library(ggplate)
 
 ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
