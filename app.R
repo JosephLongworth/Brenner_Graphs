@@ -23,6 +23,7 @@ library(latex2exp)
 library(DT)
 library(wellr)
 library(ggplate)
+library(bslib)
 
 
 ui = dashboardPage(
