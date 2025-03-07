@@ -387,3 +387,11 @@ find_svg_offset <- function(svg_file){
   
 }
 
+pastel_palette <- c(
+  "#AEC6CF", "#FFB347", "#77DD77", "#FF6961", "#CBAACB",
+  "#FFD1DC", "#CFCFC4", "#FDFD96", "#779ECB", "#966FD6",
+  "#B39EB5", "#D4A76A", "#FFB7B2", "#E6E6FA",
+  "#B5EAD7", "#FF9AA2", "#A2C7E5", "#D5AAE5", "#E3A869",
+  "#C4B7CB", "#A8D5BA", "#C5E1A5"
+)
+
