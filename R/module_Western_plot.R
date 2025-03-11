@@ -1,4 +1,4 @@
-UI_qPCR_plot <- function(id) {
+UI_Western_plot <- function(id) {
   ns <- NS(id)
   fluidPage(
     fluidRow(
@@ -74,7 +74,7 @@ UI_qPCR_plot <- function(id) {
   )
 }
 
-Server_qPCR_plot <- function(id) {
+Server_Western_plot <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {

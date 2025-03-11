@@ -7,6 +7,7 @@ UI_qPCR <- function(id) {
         box(
           width = 4,
           solidHeader = TRUE,
+          radioGroupButtons(ns("plate_size"),individual = T,choices = c("384", "96")),
           DTOutput(ns("layout_table")),
           splitLayout(
             cellWidths = c("50%", "50%"),
@@ -43,14 +44,21 @@ UI_qPCR <- function(id) {
 
 Server_qPCR <- function(id) {
   moduleServer(id, function(input, output, session) {
+    
+    
+    observe({
+      # browser()
     session$userData$vars$qPCR_layout <- tibble(
-      Well = wellr::well_from_index(1:384, plate = 384, num_width = 0),
+      Well = wellr::well_from_index(1:as.numeric(input$plate_size), plate = as.numeric(input$plate_size), num_width = 0),
       Gene = NA_character_,
-      Sample = NA_integer_,
+      Sample = NA_character_,
       Genotype = NA_character_,
       Treatment = NA_character_,
       Replicate = NA_character_
     )
+    }) |> 
+      bindEvent(input$plate_size)
+    
     
     outfile_svg <- tempfile(fileext = '.svg')
     outfile_pdf <- tempfile(fileext = '.pdf')
@@ -84,7 +92,7 @@ Server_qPCR <- function(id) {
           value = Gene,
           # label = paste(Sample, Replicate, "\n", Treatment),
           label = Sample,
-          plate_size = 384,
+          plate_size = as.numeric(input$plate_size),
           legend_n_row = 8,
           plate_type = "square",
           scale = 2
@@ -113,7 +121,7 @@ Server_qPCR <- function(id) {
       list(src = outfile_svg, alt = "This is alternate text")
     }, deleteFile = F) |>
       bindEvent(
-        c(
+        c(input$plate_size,
           input$upload_layout_table,
           input$hot_Gene,
           input$hot_Sample,
@@ -140,7 +148,7 @@ Server_qPCR <- function(id) {
       )
     }) |>
       bindEvent(
-        c(
+        c(input$plate_size,
           input$upload_layout_table,
           input$hot_Gene,
           input$hot_Sample,
@@ -171,6 +179,7 @@ Server_qPCR <- function(id) {
     })
     
     observeEvent(input$hot_Sample, {
+      # browser()
       session$userData$vars$qPCR_layout$Sample <- hot_to_df(input$hot_Sample) |>
         pivot_longer(everything(),
                      names_to = "Col",
@@ -184,10 +193,10 @@ Server_qPCR <- function(id) {
       
       # test <- session$userData$vars$qPCR_layout
       session$userData$vars$qPCR_layout <- session$userData$vars$qPCR_layout |> 
-        select(!c(Genotype,Treatment,Replicate)) |>
-        distinct() |> 
-        left_join(hot_to_df(input$hot_sample_key)) |> 
-        filter(!if_all(-Well, is.na)) 
+        select(-c(Genotype,Treatment,Replicate)) |> 
+        # distinct() |> 
+        left_join(hot_to_df(input$hot_sample_key))
+        # filter(!if_all(-Well, is.na)) 
     })
     
     # Prepare Hot tables for Gene Sample and Treatment--------------------------
@@ -228,7 +237,9 @@ Server_qPCR <- function(id) {
         session$userData$vars$qPCR_layout |>
           select(Sample, Genotype, Treatment, Replicate) |>
           distinct()
-      })
+      },
+      width = 550, height = 600) %>%
+        hot_cols(columnSorting = TRUE)
     }) |>
       bindEvent(c(input$upload_layout_table, input$hot_Sample), ignoreNULL = F)
 
@@ -258,7 +269,5 @@ Server_qPCR <- function(id) {
         file.copy(from =  outfile_pdf, to = file)
       }
     )
-    
-    
   })
 }

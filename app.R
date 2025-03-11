@@ -24,12 +24,14 @@ library(DT)
 library(wellr)
 library(ggplate)
 library(bslib)
+library(shinyWidgets)
 
 
 ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("Western", tabName = "Western", icon = icon("dashboard")),
       menuItem("qPCR", tabName = "qPCR", icon = icon("dashboard")),
       menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),
@@ -41,20 +43,21 @@ ui = dashboardPage(
   ),
   dashboardBody(
     tabItems(
-      # tabItem(tabName = "Counter",counterButton("counter1", "Counter #1")),
       tabItem(tabName = "qPCR",
               navbarPage("qPCR",
                          tabPanel("Plate Design",UI_qPCR("qPCR")),
-                         tabPanel("Ploting",UI_qPCR_plot("qPCR_plot"))
+                         tabPanel("Plotting",UI_qPCR_plot("qPCR_plot"))
               )
               ),
+      tabItem(tabName = "Western",
+              navbarPage("Western",
+                         tabPanel("Plate Design",UI_qPCR("Western")),
+                         tabPanel("Plotting",UI_Western_plot("Western_plot"))
+              )
+      ),
       
-      
-      
-      # tabItem(tabName = "qPCR",UI_qPCR("qPCR")),
       tabItem(tabName = "barplot_annotated",UI_barplot_annotated("barplot_annotated")),
       tabItem(tabName = "batchplot",UI_batchplot("batchplot")),
-      # tabItem(tabName = "barplot",UI_barplot("barplot")),
       tabItem(tabName = "lineplot",UI_lineplot("lineplot")),
       tabItem(tabName = "survivalplot",UI_survivalplot("survivalplot")),
       tabItem(tabName = "figure_builder",UI_figure_builder("figure_builder")),
@@ -66,10 +69,11 @@ ui = dashboardPage(
 server = function(input, output) {
   counterServer("counter1")
   Server_qPCR("qPCR")
+  Server_qPCR("Western")
   Server_qPCR_plot("qPCR_plot")
+  Server_Western_plot("Western_plot")
   Server_barplot_annotated("barplot_annotated")
   Server_batchplot("batchplot")
-  # Server_barplot("barplot")
   Server_lineplot("lineplot")
   Server_survivalplot("survivalplot")
   Server_figure_builder("figure_builder")
