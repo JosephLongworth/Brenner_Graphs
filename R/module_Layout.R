@@ -1,4 +1,4 @@
-UI_qPCR <- function(id) {
+UI_Layout <- function(id) {
   ns <- NS(id)
   fluidPage(fluidRow(
     tabBox(
@@ -42,13 +42,13 @@ UI_qPCR <- function(id) {
   
 }
 
-Server_qPCR <- function(id) {
+Server_Layout <- function(id) {
   moduleServer(id, function(input, output, session) {
     
     
     observe({
       # browser()
-    session$userData$vars$qPCR_layout <- tibble(
+    session$userData$vars$layout <- tibble(
       Well = wellr::well_from_index(1:as.numeric(input$plate_size), plate = as.numeric(input$plate_size), num_width = 0),
       Gene = NA_character_,
       Sample = NA_character_,
@@ -80,12 +80,12 @@ Server_qPCR <- function(id) {
         showNotification("Error: Missing required columns!", type = "error")
         return()
       }
-      session$userData$vars$qPCR_layout <- df  # Update the dataset only if valid
+      session$userData$vars$layout <- df  # Update the dataset only if valid
     })
     
 
     output$plot <- renderImage({
-      plate_plot <- session$userData$vars$qPCR_layout |>
+      plate_plot <- session$userData$vars$layout |>
         mutate(Well = gsub("([A-P])0([1-9])", "\\1\\2", Well)) |>
         ggplate::plate_plot(
           position = Well,
@@ -133,9 +133,9 @@ Server_qPCR <- function(id) {
     
     output$layout_table <- renderDT({
       # browser()
-      # df_reactive <- reactive({ session$userData$vars$qPCR_layout})
+      # df_reactive <- reactive({ session$userData$vars$layout})
       datatable(
-        session$userData$vars$qPCR_layout,
+        session$userData$vars$layout,
         options = list(
           pageLength = 10,
           # Show 10 rows per page
@@ -159,17 +159,17 @@ Server_qPCR <- function(id) {
     
     output$download_layout_table <- downloadHandler(
       filename = function() {
-        paste("qPCR_Layout_Table", Sys.Date(), ".xlsx", sep = "")
+        paste("layout_Table", Sys.Date(), ".xlsx", sep = "")
       },
       content = function(file) {
-        write_xlsx(session$userData$vars$qPCR_layout, file)
+        write_xlsx(session$userData$vars$layout, file)
       }
     )
     
     # Update main layout df based on inputs from hot tables---------------------
     
     observeEvent(input$hot_Gene, {
-      session$userData$vars$qPCR_layout$Gene <- hot_to_df(input$hot_Gene) |>
+      session$userData$vars$layout$Gene <- hot_to_df(input$hot_Gene) |>
         pivot_longer(everything(),
                      names_to = "Col",
                      values_to = "Gene") |>
@@ -180,7 +180,7 @@ Server_qPCR <- function(id) {
     
     observeEvent(input$hot_Sample, {
       # browser()
-      session$userData$vars$qPCR_layout$Sample <- hot_to_df(input$hot_Sample) |>
+      session$userData$vars$layout$Sample <- hot_to_df(input$hot_Sample) |>
         pivot_longer(everything(),
                      names_to = "Col",
                      values_to = "Sample") |>
@@ -191,8 +191,8 @@ Server_qPCR <- function(id) {
     observeEvent(input$hot_sample_key, {
       # browser()
       
-      # test <- session$userData$vars$qPCR_layout
-      session$userData$vars$qPCR_layout <- session$userData$vars$qPCR_layout |> 
+      # test <- session$userData$vars$layout
+      session$userData$vars$layout <- session$userData$vars$layout |> 
         select(-c(Genotype,Treatment,Replicate)) |> 
         # distinct() |> 
         left_join(hot_to_df(input$hot_sample_key))
@@ -203,7 +203,7 @@ Server_qPCR <- function(id) {
     
     output$hot_Gene = renderRHandsontable({
       rhandsontable({
-        session$userData$vars$qPCR_layout |>
+        session$userData$vars$layout |>
           select(Well, Gene) |>
           mutate(
             Col = wellr::well_to_col_num(Well),
@@ -219,7 +219,7 @@ Server_qPCR <- function(id) {
     
     output$hot_Sample = renderRHandsontable({
       rhandsontable({
-        session$userData$vars$qPCR_layout |>
+        session$userData$vars$layout |>
           select(Well, Sample) |>
           mutate(
             Col = wellr::well_to_col_num(Well),
@@ -234,7 +234,7 @@ Server_qPCR <- function(id) {
     
     output$hot_sample_key = renderRHandsontable({
       rhandsontable({
-        session$userData$vars$qPCR_layout |>
+        session$userData$vars$layout |>
           select(Sample, Genotype, Treatment, Replicate) |>
           distinct()
       },

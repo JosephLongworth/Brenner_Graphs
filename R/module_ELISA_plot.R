@@ -1,4 +1,4 @@
-UI_Western_plot <- function(id) {
+UI_ELISA_plot <- function(id) {
   ns <- NS(id)
   fluidPage(
     fluidRow(
@@ -23,18 +23,21 @@ UI_Western_plot <- function(id) {
         selectizeInput(ns("control_condtion"), "Control Condition", choices = NULL),
         selectizeInput(ns("displayed_genes"), "Displayed Genes", choices = NULL, multiple = T)
       ),
-      box(
-        title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
-        downloadButton(ns("downloadPaper"), "SVG"),
-        downloadButton(ns("downloadPaperpng"), "PNG"),
-        switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
-        # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
-        # input_switch(ns("switch"), "Plot Updates",value = T),
-        plotOutput(ns("plot")) 
-        # %>%
-        #   shinycustomloader::withLoader()
+      tabBox(
+        width = 8,
+        tabPanel("Plot",
+                 downloadButton(ns("downloadPaper"), "SVG"),
+                 downloadButton(ns("downloadPaperpng"), "PNG"),
+                 switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
+                 # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
+                 # input_switch(ns("switch"), "Plot Updates",value = T),
+                 plotOutput(ns("plot"))),
+        tabPanel("diff", rHandsontableOutput(ns("hot_diff"))),
+        tabPanel("450nm", rHandsontableOutput(ns("hot_450nm"))),
+        tabPanel("570nm", rHandsontableOutput(ns("hot_570nm"))),
       )
-    ),
+      )
+    ,
     fluidRow(
       box(
         title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
@@ -74,7 +77,7 @@ UI_Western_plot <- function(id) {
   )
 }
 
-Server_Western_plot <- function(id) {
+Server_ELISA_plot <- function(id) {
   moduleServer(
     id,
     function(input, output, session) {
@@ -92,62 +95,169 @@ Server_Western_plot <- function(id) {
           showNotification("Error: Missing required columns!", type = "error")
           return()
         }
-        session$userData$vars$qPCR_layout <- df # Update the dataset only if valid
+        session$userData$vars$ELISA_df <- df |> 
+          mutate(X450 = NA_real_,
+                 X570 = NA_real_,
+                 diff = NA_real_)})
+
+
+
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      # 
+      # output$hot_570nm = renderRHandsontable({
+      #   rhandsontable({
+      #     #####################
+      #     
+      #     Well = wellr::well_from_index(1:as.numeric(input$plate_size), plate = as.numeric(input$plate_size), num_width = 0),
+      #     
+      #     session$userData$vars$ELISA_df |>
+      #       select(Well, Gene) |>
+      #       mutate(
+      #         Col = wellr::well_to_col_num(Well),
+      #         Row = wellr::well_to_row_let(Well),
+      #         .keep = "unused"
+      #       ) |>
+      #       pivot_wider(names_from = Col, values_from = Gene) |>
+      #       column_to_rownames(var = "Row")
+      #   })
+      # }) 
+      
+      
+      
+      output$hot_450nm <- renderRHandsontable({
+        req(input$upload_layout_table)
+        rhandsontable({session$userData$vars$ELISA_df |> 
+            select(Well,X450) |> 
+            mutate(
+              Col = wellr::well_to_col_num(Well),
+              Row = wellr::well_to_row_let(Well),
+              .keep = "unused"
+            ) |>
+            pivot_wider(names_from = Col, values_from = X450) |>
+            column_to_rownames(var = "Row")})
       })
-
-
-      observeEvent(input$upload_Cq_table, {
-        req(input$upload_Cq_table)
-
-
-        # file_path <- input$upload_Cq_table$datapath
-        df <- read_csv(input$upload_Cq_table$datapath)
-
-        # Ensure required columns exist
-        required_cols <- c("Well", "Cq")
-
-        if (!all(required_cols %in% colnames(df))) {
-          showNotification("Error: Missing required columns!", type = "error")
-          return()
-        }
-        session$userData$vars$Cq_table <- df # Update the dataset only if valid
+      output$hot_570nm <- renderRHandsontable({
+        req(input$upload_layout_table)
+        rhandsontable({session$userData$vars$ELISA_df |> 
+            select(Well,X570) |> 
+            mutate(
+              Col = wellr::well_to_col_num(Well),
+              Row = wellr::well_to_row_let(Well),
+              .keep = "unused"
+            ) |>
+            pivot_wider(names_from = Col, values_from = X570) |>
+            column_to_rownames(var = "Row")})
       })
+      
+      output$hot_diff <- renderRHandsontable({
+        req(input$upload_layout_table)
+        rhandsontable({session$userData$vars$ELISA_df |> 
+            select(Well,diff) |> 
+            mutate(
+              Col = wellr::well_to_col_num(Well),
+              Row = wellr::well_to_row_let(Well),
+              .keep = "unused"
+            ) |>
+            pivot_wider(names_from = Col, values_from = diff) |>
+            column_to_rownames(var = "Row")})
+      }) |> 
+        bindEvent(c(input$hot_450nm),
+                  c(input$hot_570nm))
+      
+      
+      
+      observe({
+        
+        req(input$hot_450nm)
+        req(input$hot_570nm)
 
+        session$userData$vars$ELISA_df$X450 <- hot_to_df(input$hot_450nm) |>
+          pivot_longer(everything(),
+                       names_to = "Col",
+                       values_to = "X450") |>
+          select(X450) |>
+          unlist() |>
+          as.vector()
+        
+        session$userData$vars$ELISA_df$X570 <- hot_to_df(input$hot_570nm) |>
+          pivot_longer(everything(),
+                       names_to = "Col",
+                       values_to = "X570") |>
+          select(X570) |>
+          unlist() |>
+          as.vector()
+        
+        
+        # if(  !(all(is.na(session$userData$vars$ELISA_df$X450))|all(is.na(session$userData$vars$ELISA_df$X570)))
+        # ){ 
+          session$userData$vars$ELISA_df$diff <- session$userData$vars$ELISA_df$X450 - session$userData$vars$ELISA_df$X570
+        # }
+        
+        
+          }) |> 
+        bindEvent(c(input$hot_450nm,
+                    input$hot_570nm))
+      
       observeEvent(input$upload_layout_table, {
-        req(session$userData$vars$qPCR_layout)
+        req(session$userData$vars$ELISA_df)
         updateSelectizeInput(session, "HK_gene",
-          choices = unique(session$userData$vars$qPCR_layout$Gene),
-          selected = last(unique(session$userData$vars$qPCR_layout$Gene))
+          choices = unique(session$userData$vars$ELISA_df$Gene),
+          selected = last(unique(session$userData$vars$ELISA_df$Gene))
         )
         updateSelectizeInput(session, "control_condtion", choices = c("None", unique(paste0(
-          session$userData$vars$qPCR_layout$Genotype,
+          session$userData$vars$ELISA_df$Genotype,
           "_",
-          session$userData$vars$qPCR_layout$Treatment
+          session$userData$vars$ELISA_df$Treatment
         ))))
 
         updateSelectizeInput(session, "displayed_genes",
-          choices = unique(session$userData$vars$qPCR_layout$Gene),
-          selected = unique(session$userData$vars$qPCR_layout$Gene)
+          choices = unique(session$userData$vars$ELISA_df$Gene),
+          selected = unique(session$userData$vars$ELISA_df$Gene)
         )
       })
 
 
-      # df <- read_csv("Data/example_barplot_annotation2.csv", show_col_types = FALSE)
-      # 
-      # if ("Unit_barplot" %in% colnames(df)) {
-      #   df <- df %>%
-      #     mutate(Unit = Unit_barplot, .keep = c("unused"))
-      # }
-      # colour_key <- read_csv("Data/example_colour_key.csv", show_col_types = FALSE)
-      # 
-      # output$hot <- renderRHandsontable({
-      #   rhandsontable(df)
-      # })
+
+      
+      observe({
+        
+        TESTING <<- session$userData$vars$ELISA_df
+        browser()
+        
+      }) |> 
+        bindEvent(c(input$hot_diff))
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
       
       output$Genotype_key_hot <- renderRHandsontable({
         req(input$upload_layout_table)
         # browser()
-        Genotype_key <- session$userData$vars$qPCR_layout |> 
+        Genotype_key <- session$userData$vars$ELISA_df |> 
           select(Genotype) |> 
           distinct() |> 
           mutate(
@@ -162,7 +272,7 @@ Server_Western_plot <- function(id) {
       output$Treatment_key_hot <- renderRHandsontable({
         req(input$upload_layout_table)
         # browser()
-        Treatment_key <- session$userData$vars$qPCR_layout |> 
+        Treatment_key <- session$userData$vars$ELISA_df |> 
           select(Treatment) |> 
           distinct() |> 
           mutate(
@@ -186,7 +296,7 @@ Server_Western_plot <- function(id) {
           req(input$switch)
           # browser()
 
-          df <- full_join(session$userData$vars$qPCR_layout,
+          df <- full_join(session$userData$vars$ELISA_df,
             session$userData$vars$Cq_table,
             by = "Well", suffix = c("", ".Cq")
           ) |>

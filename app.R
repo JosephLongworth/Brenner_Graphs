@@ -31,7 +31,7 @@ ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
-      menuItem("Western", tabName = "Western", icon = icon("dashboard")),
+      menuItem("ELISA", tabName = "ELISA", icon = icon("dashboard")),
       menuItem("qPCR", tabName = "qPCR", icon = icon("dashboard")),
       menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),
@@ -45,14 +45,14 @@ ui = dashboardPage(
     tabItems(
       tabItem(tabName = "qPCR",
               navbarPage("qPCR",
-                         tabPanel("Plate Design",UI_qPCR("qPCR")),
+                         tabPanel("Plate Design",UI_Layout("qPCR")),
                          tabPanel("Plotting",UI_qPCR_plot("qPCR_plot"))
               )
               ),
-      tabItem(tabName = "Western",
-              navbarPage("Western",
-                         tabPanel("Plate Design",UI_qPCR("Western")),
-                         tabPanel("Plotting",UI_Western_plot("Western_plot"))
+      tabItem(tabName = "ELISA",
+              navbarPage("ELISA",
+                         tabPanel("Plate Design",UI_Layout("ELISA")),
+                         tabPanel("Plotting",UI_ELISA_plot("ELISA_plot"))
               )
       ),
       
@@ -68,10 +68,10 @@ ui = dashboardPage(
 
 server = function(input, output) {
   counterServer("counter1")
-  Server_qPCR("qPCR")
-  Server_qPCR("Western")
+  Server_Layout("qPCR")
+  Server_Layout("ELISA")
   Server_qPCR_plot("qPCR_plot")
-  Server_Western_plot("Western_plot")
+  Server_ELISA_plot("ELISA_plot")
   Server_barplot_annotated("barplot_annotated")
   Server_batchplot("batchplot")
   Server_lineplot("lineplot")
