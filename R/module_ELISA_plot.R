@@ -205,7 +205,8 @@ Server_ELISA_plot <- function(id) {
         
           }) |> 
         bindEvent(c(input$hot_450nm,
-                    input$hot_570nm))
+                    input$hot_570nm,
+                    input$hot_diff))
       
       observeEvent(input$upload_layout_table, {
         req(session$userData$vars$ELISA_df)
@@ -258,7 +259,7 @@ Server_ELISA_plot <- function(id) {
         req(input$upload_layout_table)
         # browser()
         Genotype_key <- session$userData$vars$ELISA_df |> 
-          select(Genotype) |> 
+          dplyr::select(Genotype) |> 
           distinct() |> 
           mutate(
             Genotype = factor(Genotype, levels = unique(Genotype), ordered = TRUE),
