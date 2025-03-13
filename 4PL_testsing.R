@@ -1,3 +1,4 @@
+# rm(list = ls()[-7])
 df <- keep
 
 
@@ -9,7 +10,7 @@ s0_mean <- df |>
 
 # Subtract the background from all values
 data_corrected <- df |> 
-  filter(Gene == "Standard") |> 
+  # filter(Gene == "Standard") |> 
   mutate(Concentration = as.double(Treatment),
          diff_corrected = diff - s0_mean)
 
@@ -17,25 +18,6 @@ data_corrected <- df |>
 model_4PL <- drm(diff_corrected ~ Concentration, data = data_corrected, 
                  fct = LL.4(names = c("Slope", "Lower", "Upper", "EC50")))
 
-
-# 
-# model_4PL_2 <- drm(Concentration ~ diff_corrected , data = data_corrected, 
-#                  fct = LL.4(names = c("Slope", "Lower", "Upper", "EC50")))
-
-# Generate a sequence of concentration values for smooth plotting
-new_data <- data.frame(Concentration = seq(min(data_corrected$Concentration), 
-                                           max(data_corrected$Concentration), length.out = 100))
-
-# Predict values using the model
-new_data$predicted_diff <- stats::predict(model_4PL, newdata = new_data)
-
-# Plot the data and fitted curve
-ggplot(data_corrected, aes(x = Concentration, y = diff_corrected)) +
-  geom_point() + 
-  geom_line(data = new_data, aes(x = Concentration, y = predicted_diff), color = "blue") +
-  labs(y = "Corrected diff", title = "4PL Fit for Dose-Response") +
-  theme_minimal()
-#######################################################################################################################
 
 estimate_concentration <- function(diff_value) {
   tryCatch(
@@ -47,7 +29,31 @@ estimate_concentration <- function(diff_value) {
 # estimate_concentration_vec <- Vectorize(estimate_concentration)
 df_out <- df
 df_out$diff_corrected <- df_out$diff - s0_mean
-df_out <- bind_cols(df_out,estimate_concentration(df_out$diff_corrected))
+data_corrected <- bind_cols(data_corrected,estimate_concentration(data_corrected$diff_corrected))
+
+
+
+
+
+
+### Fit graph
+
+# Generate a sequence of concentration values for smooth plotting
+Fit_Curve <- data.frame(Concentration = seq(min(data_corrected$Concentration,na.rm = T), 
+                                           max(data_corrected$Concentration,na.rm = T), length.out = 100))
+
+# Predict values using the model
+Fit_Curve$predicted_diff <- stats::predict(model_4PL, newdata = Fit_Curve)
+
+# Plot the data and fitted curve
+data_corrected |>
+  filter(Gene == "Standard") |> 
+  ggplot(aes(x = Concentration, y = diff_corrected)) +
+  geom_point() + 
+  geom_line(data = Fit_Curve, aes(x = Concentration, y = predicted_diff), color = "blue") +
+  labs(y = "Corrected diff", title = "4PL Fit for Dose-Response") +
+  theme_minimal()
+#######################################################################################################################
 
 
 #######################################################################################################################
