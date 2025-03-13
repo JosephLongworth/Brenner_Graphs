@@ -71,7 +71,8 @@ Server_Layout <- function(id) {
       req(input$upload_layout_table)
       
       file_path <- input$upload_layout_table$datapath
-      df <- read_xlsx(file_path)
+      df <- read_xlsx(file_path)  |> 
+        full_join(tibble(Well = wellr::well_from_index(1:as.numeric(input$plate_size), plate = as.numeric(input$plate_size), num_width = 0)))
       
       # Ensure required columns exist
       required_cols <- c("Well", "Gene", "Sample", "Genotype", "Treatment", "Replicate")
@@ -169,34 +170,31 @@ Server_Layout <- function(id) {
     # Update main layout df based on inputs from hot tables---------------------
     
     observeEvent(input$hot_Gene, {
-      session$userData$vars$layout$Gene <- hot_to_df(input$hot_Gene) |>
-        pivot_longer(everything(),
-                     names_to = "Col",
-                     values_to = "Gene") |>
-        select(Gene) |>
-        unlist() |>
-        as.vector()
+      session$userData$vars$layout <- session$userData$vars$layout |> 
+        select(-Gene) |>
+        left_join({hot_to_df(input$hot_Gene) |>
+            pivot_longer(everything(),
+                         names_to = "Col",
+                         values_to = "Gene") |>
+            mutate(Well = wellr::well_from_index(1:as.numeric(input$plate_size), plate = as.numeric(input$plate_size), num_width = 0)) |>
+            select(c(Well,Gene))}) 
     })
     
     observeEvent(input$hot_Sample, {
-      # browser()
-      session$userData$vars$layout$Sample <- hot_to_df(input$hot_Sample) |>
-        pivot_longer(everything(),
-                     names_to = "Col",
-                     values_to = "Sample") |>
-        select(Sample) |>
-        unlist() |>
-        as.vector()
+      session$userData$vars$layout <- session$userData$vars$layout |> 
+        select(-Sample) |>
+        left_join({hot_to_df(input$hot_Sample) |>
+            pivot_longer(everything(),
+                         names_to = "Col",
+                         values_to = "Sample") |>
+            mutate(Well = wellr::well_from_index(1:as.numeric(input$plate_size), plate = as.numeric(input$plate_size), num_width = 0)) |>
+            select(c(Well,Sample))}) 
     })
+    
     observeEvent(input$hot_sample_key, {
-      # browser()
-      
-      # test <- session$userData$vars$layout
       session$userData$vars$layout <- session$userData$vars$layout |> 
         select(-c(Genotype,Treatment,Replicate)) |> 
-        # distinct() |> 
         left_join(hot_to_df(input$hot_sample_key))
-        # filter(!if_all(-Well, is.na)) 
     })
     
     # Prepare Hot tables for Gene Sample and Treatment--------------------------
