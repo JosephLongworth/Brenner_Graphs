@@ -230,21 +230,21 @@ Server_qPCR_plot <- function(id) {
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
 
-          # browser()
+          browser()
           
           
           df |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
-            separate_wider_delim(treatment,delim = "_",names = c("Annotation_1_Symbol","Annotation_2_Symbol"),too_few = "align_start",too_many = "merge") |>
+            # separate_wider_delim(treatment,delim = "_",names = c("Annotation_1_Symbol","Annotation_2_Symbol"),too_few = "align_start",too_many = "merge") |>
             transmute(
               Sample= genotype,
               Value = value,
               Unit_barplot_annotation = ylab,
               Annotation_1_label = "",
-              Annotation_1_Symbol,
+              Annotation_1_Symbol = treatment,
               Annotation_2_label = "",
-              Annotation_2_Symbol) |>
+              Annotation_2_Symbol = gene) |>
             write_csv(file = outfile_csv) |>
             glimpse()
 
@@ -371,7 +371,7 @@ browser
       
       output$download_SVG <- downloadHandler(
         filename = function() {
-          paste("PCA-", Sys.Date(), ".svg", sep = "")
+          paste("qPCR-", Sys.Date(), ".svg", sep = "")
         },
         content = function(file) {
           file.copy(
@@ -382,7 +382,7 @@ browser
       )
       output$download_PNG <- downloadHandler(
         filename = function() {
-          paste("PCA-", Sys.Date(), ".png", sep = "")
+          paste("qPCR-", Sys.Date(), ".png", sep = "")
         },
         content = function(file) {
           file.copy(
@@ -393,7 +393,7 @@ browser
       )
       output$download_CSV <- downloadHandler(
         filename = function() {
-          paste("PCA-", Sys.Date(), ".csv", sep = "")
+          paste("qPCR-", Sys.Date(), ".csv", sep = "")
         },
         content = function(file) {
           file.copy(
