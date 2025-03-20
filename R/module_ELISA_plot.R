@@ -297,22 +297,6 @@ Server_ELISA_plot <- function(id) {
       
       
       
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
       output$Genotype_key_hot <- renderRHandsontable({
         req(input$upload_layout_table)
         # browser()
@@ -433,44 +417,44 @@ Server_ELISA_plot <- function(id) {
               width = 0.3, linewidth = 0.1,
               position = position_dodge(width = 0.85)
             ) +
-            # {
-            #   if (input$Group_Stats) {
-            #     geom_pwc(
-            #       tip.length = 0,
-            #       # ref.group = 1,
-            #       group.by = "x.var",
-            #       method = "t_test",
-            #       method.args = list(var.equal = input$var_equal),
-            #       p.adjust.method = "bonferroni",
-            #       label = input$Stat_type,
-            #       label.size = input$font / .pt, size = 0.1,
-            #       hide.ns = !input$Show_ns,
-            #       colour = "#111111",
-            #       family = family
-            #       # )+
-            #     )
-            #   }
-            # } +
-            # {
-            #   if (input$Sample_Stats) {
-            #     geom_pwc(aes(group = Sample),
-            #       tip.length = 0,
-            #       # ref.group = "all",
-            #       group.by = "legend.var",
-            #       bracket.group.by = "legend.var",
-            #       dodge = 0.85,
-            #       method = "t_test",
-            #       method.args = list(var.equal = input$var_equal),
-            #       p.adjust.method = "bonferroni",
-            #       label = input$Stat_type,
-            #       label.size = input$font / .pt, size = 0.1,
-            #       hide.ns = !input$Show_ns,
-            #       bracket.nudge.y = 0.2,
-            #       colour = "#111111",
-            #       family = family
-            #     )
-            #   }
-            # } +
+            {
+              if (input$Group_Stats) {
+                geom_pwc(
+                  tip.length = 0,
+                  # ref.group = 1,
+                  group.by = "x.var",
+                  method = "t_test",
+                  method.args = list(var.equal = input$var_equal),
+                  p.adjust.method = "bonferroni",
+                  label = input$Stat_type,
+                  label.size = input$font / .pt, size = 0.1,
+                  hide.ns = !input$Show_ns,
+                  colour = "#111111",
+                  family = family
+                  # )+
+                )
+              }
+            } +
+            {
+              if (input$Sample_Stats) {
+                geom_pwc(aes(group = Sample),
+                  tip.length = 0,
+                  # ref.group = "all",
+                  group.by = "legend.var",
+                  bracket.group.by = "legend.var",
+                  dodge = 0.85,
+                  method = "t_test",
+                  method.args = list(var.equal = input$var_equal),
+                  p.adjust.method = "bonferroni",
+                  label = input$Stat_type,
+                  label.size = input$font / .pt, size = 0.1,
+                  hide.ns = !input$Show_ns,
+                  bracket.nudge.y = 0.2,
+                  colour = "#111111",
+                  family = family
+                )
+              }
+            } +
             ylab("Estiamted Concentration") +
             scale_fill_manual(values = genotype_colors) +  # Set custom fill colors
             scale_color_manual(values = genotype_colors) + # Set custom outline colors

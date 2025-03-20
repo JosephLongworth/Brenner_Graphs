@@ -25,8 +25,9 @@ UI_qPCR_plot <- function(id) {
       ),
       box(
         title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
-        downloadButton(ns("downloadPaper"), "SVG"),
-        downloadButton(ns("downloadPaperpng"), "PNG"),
+        downloadButton(ns("download_SVG"), "SVG"),
+        downloadButton(ns("download_PNG"), "PNG"),
+        downloadButton(ns("download_CSV"), "CSV"),
         switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
         # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
         # input_switch(ns("switch"), "Plot Updates",value = T),
@@ -116,8 +117,8 @@ Server_qPCR_plot <- function(id) {
       observeEvent(input$upload_layout_table, {
         req(session$userData$vars$qPCR_layout)
         updateSelectizeInput(session, "HK_gene",
-          choices = unique(session$userData$vars$qPCR_layout$Gene),
-          selected = last(unique(session$userData$vars$qPCR_layout$Gene))
+          choices = na.omit(unique(session$userData$vars$qPCR_layout$Gene)),
+          selected = last(na.omit(unique(session$userData$vars$qPCR_layout$Gene)))
         )
         updateSelectizeInput(session, "control_condtion", choices = c("None", unique(paste0(
           session$userData$vars$qPCR_layout$Genotype,
@@ -131,18 +132,6 @@ Server_qPCR_plot <- function(id) {
         )
       })
 
-
-      # df <- read_csv("Data/example_barplot_annotation2.csv", show_col_types = FALSE)
-      # 
-      # if ("Unit_barplot" %in% colnames(df)) {
-      #   df <- df %>%
-      #     mutate(Unit = Unit_barplot, .keep = c("unused"))
-      # }
-      # colour_key <- read_csv("Data/example_colour_key.csv", show_col_types = FALSE)
-      # 
-      # output$hot <- renderRHandsontable({
-      #   rhandsontable(df)
-      # })
       
       output$Genotype_key_hot <- renderRHandsontable({
         req(input$upload_layout_table)
@@ -176,12 +165,16 @@ Server_qPCR_plot <- function(id) {
 
       
       
-      
-      outfile <- tempfile(fileext = ".svg")
+      outfile_svg <- tempfile(fileext = ".svg")
       outfile_png <- tempfile(fileext = ".png")
+      outfile_csv <- tempfile(fileext = ".csv")
+      
+      # outfile <- tempfile(fileext = ".svg")
+      # outfile_png <- tempfile(fileext = ".png")
       output$plot <- renderImage(
         {
           req(input$upload_Cq_table)
+          req(input$upload_layout_table)
           req(input$upload_layout_table)
           req(input$switch)
           # browser()
@@ -237,6 +230,25 @@ Server_qPCR_plot <- function(id) {
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
 
+          # browser()
+          
+          
+          df |>
+            filter(gene %in% input$displayed_genes) |>
+            filter(!is.na(genotype)) %>%
+            separate_wider_delim(treatment,delim = "_",names = c("Annotation_1_Symbol","Annotation_2_Symbol"),too_few = "align_start",too_many = "merge") |>
+            transmute(
+              Sample= genotype,
+              Value = value,
+              Unit_barplot_annotation = ylab,
+              Annotation_1_label = "",
+              Annotation_1_Symbol,
+              Annotation_2_label = "",
+              Annotation_2_Symbol) |>
+            write_csv(file = outfile_csv) |>
+            glimpse()
+
+          
 
           plot <- df %>%
             left_join(., {
@@ -269,44 +281,44 @@ Server_qPCR_plot <- function(id) {
               width = 0.3, linewidth = 0.1,
               position = position_dodge(width = 0.85)
             ) +
-            {
-              if (input$Group_Stats) {
-                geom_pwc(
-                  tip.length = 0,
-                  # ref.group = 1,
-                  group.by = "x.var",
-                  method = "t_test",
-                  method.args = list(var.equal = input$var_equal),
-                  p.adjust.method = "bonferroni",
-                  label = input$Stat_type,
-                  label.size = input$font / .pt, size = 0.1,
-                  hide.ns = !input$Show_ns,
-                  colour = "#111111",
-                  family = family
-                  # )+
-                )
-              }
-            } +
-            {
-              if (input$Sample_Stats) {
-                geom_pwc(aes(group = Sample),
-                  tip.length = 0,
-                  # ref.group = "all",
-                  group.by = "legend.var",
-                  bracket.group.by = "legend.var",
-                  dodge = 0.85,
-                  method = "t_test",
-                  method.args = list(var.equal = input$var_equal),
-                  p.adjust.method = "bonferroni",
-                  label = input$Stat_type,
-                  label.size = input$font / .pt, size = 0.1,
-                  hide.ns = !input$Show_ns,
-                  bracket.nudge.y = 0.2,
-                  colour = "#111111",
-                  family = family
-                )
-              }
-            } +
+            # {
+            #   if (input$Group_Stats) {
+            #     geom_pwc(
+            #       tip.length = 0,
+            #       # ref.group = 1,
+            #       group.by = "x.var",
+            #       method = "t_test",
+            #       method.args = list(var.equal = input$var_equal),
+            #       p.adjust.method = "bonferroni",
+            #       label = input$Stat_type,
+            #       label.size = input$font / .pt, size = 0.1,
+            #       hide.ns = !input$Show_ns,
+            #       colour = "#111111",
+            #       family = family
+            #       # )+
+            #     )
+            #   }
+            # } +
+            # {
+            #   if (input$Sample_Stats) {
+            #     geom_pwc(aes(group = Sample),
+            #       tip.length = 0,
+            #       # ref.group = "all",
+            #       group.by = "legend.var",
+            #       bracket.group.by = "legend.var",
+            #       dodge = 0.85,
+            #       method = "t_test",
+            #       method.args = list(var.equal = input$var_equal),
+            #       p.adjust.method = "bonferroni",
+            #       label = input$Stat_type,
+            #       label.size = input$font / .pt, size = 0.1,
+            #       hide.ns = !input$Show_ns,
+            #       bracket.nudge.y = 0.2,
+            #       colour = "#111111",
+            #       family = family
+            #     )
+            #   }
+            # } +
             ylab(ylab) +
             scale_fill_manual(values = genotype_colors) +  # Set custom fill colors
             scale_color_manual(values = genotype_colors) + # Set custom outline colors
@@ -315,40 +327,62 @@ Server_qPCR_plot <- function(id) {
 
 
 
-
+browser
           nbars <- 4
-
           set_panel_size(plot,
-            file = outfile,
-            width = unit(nbars * input$width, "mm"),
-            height = unit(input$height, "mm")
+                         file = outfile_svg,
+                         width = unit(nbars * input$width, "mm"),
+                         height = unit(input$height, "mm")
           )
           set_panel_size(plot,
-            file = outfile_png,
-            width = unit(nbars * input$width, "mm"),
-            height = unit(input$height, "mm")
+                         file = outfile_png,
+                         width = unit(nbars * input$width, "mm"),
+                         height = unit(input$height, "mm")
           )
           list(
-            src = outfile,
+            src = outfile_svg,
             alt = "This is alternate text"
           )
         },
         deleteFile = F
       )
-      output$downloadPaper <- downloadHandler(
+      # output$downloadPaper <- downloadHandler(
+      #   filename = function() {
+      #     paste("PaperSize-", Sys.Date(), ".svg", sep = "")
+      #   },
+      #   content = function(file) {
+      #     file.copy(
+      #       from = outfile,
+      #       to = file
+      #     )
+      #   }
+      # )
+      # output$downloadPaperpng <- downloadHandler(
+      #   filename = function() {
+      #     paste("PaperSize-", Sys.Date(), ".png", sep = "")
+      #   },
+      #   content = function(file) {
+      #     file.copy(
+      #       from = outfile_png,
+      #       to = file
+      #     )
+      #   }
+      # )
+      
+      output$download_SVG <- downloadHandler(
         filename = function() {
-          paste("PaperSize-", Sys.Date(), ".svg", sep = "")
+          paste("PCA-", Sys.Date(), ".svg", sep = "")
         },
         content = function(file) {
           file.copy(
-            from = outfile,
+            from = outfile_svg,
             to = file
           )
         }
       )
-      output$downloadPaperpng <- downloadHandler(
+      output$download_PNG <- downloadHandler(
         filename = function() {
-          paste("PaperSize-", Sys.Date(), ".png", sep = "")
+          paste("PCA-", Sys.Date(), ".png", sep = "")
         },
         content = function(file) {
           file.copy(
@@ -357,6 +391,19 @@ Server_qPCR_plot <- function(id) {
           )
         }
       )
+      output$download_CSV <- downloadHandler(
+        filename = function() {
+          paste("PCA-", Sys.Date(), ".csv", sep = "")
+        },
+        content = function(file) {
+          file.copy(
+            from = outfile_csv,
+            to = file
+          )
+        }
+      )
+      
+      
     }
   )
 }
