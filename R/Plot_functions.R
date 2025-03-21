@@ -25,7 +25,7 @@ theme_classic()+
     axis.title.y = ggtext::element_markdown())}
 
 JPL_lineplot=function(df,colour_key=NA,font=7,legend_loc="right",space_top=1,dotsize=1.2,display_N=F){
-  # browser()
+
 
   # Create a environment for local debugging while developing
   # df <- read_csv("Data/temp3.csv")
@@ -135,7 +135,11 @@ JPL_barplot_annotation=function(df,
   
   
   if(length(colour_key)>1){
-    colour_key_vector <- deframe(colour_key)}
+    colour_key_vector <- deframe(colour_key)
+    names(colour_key_vector) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(colour_key_vector))
+    names(colour_key_vector) <- gsub("\\^+","<sup>+</sup>",names(colour_key_vector))
+    # names(colour_key_vector) <- paste0("<i>",names(colour_key_vector),"</i>")
+    }
 
 
   if("Unit_barplot_annotation" %in% colnames(df)){
@@ -246,6 +250,11 @@ JPL_barplot_annotation=function(df,
     ungroup() %>%
     glimpse() |> 
     # left_join(colour_key) %>%
+    mutate(Sample = gsub("\\^fl/fl","<sup>fl/fl</sup>",Sample),
+           Sample = gsub("\\^+","<sup>+</sup>",Sample)
+           # ,
+           # Sample = paste0("<i>",Sample,"</i>")
+           ) |>
     ggplot(aes(x=condition, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
              colour="#111111",width = 0.65,linewidth=0.1,alpha=0.5,

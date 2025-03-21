@@ -28,6 +28,7 @@ UI_qPCR_plot <- function(id) {
         downloadButton(ns("download_SVG"), "SVG"),
         downloadButton(ns("download_PNG"), "PNG"),
         downloadButton(ns("download_CSV"), "CSV"),
+        downloadButton(ns("download_XLSX"), "XLSX"),
         switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
         # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
         # input_switch(ns("switch"), "Plot Updates",value = T),
@@ -168,6 +169,7 @@ Server_qPCR_plot <- function(id) {
       outfile_svg <- tempfile(fileext = ".svg")
       outfile_png <- tempfile(fileext = ".png")
       outfile_csv <- tempfile(fileext = ".csv")
+      outfile_xlsx <- tempfile(fileext = ".xlsx")
       
       # outfile <- tempfile(fileext = ".svg")
       # outfile_png <- tempfile(fileext = ".png")
@@ -177,7 +179,6 @@ Server_qPCR_plot <- function(id) {
           req(input$upload_layout_table)
           req(input$upload_layout_table)
           req(input$switch)
-          # browser()
 
           df <- full_join(session$userData$vars$qPCR_layout,
             session$userData$vars$Cq_table,
@@ -229,11 +230,14 @@ Server_qPCR_plot <- function(id) {
           
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
+          
+          names(genotype_colors) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^+","<sup>+</sup>",names(genotype_colors))
+          # names(genotype_colors) <- paste0("<i>",names(genotype_colors),"</i>")
 
-          browser()
           
           
-          df |>
+          out <- df |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
             # separate_wider_delim(treatment,delim = "_",names = c("Annotation_1_Symbol","Annotation_2_Symbol"),too_few = "align_start",too_many = "merge") |>
@@ -248,8 +252,22 @@ Server_qPCR_plot <- function(id) {
             write_csv(file = outfile_csv) |>
             glimpse()
 
+          # Split data by gene
+          gene_list <- split(out, out$Annotation_2_Symbol)
+
+          # Create a new workbook
+          wb <- openxlsx2::wb_workbook()
           
 
+          # Add a worksheet for each gene
+          for (gene_name in names(gene_list)) {
+            wb$add_worksheet(sheet = gene_name, tab_color = wb_color("green"))
+            wb$add_data(sheet = gene_name, gene_list[[gene_name]])
+          }
+          
+          # Save the workbook
+          wb_save(wb, file = outfile_xlsx, overwrite = TRUE)
+          
           plot <- df %>%
             left_join(., {
               . |>
@@ -264,22 +282,27 @@ Server_qPCR_plot <- function(id) {
             filter(!gene %in% input$HK_gene) |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
+            mutate(genotype = gsub("\\^fl/fl","<sup>fl/fl</sup>",genotype),
+                   genotype = gsub("\\^+","<sup>+</sup>",genotype)
+                   # ,
+                   # genotype = paste0("<i>",genotype,"</i>")
+                   ) |>
             ggplot(aes(x = treatment, y = value, colour = genotype, fill = genotype)) +
-            geom_bar(aes(fill = genotype),
+            geom_bar(aes(fill = genotype,group = genotype),
               stat = "summary", fun = "mean",
               colour = "#111111", width = 0.65, linewidth = 0.1, alpha = 0.5,
               position = position_dodge(width = 0.85)
             ) +
-            geom_point(aes(fill = genotype),
+            geom_errorbar(aes(ymin = mean - se, ymax = mean + se,group = genotype),
+                            width = 0.35, linewidth = 0.1,
+                            position = position_dodge(width = 0.85)
+              )+
+            geom_point(aes(fill = genotype,group = genotype),
               size = input$dotsize,
               pch = 21,
               stroke = 0.2,
               color = "#111111",
-              position = (position_jitterdodge(dodge.width = 0.85))
-            ) +
-            geom_errorbar(aes(ymin = mean - se, ymax = mean + se),
-              width = 0.3, linewidth = 0.1,
-              position = position_dodge(width = 0.85)
+              position = position_jitterdodge(dodge.width = 0.85,jitter.width = 0.1)
             ) +
             # {
             #   if (input$Group_Stats) {
@@ -327,7 +350,7 @@ Server_qPCR_plot <- function(id) {
 
 
 
-browser
+
           nbars <- 4
           set_panel_size(plot,
                          file = outfile_svg,
@@ -398,6 +421,17 @@ browser
         content = function(file) {
           file.copy(
             from = outfile_csv,
+            to = file
+          )
+        }
+      )
+      output$download_XLSX <- downloadHandler(
+        filename = function() {
+          paste("qPCR-", Sys.Date(), ".xlsx", sep = "")
+        },
+        content = function(file) {
+          file.copy(
+            from = outfile_xlsx,
             to = file
           )
         }

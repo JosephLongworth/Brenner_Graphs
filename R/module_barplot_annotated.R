@@ -63,17 +63,27 @@ Server_barplot_annotated <- function(id) {
         }
       })
       
-      df <- read_csv("Data/example_barplot_annotation2.csv",show_col_types = FALSE)
-      
-      if("Unit_barplot" %in% colnames(df)){
-          df <- df %>%
-            mutate(Unit = Unit_barplot,.keep = c("unused"))}
-      colour_key <- read_csv("Data/example_colour_key.csv",show_col_types = FALSE)
       
       output$hot = renderRHandsontable({
+        df <- read_csv("Data/example_barplot_annotation2.csv",show_col_types = FALSE)
+        
+        if("Unit_barplot" %in% colnames(df)){
+          df <- df %>%
+            mutate(Unit = Unit_barplot,.keep = c("unused"))}
+        
         rhandsontable(df)
       })
       output$colour_key_hot = renderRHandsontable({
+        req(input$hot)  
+        browser()
+        colour_key <- hot_to_df(input$hot) |> 
+          select(Sample) |> 
+          distinct() |>
+          left_join( read_csv("Data/example_colour_key.csv",show_col_types = FALSE), by = "Sample")
+        
+        # Replace NAs in colour_hex with values from pastel_palette
+        colour_key$color_hex[is.na(colour_key$color_hex)] <- pastel_palette[1:sum(is.na(colour_key$color_hex))]
+        
         rhandsontable(colour_key)
       })
       outfile <- tempfile(fileext='.svg')

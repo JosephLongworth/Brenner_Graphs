@@ -106,38 +106,6 @@ Server_ELISA_plot <- function(id) {
                  diff = NA_real_)})
 
 
-
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      # 
-      # output$hot_570nm = renderRHandsontable({
-      #   rhandsontable({
-      #     #####################
-      #     
-      #     Well = wellr::well_from_index(1:as.numeric(input$plate_size), plate = as.numeric(input$plate_size), num_width = 0),
-      #     
-      #     session$userData$vars$ELISA_df |>
-      #       select(Well, Gene) |>
-      #       mutate(
-      #         Col = wellr::well_to_col_num(Well),
-      #         Row = wellr::well_to_row_let(Well),
-      #         .keep = "unused"
-      #       ) |>
-      #       pivot_wider(names_from = Col, values_from = Gene) |>
-      #       column_to_rownames(var = "Row")
-      #   })
-      # }) 
-      
-      
-      
       output$hot_450nm <- renderRHandsontable({
         req(input$upload_layout_table)
         rhandsontable({session$userData$vars$ELISA_df |> 
@@ -364,6 +332,11 @@ Server_ELISA_plot <- function(id) {
 
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
+          
+          names(genotype_colors) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^+","<sup>+</sup>",names(genotype_colors))
+          # names(genotype_colors) <- paste0("<i>",names(genotype_colors),"</i>")
+          
 
 
           df |> 
@@ -400,6 +373,11 @@ Server_ELISA_plot <- function(id) {
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
             # write_csv(file = outfile_csv) |>
+            mutate(genotype = gsub("\\^fl/fl","<sup>fl/fl</sup>",genotype),
+                   genotype = gsub("\\^+","<sup>+</sup>",genotype)
+                   # ,
+                   # genotype = paste0("<i>",genotype,"</i>")
+                   ) |>
             ggplot(aes(x = treatment, y = estimate, colour = genotype, fill = genotype)) +
             geom_bar(aes(fill = genotype),
               stat = "summary", fun = "mean",
