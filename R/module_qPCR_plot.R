@@ -23,7 +23,14 @@ UI_qPCR_plot <- function(id) {
         selectizeInput(ns("control_condtion"), "Control Condition", choices = NULL),
         selectizeInput(ns("displayed_genes"), "Displayed Genes", choices = NULL, multiple = T)
       ),
+      
+      # box(
+      #   height = "calc(100vh - 200px)", width = "100%",
+      #   plotOutput(ns("image_KEGG"), height = "calc(100vh - 200px)") |> shinycustomloader::withLoader()
+      # )
+      
       box(
+        height = "calc(100vh - 00px)", 
         title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
         downloadButton(ns("download_SVG"), "SVG"),
         downloadButton(ns("download_PNG"), "PNG"),
@@ -32,7 +39,7 @@ UI_qPCR_plot <- function(id) {
         switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
         # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
         # input_switch(ns("switch"), "Plot Updates",value = T),
-        plotOutput(ns("plot")) 
+        plotOutput(ns("plot"), height = "calc(100vh - 200px)") 
         # %>%
         #   shinycustomloader::withLoader()
       )
@@ -179,7 +186,7 @@ Server_qPCR_plot <- function(id) {
           req(input$upload_layout_table)
           req(input$upload_layout_table)
           req(input$switch)
-
+          
           df <- full_join(session$userData$vars$qPCR_layout,
             session$userData$vars$Cq_table,
             by = "Well", suffix = c("", ".Cq")
@@ -196,7 +203,7 @@ Server_qPCR_plot <- function(id) {
               . |>
                 filter(paste0(genotype, "_", treatment) %in% input$control_condtion) |>
                 summarise(
-                  control_cq = mean(diff_cq),
+                  control_cq = mean(diff_cq,na.rm = T),
                   .by = c(gene)
                 )
             }) |>
@@ -231,8 +238,8 @@ Server_qPCR_plot <- function(id) {
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
           
-          names(genotype_colors) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(genotype_colors))
-          names(genotype_colors) <- gsub("\\^+","<sup>+</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^fl/fl"," <sup>fl/fl</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^+"," <sup>+</sup>",names(genotype_colors))
           # names(genotype_colors) <- paste0("<i>",names(genotype_colors),"</i>")
 
           
@@ -282,8 +289,8 @@ Server_qPCR_plot <- function(id) {
             filter(!gene %in% input$HK_gene) |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
-            mutate(genotype = gsub("\\^fl/fl","<sup>fl/fl</sup>",genotype),
-                   genotype = gsub("\\^+","<sup>+</sup>",genotype)
+            mutate(genotype = gsub("\\^fl/fl"," <sup>fl/fl</sup>",genotype),
+                   genotype = gsub("\\^+"," <sup>+</sup>",genotype)
                    # ,
                    # genotype = paste0("<i>",genotype,"</i>")
                    ) |>
@@ -304,44 +311,6 @@ Server_qPCR_plot <- function(id) {
               color = "#111111",
               position = position_jitterdodge(dodge.width = 0.85,jitter.width = 0.1)
             ) +
-            # {
-            #   if (input$Group_Stats) {
-            #     geom_pwc(
-            #       tip.length = 0,
-            #       # ref.group = 1,
-            #       group.by = "x.var",
-            #       method = "t_test",
-            #       method.args = list(var.equal = input$var_equal),
-            #       p.adjust.method = "bonferroni",
-            #       label = input$Stat_type,
-            #       label.size = input$font / .pt, size = 0.1,
-            #       hide.ns = !input$Show_ns,
-            #       colour = "#111111",
-            #       family = family
-            #       # )+
-            #     )
-            #   }
-            # } +
-            # {
-            #   if (input$Sample_Stats) {
-            #     geom_pwc(aes(group = Sample),
-            #       tip.length = 0,
-            #       # ref.group = "all",
-            #       group.by = "legend.var",
-            #       bracket.group.by = "legend.var",
-            #       dodge = 0.85,
-            #       method = "t_test",
-            #       method.args = list(var.equal = input$var_equal),
-            #       p.adjust.method = "bonferroni",
-            #       label = input$Stat_type,
-            #       label.size = input$font / .pt, size = 0.1,
-            #       hide.ns = !input$Show_ns,
-            #       bracket.nudge.y = 0.2,
-            #       colour = "#111111",
-            #       family = family
-            #     )
-            #   }
-            # } +
             ylab(ylab) +
             scale_fill_manual(values = genotype_colors) +  # Set custom fill colors
             scale_color_manual(values = genotype_colors) + # Set custom outline colors
@@ -369,29 +338,7 @@ Server_qPCR_plot <- function(id) {
         },
         deleteFile = F
       )
-      # output$downloadPaper <- downloadHandler(
-      #   filename = function() {
-      #     paste("PaperSize-", Sys.Date(), ".svg", sep = "")
-      #   },
-      #   content = function(file) {
-      #     file.copy(
-      #       from = outfile,
-      #       to = file
-      #     )
-      #   }
-      # )
-      # output$downloadPaperpng <- downloadHandler(
-      #   filename = function() {
-      #     paste("PaperSize-", Sys.Date(), ".png", sep = "")
-      #   },
-      #   content = function(file) {
-      #     file.copy(
-      #       from = outfile_png,
-      #       to = file
-      #     )
-      #   }
-      # )
-      
+
       output$download_SVG <- downloadHandler(
         filename = function() {
           paste("qPCR-", Sys.Date(), ".svg", sep = "")

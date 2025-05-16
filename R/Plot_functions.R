@@ -17,7 +17,7 @@ theme_classic()+
     # axis.text.x = element_blank(),
     legend.position = legend_loc,
     axis.title.x = element_blank(),
-    axis.ticks.x=element_blank(),
+    axis.ticks.x= element_blank(),
     # axis.line.x.bottom=element_line(color="#111111"),
     axis.line=element_line(color = "#111111",linewidth = 0.1),
     axis.ticks.y = element_line(color = "#111111",linewidth = 0.1),

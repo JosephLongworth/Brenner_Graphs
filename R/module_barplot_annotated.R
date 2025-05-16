@@ -75,7 +75,7 @@ Server_barplot_annotated <- function(id) {
       })
       output$colour_key_hot = renderRHandsontable({
         req(input$hot)  
-        browser()
+        # browser()
         colour_key <- hot_to_df(input$hot) |> 
           select(Sample) |> 
           distinct() |>
