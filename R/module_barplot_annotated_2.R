@@ -105,8 +105,7 @@ Server_barplot_annotated2 <- function(id) {
         
         excelTable(data = df,
                    style = style,
-                   loadingSpin=T,
-                   fullscreen=T)
+                   loadingSpin=T)
       })
       
 
