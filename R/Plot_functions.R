@@ -131,8 +131,8 @@ JPL_barplot_annotation=function(df,
   
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)
-    names(colour_key_vector) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(colour_key_vector))
-    names(colour_key_vector) <- gsub("\\^+","<sup>+</sup>",names(colour_key_vector))
+    names(colour_key_vector) <- gsub("\\^fl/fl"," <sup>fl/fl</sup>",names(colour_key_vector))
+    names(colour_key_vector) <- gsub("\\^+"," <sup>+</sup>",names(colour_key_vector))
     # names(colour_key_vector) <- paste0("<i>",names(colour_key_vector),"</i>")
     }
 
@@ -227,8 +227,8 @@ JPL_barplot_annotation=function(df,
   
   
   sample_labels <- levels(df$Sample) %>%
-    gsub("\\^fl/fl","<sup>fl/fl</sup>",.) %>%
-    gsub("\\^+","<sup>+</sup>",.)
+    gsub("\\^fl/fl"," <sup>fl/fl</sup>",.) %>%
+    gsub("\\^+"," <sup>+</sup>",.)
   
   df %>%
     filter(!is.na(Value)) %>%

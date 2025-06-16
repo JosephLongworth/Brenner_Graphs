@@ -30,26 +30,23 @@ UI_barplot_annotated2 <- function(id) {
       )
     ),
     fluidRow(
-      box(title = "Data", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 9,
-          excelOutput(ns("hot"),height = "100%")
+      box(title = "Data", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 9,height = "calc(50vh - 20px)", 
+          excelOutput(ns("hot"))
       ),
       box(title = "Colour Key", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 3,
-          
-          HTML("
-    <p><strong>How the Colour Key Works:</strong></p>
-    <ul>
-      <li>All <code>Sample</code> names found in the main data table need to be in the colour key.</li>
-      <li>New <code>Sample</code> ccan be added or populated by reseting the colour key.</li>
-      <li>New sample names will receive default colours from a pastel palette.</li>
-      <li>Hex codes will be retrieved based on database unless altered or not present. The database can be updated by committing.</li>
-      <li>The <strong>order</strong> of samples in the Colour Key determines how they appear in the plot (e.g., left-to-right).</li>
-    </ul>
-  "),
-          excelOutput(ns("colour_key_hot")),
-          splitLayout(
-          actionButton(ns("colour_key_update"), "Reset Colour Key"),
-          actionButton(ns("colour_key_commit"), "Commit Colour Key")
-          )
+      HTML("
+      <p><strong>How the Colour Key Works:</strong></p>
+      <p>All <code>Sample</code> names found in the main data table need to be in the colour key.</p>
+      <p>New <code>Sample</code> ccan be added or populated by reseting the colour key.</p>
+      <p>New sample names will receive default colours from a pastel palette.</p>
+      <p>Hex codes will be retrieved based on database unless altered or not present. The database can be updated by committing.</p>
+      <p>The <strong>order</strong> of samples in the Colour Key determines how they appear in the plot (e.g., left-to-right).</p>"),
+      splitLayout(
+        actionButton(ns("colour_key_update"), "Reset Colour Key"),
+        actionButton(ns("colour_key_commit"), "Commit Colour Key")
+      ),
+      excelOutput(ns("colour_key_hot"),height = "200px")
+
       )
     )
   )
@@ -108,7 +105,8 @@ Server_barplot_annotated2 <- function(id) {
         
         excelTable(data = df,
                    style = style,
-                   loadingSpin=T)
+                   loadingSpin=T,
+                   fullscreen=T)
       })
       
 

@@ -1,10 +1,13 @@
 Sample,color_hex
-,
 0h,#000000
 1h,#5FC5BF
 3h,#ff0000
 6h,#878787
 9h,#008000
+<i>Gclc^fl/fl Nfe2l2^fl/fl</i>,#D72638
+<i>LysMCre Gclc^fl/fl Nfe2l2^fl/fl</i>,#140F2D
+<i>LysMCre Gclc^fl/fl</i>,#3F88C5
+<i>LysMCre Nfe2l2^fl/fl</i>,#F49D37
 Arih2^fl/fl,#000000
 C57BL/6,#d4d4d4ff
 C57BL/6 + C.rodentium,#000000ff
@@ -44,6 +47,7 @@ cDC1,#F6921E
 cDC2,#4C9F99
 ko,#a61f1f
 wt,#000000
+NA,NA
 NA,NA
 NA,NA
 NA,NA
