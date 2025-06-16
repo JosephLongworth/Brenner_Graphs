@@ -119,11 +119,6 @@ JPL_barplot_annotation=function(df,
                                 Sample_Stats = F,
                                 label = "italic(p) = {p.adj.format}"){
 
-  # # Create a enviroment for local debugging while developing
-  # df=read_csv("Data/example_barplot_annotation.csv")
-  # colour_key=NA;font=14;legend_loc="right";Show_ns=T;var_equal=T;scale=F;
-  # top=1.1;dotsize=3;display_N=F;label = "italic(p) = {p.adj.format}"
-
   if(Flip){
     df <- df |> 
       mutate(temp = Annotation_1_Symbol,
@@ -231,8 +226,11 @@ JPL_barplot_annotation=function(df,
   
   
   
+  sample_labels <- levels(df$Sample) %>%
+    gsub("\\^fl/fl","<sup>fl/fl</sup>",.) %>%
+    gsub("\\^+","<sup>+</sup>",.)
+  
   df %>%
-    glimpse() |> 
     filter(!is.na(Value)) %>%
     mutate(Value=as.double(Value)) |> 
     mutate(Sample = as_factor(Sample)) %>%
@@ -244,17 +242,10 @@ JPL_barplot_annotation=function(df,
                            n=n()) %>%
                  mutate(se=sd/n))} %>%
     {if(log_scale){mutate(.,mean=10^mean)}else{mutate(.,mean=mean)}} %>% 
-    glimpse() |> 
     group_by(Sample,condition) %>%
     mutate(Count = n()) %>%
     ungroup() %>%
-    glimpse() |> 
-    # left_join(colour_key) %>%
-    mutate(Sample = gsub("\\^fl/fl","<sup>fl/fl</sup>",Sample),
-           Sample = gsub("\\^+","<sup>+</sup>",Sample)
-           # ,
-           # Sample = paste0("<i>",Sample,"</i>")
-           ) |>
+    mutate(Sample = factor(Sample, levels = levels(Sample), labels = sample_labels)) |> 
     ggplot(aes(x=condition, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",
              colour="#111111",width = 0.65,linewidth=0.1,alpha=0.5,

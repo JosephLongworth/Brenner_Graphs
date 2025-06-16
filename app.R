@@ -26,7 +26,8 @@ library(shinyWidgets)
 library(tidyverse)
 library(openxlsx2)
 library(janitor)
-
+library(excelR)
+library(scales)
 
 ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
