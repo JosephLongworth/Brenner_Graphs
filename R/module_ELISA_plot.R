@@ -14,7 +14,8 @@ UI_ELISA_plot <- function(id) {
         ),
         selectizeInput(ns("HK_gene"), "HK gene", choices = NULL),
         selectizeInput(ns("control_condtion"), "Control Condition", choices = NULL),
-        selectizeInput(ns("displayed_genes"), "Displayed Genes", choices = NULL, multiple = T)
+        selectizeInput(ns("displayed_genes"), "Displayed Genes", choices = NULL, multiple = T),
+        textInput(ns("ylab"), "Y-axis label:",value = "Estimated concentration (pg/mL)")
       ),
       box(
         title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 12, collapsed = FALSE,
@@ -324,8 +325,8 @@ Server_ELISA_plot <- function(id) {
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
           
-          names(genotype_colors) <- gsub("\\^fl/fl"," <sup>fl/fl</sup>",names(genotype_colors))
-          names(genotype_colors) <- gsub("\\^+"," <sup>+</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^+","<sup>+</sup>",names(genotype_colors))
           # names(genotype_colors) <- paste0("<i>",names(genotype_colors),"</i>")
           
 
@@ -346,12 +347,13 @@ Server_ELISA_plot <- function(id) {
             glimpse()
             
           
-          sample_labels <- levels(df$Sample) %>%
-            gsub("\\^fl/fl"," <sup>fl/fl</sup>",.) %>%
-            gsub("\\^+"," <sup>+</sup>",.)
+          genotype_labels <- levels(df$genotype) %>%
+            gsub("\\^fl/fl","<sup>fl/fl</sup>",.) %>%
+            gsub("\\^+","<sup>+</sup>",.)
           
           
           plot <- df %>%
+            
             left_join(., {
               . |>
                 summarise(
@@ -365,7 +367,7 @@ Server_ELISA_plot <- function(id) {
             # filter(!gene %in% input$HK_gene) |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
-            mutate(Sample = factor(Sample, levels = levels(Sample), labels = sample_labels)) |> 
+            mutate(genotype = factor(genotype, levels = levels(genotype), labels = genotype_labels)) |> 
             ggplot(aes(x = treatment, y = estimate, colour = genotype, fill = genotype)) +
             geom_bar(aes(fill = genotype),
               stat = "summary", fun = "mean",
@@ -421,7 +423,7 @@ Server_ELISA_plot <- function(id) {
                 )
               }
             } +
-            ylab("Estiamted Concentration") +
+            ylab(input$ylab) +
             scale_fill_manual(values = genotype_colors) +  # Set custom fill colors
             scale_color_manual(values = genotype_colors) + # Set custom outline colors
             facet_wrap(~gene, scales = "free") +

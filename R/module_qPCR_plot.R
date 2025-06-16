@@ -140,7 +140,7 @@ Server_qPCR_plot <- function(id) {
           select(Genotype) |> 
           filter(!Genotype=="dH2O") |> 
           distinct() |> 
-          dplyr::left_join(read_csv("Data/example_colour_key.csv", show_col_types = FALSE), by = join_by(Genotype == Sample)) |> 
+          dplyr::left_join(read_csv("Data_Gitignore/Colour_Key.csv", show_col_types = FALSE), by = join_by(Genotype == Sample)) |> 
           transmute(Genotype = factor(Genotype, levels = unique(Genotype), ordered = TRUE),
                     Colour = ifelse(is.na(color_hex),pastel_palette[seq_len(sum(is.na(color_hex)))],color_hex),
                     Order = as.factor(as.numeric(Genotype)),
@@ -160,7 +160,7 @@ Server_qPCR_plot <- function(id) {
         
         
         # Path to the colour key file
-        path <- "Data/example_colour_key.csv"
+        path <- "Data_Gitignore/Colour_Key.csv"
         
         # Load existing file or start empty
         if (file.exists(path)) {
@@ -268,8 +268,8 @@ Server_qPCR_plot <- function(id) {
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
           
-          names(genotype_colors) <- gsub("\\^fl/fl"," <sup>fl/fl</sup>",names(genotype_colors))
-          names(genotype_colors) <- gsub("\\^+"," <sup>+</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^+","<sup>+</sup>",names(genotype_colors))
           # names(genotype_colors) <- paste0("<i>",names(genotype_colors),"</i>")
 
           
@@ -305,8 +305,8 @@ Server_qPCR_plot <- function(id) {
           wb_save(wb, file = outfile_xlsx, overwrite = TRUE)
           
           genotype_labels <- levels(df$genotype) %>%
-            gsub("\\^fl/fl"," <sup>fl/fl</sup>",.) %>%
-            gsub("\\^+"," <sup>+</sup>",.)
+            gsub("\\^fl/fl","<sup>fl/fl</sup>",.) %>%
+            gsub("\\^+","<sup>+</sup>",.)
           
           
           # Create Plot

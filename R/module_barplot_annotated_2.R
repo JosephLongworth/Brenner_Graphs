@@ -13,7 +13,8 @@ UI_barplot_annotated2 <- function(id) {
             numericInput(ns("dotsize"), "Plot dotsize", 1)),
           splitLayout(
             checkboxInput(ns("Group_Stats"), "Group Stats", value = T),
-            checkboxInput(ns("Sample_Stats"), "Sample Stats", value = F),
+            checkboxInput(ns("Sample_Stats"), "Sample Stats", value = F)),
+          splitLayout(
             checkboxInput(ns("var_equal"), "Variance equal", value = TRUE),
             checkboxInput(ns("Show_ns"), "Show NS", value = F)
             ),
@@ -118,7 +119,7 @@ Server_barplot_annotated2 <- function(id) {
           select(Sample) |> 
           unique()
           
-        colour_key <- dplyr::left_join(colour_key,read_csv("Data/example_colour_key.csv", show_col_types = FALSE), by = "Sample")
+        colour_key <- dplyr::left_join(colour_key,read_csv("Data_Gitignore/Colour_Key.csv", show_col_types = FALSE), by = "Sample")
         
 
         colour_key$color_hex[is.na(colour_key$color_hex)] <- pastel_palette[1:sum(is.na(colour_key$color_hex))]
@@ -140,7 +141,7 @@ Server_barplot_annotated2 <- function(id) {
             dplyr::as_tibble()
           
           # Path to the colour key file
-          path <- "Data/example_colour_key.csv"
+          path <- "Data_Gitignore/Colour_Key.csv"
           
           # Load existing file or start empty
           if (file.exists(path)) {
