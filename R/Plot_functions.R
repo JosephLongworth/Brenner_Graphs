@@ -142,9 +142,7 @@ JPL_barplot_annotation=function(df,
       mutate(Unit = Unit_barplot_annotation,.keep = c("unused"))}
 
   df <- df |> 
-    # glimpse() |> 
-    # mutate(Value=as.double(Value)) |>
-    # filter(!is.na(Value)) |>
+    mutate(Sample = as_factor(Sample)) |> 
     select(where(~ !all(is.na(.)))) |> 
     select(where(~ !all(. == ""))) |>
     glimpse()
@@ -244,7 +242,7 @@ JPL_barplot_annotation=function(df,
     {if(log_scale){mutate(.,mean=10^mean)}else{mutate(.,mean=mean)}} %>% 
     group_by(Sample,condition) %>%
     mutate(Count = n()) %>%
-    ungroup() %>%
+    ungroup() |> 
     mutate(Sample = factor(Sample, levels = levels(Sample), labels = sample_labels)) |> 
     ggplot(aes(x=condition, y=Value))+
     geom_bar(aes(symbol=Sample,fill = Sample),stat = "summary", fun = "mean",

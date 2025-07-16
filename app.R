@@ -57,7 +57,7 @@ ui = dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Barplot Annotated2", tabName = "barplot_annotated2", icon = icon("dashboard")),
-      # menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
+      menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("ELISA", tabName = "ELISA", icon = icon("dashboard")),
       menuItem("qPCR", tabName = "qPCR", icon = icon("dashboard")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),

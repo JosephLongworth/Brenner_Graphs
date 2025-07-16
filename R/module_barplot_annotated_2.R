@@ -198,7 +198,6 @@ Server_barplot_annotated2 <- function(id) {
           mutate(Sample = factor(Sample, levels = colour_df$Sample,ordered = T)) |>
           glimpse()
         
-        
         plot <- JPL_barplot_annotation(
           data_df,
           colour_df,
