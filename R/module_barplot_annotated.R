@@ -92,7 +92,7 @@ Server_barplot_annotated <- function(id) {
         req(input$hot)
         empty_plot <- ggplot(NULL, aes(x = NULL, y = NULL))+
           theme_void()
-        # browser()
+        
         plot <- JPL_barplot_annotation(hot_to_df(input$hot),
                                        hot_to_df(input$colour_key_hot),
                                        font = input$font,

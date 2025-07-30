@@ -26,15 +26,40 @@ library(shinyWidgets)
 library(tidyverse)
 library(openxlsx2)
 library(janitor)
+library(excelR)
+library(scales)
+# browser()
+# Define paths
+target_file <- "Data_Gitignore/Colour_Key.csv"
+source_file <- "Data/example_colour_key.csv"
+target_dir  <- dirname(target_file)
+
+# Check if target file exists
+if (!file.exists(target_file)) {
+  # Create directory if needed
+  if (!dir.exists(target_dir)) {
+    dir.create(target_dir, recursive = TRUE)
+  }
+  
+  # Copy the source file
+  file.copy(from = source_file, to = target_file, overwrite = FALSE)
+  
+  message("Copied example_colour_key.csv to ", target_file)
+} else {
+  message("File already exists: ", target_file)
+}
+
+
 
 
 ui = dashboardPage(
   dashboardHeader(title = "Brenner Barplots"),
   dashboardSidebar(
     sidebarMenu(
+      menuItem("Barplot Annotated2", tabName = "barplot_annotated2", icon = icon("dashboard")),
+      menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("ELISA", tabName = "ELISA", icon = icon("dashboard")),
       menuItem("qPCR", tabName = "qPCR", icon = icon("dashboard")),
-      menuItem("Barplot Annotated", tabName = "barplot_annotated", icon = icon("dashboard")),
       menuItem("Figure Builder", tabName = "figure_builder", icon = icon("home")),
       menuItem("Batch Plot", tabName = "batchplot", icon = icon("dashboard")),
       menuItem("Line Plot", tabName = "lineplot", icon = icon("dashboard")),
@@ -56,8 +81,8 @@ ui = dashboardPage(
                          tabPanel("Plotting",UI_ELISA_plot("ELISA_plot"))
               )
       ),
-      
       tabItem(tabName = "barplot_annotated",UI_barplot_annotated("barplot_annotated")),
+      tabItem(tabName = "barplot_annotated2",UI_barplot_annotated2("barplot_annotated2")),
       tabItem(tabName = "batchplot",UI_batchplot("batchplot")),
       tabItem(tabName = "lineplot",UI_lineplot("lineplot")),
       tabItem(tabName = "survivalplot",UI_survivalplot("survivalplot")),
@@ -74,6 +99,7 @@ server = function(input, output) {
   Server_qPCR_plot("qPCR_plot")
   Server_ELISA_plot("ELISA_plot")
   Server_barplot_annotated("barplot_annotated")
+  Server_barplot_annotated2("barplot_annotated2")
   Server_batchplot("batchplot")
   Server_lineplot("lineplot")
   Server_survivalplot("survivalplot")

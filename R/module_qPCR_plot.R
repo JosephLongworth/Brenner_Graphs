@@ -2,8 +2,9 @@ UI_qPCR_plot <- function(id) {
   ns <- NS(id)
   fluidPage(
     fluidRow(
+      column(width = 3,
       box(
-        title = "upload", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3,
+        title = "upload", collapsible = TRUE, solidHeader = TRUE, status = "info",width = 12,
         splitLayout(
           cellWidths = c("50%", "50%"),
           fileInput(
@@ -23,34 +24,8 @@ UI_qPCR_plot <- function(id) {
         selectizeInput(ns("control_condtion"), "Control Condition", choices = NULL),
         selectizeInput(ns("displayed_genes"), "Displayed Genes", choices = NULL, multiple = T)
       ),
-      
-      # box(
-      #   height = "calc(100vh - 200px)", width = "100%",
-      #   plotOutput(ns("image_KEGG"), height = "calc(100vh - 200px)") |> shinycustomloader::withLoader()
-      # )
-      
       box(
-        height = "calc(100vh - 00px)", 
-        title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 9, collapsed = FALSE,
-        downloadButton(ns("download_SVG"), "SVG"),
-        downloadButton(ns("download_PNG"), "PNG"),
-        downloadButton(ns("download_CSV"), "CSV"),
-        downloadButton(ns("download_XLSX"), "XLSX"),
-        switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
-        # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
-        # input_switch(ns("switch"), "Plot Updates",value = T),
-        plotOutput(ns("plot"), height = "calc(100vh - 200px)") 
-        # %>%
-        #   shinycustomloader::withLoader()
-      )
-    ),
-    fluidRow(
-      box(
-        title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
-        radioButtons(
-          inputId = ns("defaults"), label = NULL, choices = c("Paper", "Presentation"),
-          selected = "Presentation", inline = T
-        ),
+        title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", collapsed = FALSE,width = 12,
         splitLayout(
           cellWidths = c("50%", "50%"),
           numericInput(ns("width"), "Plot width mm (per bar)", 15),
@@ -71,14 +46,32 @@ UI_qPCR_plot <- function(id) {
         checkboxInput(ns("Show_ns"), "Show NS", value = F),
         selectizeInput(ns("legend_loc"), "Legend location", choices = c("none", "top", "bottom", "left", "right"), selected = "top"),
         selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}", "p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
+      )
+      ),
+      column(width = 9,
+      box(
+        height = "calc(70vh - 20px)", 
+        title = "Plot", collapsible = TRUE, solidHeader = TRUE, status = "info", collapsed = FALSE,width = 12,
+        downloadButton(ns("download_SVG"), "SVG"),
+        downloadButton(ns("download_PNG"), "PNG"),
+        downloadButton(ns("download_CSV"), "CSV"),
+        downloadButton(ns("download_XLSX"), "XLSX"),
+        switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
+        # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
+        # input_switch(ns("switch"), "Plot Updates",value = T),
+        plotOutput(ns("plot"), height = "calc(100vh - 200px)") 
+        # %>%
+        #   shinycustomloader::withLoader()
       ),
       box(
-        title = "Display Key", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 9, collapsed = FALSE,
+        title = "Display Key", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 12, collapsed = FALSE,
         splitLayout(
           cellWidths = c("50%", "50%"),
           rHandsontableOutput(ns("Genotype_key_hot")),
-          rHandsontableOutput(ns("Treatment_key_hot")))
+          rHandsontableOutput(ns("Treatment_key_hot"))),
+        actionButton(ns("colour_key_commit"), "Commit Colour Key")
       )
+    )
     )
   )
 }
@@ -143,18 +136,55 @@ Server_qPCR_plot <- function(id) {
       
       output$Genotype_key_hot <- renderRHandsontable({
         req(input$upload_layout_table)
-        # browser()
         Genotype_key <- session$userData$vars$qPCR_layout |> 
           select(Genotype) |> 
+          filter(!Genotype=="dH2O") |> 
           distinct() |> 
-          mutate(
-            Genotype = factor(Genotype, levels = unique(Genotype), ordered = TRUE),
-            Order = as.factor(as.numeric(Genotype)),
-            Colour = pastel_palette[seq_len(n())],
-            Show = T)|> 
-          glimpse()
-      rhandsontable(Genotype_key)
+          dplyr::left_join(read_csv("Data_Gitignore/Colour_Key.csv", show_col_types = FALSE), by = join_by(Genotype == Sample)) |> 
+          transmute(Genotype = factor(Genotype, levels = unique(Genotype), ordered = TRUE),
+                    Colour = ifelse(is.na(color_hex),pastel_palette[seq_len(sum(is.na(color_hex)))],color_hex),
+                    Order = as.factor(as.numeric(Genotype)),
+                    Show = T)
+      
+        rhandsontable(Genotype_key)
       })
+      
+      observeEvent(input$colour_key_commit, {
+        req(input$Genotype_key_hot)
+        browser()
+        # Convert Excel input to tibble
+        new_colour_key <- hot_to_df(input$Genotype_key_hot) |> 
+          dplyr::as_tibble() |> 
+          mutate(color_hex=Colour)
+        
+        
+        
+        # Path to the colour key file
+        path <- "Data_Gitignore/Colour_Key.csv"
+        
+        # Load existing file or start empty
+        if (file.exists(path)) {
+          existing_key <- readr::read_csv(path, show_col_types = FALSE)
+        } else {
+          existing_key <- tibble::tibble(Sample = character(), color_hex = character())
+        }
+        
+        # Merge: keep new values where present, fall back to old
+        updated_key <- dplyr::full_join(existing_key, new_colour_key, by = join_by(Sample == Genotype), suffix = c(".old", ".new")) |>
+          dplyr::mutate(color_hex = dplyr::coalesce(color_hex.new, color_hex.old)) |>
+          dplyr::select(Sample, color_hex) |>
+          dplyr::arrange(Sample)
+        
+        # Save back to CSV
+        readr::write_csv(updated_key, path)
+        
+        # Optional: notify user
+        showNotification("Colour key saved to CSV.", type = "message")
+      })
+      
+      
+      
+      
       
       output$Treatment_key_hot <- renderRHandsontable({
         req(input$upload_layout_table)
@@ -180,13 +210,13 @@ Server_qPCR_plot <- function(id) {
       
       # outfile <- tempfile(fileext = ".svg")
       # outfile_png <- tempfile(fileext = ".png")
-      output$plot <- renderImage(
-        {
+      output$plot <- renderImage({
           req(input$upload_Cq_table)
           req(input$upload_layout_table)
           req(input$upload_layout_table)
           req(input$switch)
           
+
           df <- full_join(session$userData$vars$qPCR_layout,
             session$userData$vars$Cq_table,
             by = "Well", suffix = c("", ".Cq")
@@ -208,9 +238,10 @@ Server_qPCR_plot <- function(id) {
                 )
             }) |>
             mutate(
-              expression = 2^(diff_cq), ,
+              expression = 2^(-diff_cq), ,
               rel_expression = 2^(control_cq - diff_cq)
             ) |> 
+            filter(!genotype=="dH2O") |> 
             mutate(genotype = factor(genotype, levels = hot_to_df(input$Genotype_key_hot) |> 
                                        arrange(Order) %>%
                                        .$Genotype, ordered = TRUE)) |> 
@@ -222,8 +253,7 @@ Server_qPCR_plot <- function(id) {
                                                 .$Genotype)) |> 
             filter(treatment %in% as.character(hot_to_df(input$Treatment_key_hot) |>
                                                  filter(Show)%>%
-                                                 .$Treatment)) |>
-            glimpse()
+                                                 .$Treatment))
           
           if (input$control_condtion == "None") {
             df <- df |>
@@ -238,16 +268,15 @@ Server_qPCR_plot <- function(id) {
           genotype_colors <- setNames(hot_to_df(input$Genotype_key_hot)$Colour, 
                                       hot_to_df(input$Genotype_key_hot)$Genotype)
           
-          names(genotype_colors) <- gsub("\\^fl/fl"," <sup>fl/fl</sup>",names(genotype_colors))
-          names(genotype_colors) <- gsub("\\^+"," <sup>+</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(genotype_colors))
+          names(genotype_colors) <- gsub("\\^+","<sup>+</sup>",names(genotype_colors))
           # names(genotype_colors) <- paste0("<i>",names(genotype_colors),"</i>")
 
           
-          
+          #Prepare output for download 
           out <- df |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
-            # separate_wider_delim(treatment,delim = "_",names = c("Annotation_1_Symbol","Annotation_2_Symbol"),too_few = "align_start",too_many = "merge") |>
             transmute(
               Sample= genotype,
               Value = value,
@@ -268,13 +297,19 @@ Server_qPCR_plot <- function(id) {
 
           # Add a worksheet for each gene
           for (gene_name in names(gene_list)) {
-            wb$add_worksheet(sheet = gene_name, tab_color = wb_color("green"))
+            wb$add_worksheet(sheet = gene_name, tab_color = wb_color("lightblue"))
             wb$add_data(sheet = gene_name, gene_list[[gene_name]])
           }
           
           # Save the workbook
           wb_save(wb, file = outfile_xlsx, overwrite = TRUE)
           
+          genotype_labels <- levels(df$genotype) %>%
+            gsub("\\^fl/fl","<sup>fl/fl</sup>",.) %>%
+            gsub("\\^+","<sup>+</sup>",.)
+          
+          
+          # Create Plot
           plot <- df %>%
             left_join(., {
               . |>
@@ -289,11 +324,12 @@ Server_qPCR_plot <- function(id) {
             filter(!gene %in% input$HK_gene) |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
-            mutate(genotype = gsub("\\^fl/fl"," <sup>fl/fl</sup>",genotype),
-                   genotype = gsub("\\^+"," <sup>+</sup>",genotype)
-                   # ,
-                   # genotype = paste0("<i>",genotype,"</i>")
-                   ) |>
+            # mutate(genotype = gsub("\\^fl/fl"," <sup>fl/fl</sup>",genotype),
+            #        genotype = gsub("\\^+"," <sup>+</sup>",genotype)
+            #        # genotype = paste0("<i>",genotype,"</i>")
+            #        ) |>
+            # glimpse() |> 
+            mutate(genotype = factor(genotype, levels = levels(genotype), labels = genotype_labels)) |> 
             ggplot(aes(x = treatment, y = value, colour = genotype, fill = genotype)) +
             geom_bar(aes(fill = genotype,group = genotype),
               stat = "summary", fun = "mean",

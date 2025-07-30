@@ -2,50 +2,23 @@ UI_ELISA_plot <- function(id) {
   ns <- NS(id)
   fluidPage(
     fluidRow(
+      column(width = 3,
       box(
-        title = "upload", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3,
-        splitLayout(
-          cellWidths = c("50%", "50%"),
+        title = "upload", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 12,
           fileInput(
             ns("upload_layout_table"),
             label = NULL,
             buttonLabel = "Upload Layout",
             accept = c(".xlsx")
-          ),
-          fileInput(
-            ns("upload_Cq_table"),
-            label = NULL,
-            buttonLabel = "Upload Cqs",
-            accept = c(".csv")
-          )
+        
         ),
         selectizeInput(ns("HK_gene"), "HK gene", choices = NULL),
         selectizeInput(ns("control_condtion"), "Control Condition", choices = NULL),
-        selectizeInput(ns("displayed_genes"), "Displayed Genes", choices = NULL, multiple = T)
+        selectizeInput(ns("displayed_genes"), "Displayed Genes", choices = NULL, multiple = T),
+        textInput(ns("ylab"), "Y-axis label:",value = "Estimated concentration (pg/mL)")
       ),
-      tabBox(
-        width = 8,
-        tabPanel("Plot",
-                 downloadButton(ns("download_SVG"), "SVG"),
-                 downloadButton(ns("download_PNG"), "PNG"),
-                 downloadButton(ns("download_CSV"), "CSV"),
-                 switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
-                 actionButton(ns("refresh"), "Refresh"),
-                 # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
-                 # input_switch(ns("switch"), "Plot Updates",value = T),
-                 plotOutput(ns("plot"))),
-        tabPanel("Standard Curve",
-                 actionButton(ns("refresh"), "Refresh"),
-                 plotOutput(ns("standarc_curve_fit"))),
-        tabPanel("diff", rHandsontableOutput(ns("hot_diff"))),
-        tabPanel("450nm", rHandsontableOutput(ns("hot_450nm"))),
-        tabPanel("570nm", rHandsontableOutput(ns("hot_570nm"))),
-      )
-      )
-    ,
-    fluidRow(
       box(
-        title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 3, collapsed = FALSE,
+        title = "Plot Parameters", collapsible = TRUE, solidHeader = TRUE, status = "info", width = 12, collapsed = FALSE,
         radioButtons(
           inputId = ns("defaults"), label = NULL, choices = c("Paper", "Presentation"),
           selected = "Presentation", inline = T
@@ -70,15 +43,36 @@ UI_ELISA_plot <- function(id) {
         checkboxInput(ns("Show_ns"), "Show NS", value = F),
         selectizeInput(ns("legend_loc"), "Legend location", choices = c("none", "top", "bottom", "left", "right"), selected = "top"),
         selectizeInput(ns("Stat_type"), "Stat type", choices = c("italic(p) = {p.adj.format}", "p.signif", "p.adj.signif", "p.format", "p.adj.format"), selected = "italic(p) = {p.adj.format}")
+      )),
+      column(width = 9,
+      tabBox(
+        width = 12,
+        height = "calc(70vh - 20px)", 
+        tabPanel("Plot",
+                 downloadButton(ns("download_SVG"), "SVG"),
+                 downloadButton(ns("download_PNG"), "PNG"),
+                 downloadButton(ns("download_CSV"), "CSV"),
+                 switchInput(inputId = ns("switch"), label = "Live",value = T,inline=T),
+                 actionButton(ns("refresh"), "Refresh"),
+                 # materialSwitch(inputId = ns("switch"), label = "Live Updates",value = T,inline=T),
+                 # input_switch(ns("switch"), "Plot Updates",value = T),
+                 plotOutput(ns("plot"))),
+        tabPanel("Standard Curve",
+                 actionButton(ns("refresh"), "Refresh"),
+                 plotOutput(ns("standarc_curve_fit"))),
+        tabPanel("diff", rHandsontableOutput(ns("hot_diff"))),
+        tabPanel("450nm", rHandsontableOutput(ns("hot_450nm"))),
+        tabPanel("570nm", rHandsontableOutput(ns("hot_570nm"))),
       ),
       box(
-        title = "Display Key", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 9, collapsed = FALSE,
+        title = "Display Key", collapsible = TRUE, solidHeader = TRUE, status = "primary", width = 12, collapsed = FALSE,
         splitLayout(
           cellWidths = c("50%", "50%"),
           rHandsontableOutput(ns("Genotype_key_hot")),
           rHandsontableOutput(ns("Treatment_key_hot")))
       )
     )
+  )
   )
 }
 
@@ -203,7 +197,6 @@ Server_ELISA_plot <- function(id) {
 
       
       observe({
-
           req(!all(is.na(session$userData$vars$ELISA_df$diff)))
 
         # Compute the mean diff value for Sample "s0"
@@ -303,7 +296,6 @@ Server_ELISA_plot <- function(id) {
       outfile_csv <- tempfile(fileext = ".csv")
       
       output$plot <- renderImage({
-        # browser()
           # req(input$upload_Cq_table)
           req(session$userData$vars$fit)
           # req(input$switch)
@@ -355,10 +347,13 @@ Server_ELISA_plot <- function(id) {
             glimpse()
             
           
-            
+          genotype_labels <- levels(df$genotype) %>%
+            gsub("\\^fl/fl","<sup>fl/fl</sup>",.) %>%
+            gsub("\\^+","<sup>+</sup>",.)
           
           
           plot <- df %>%
+            
             left_join(., {
               . |>
                 summarise(
@@ -372,12 +367,7 @@ Server_ELISA_plot <- function(id) {
             # filter(!gene %in% input$HK_gene) |>
             filter(gene %in% input$displayed_genes) |>
             filter(!is.na(genotype)) %>%
-            # write_csv(file = outfile_csv) |>
-            mutate(genotype = gsub("\\^fl/fl","<sup>fl/fl</sup>",genotype),
-                   genotype = gsub("\\^+","<sup>+</sup>",genotype)
-                   # ,
-                   # genotype = paste0("<i>",genotype,"</i>")
-                   ) |>
+            mutate(genotype = factor(genotype, levels = levels(genotype), labels = genotype_labels)) |> 
             ggplot(aes(x = treatment, y = estimate, colour = genotype, fill = genotype)) +
             geom_bar(aes(fill = genotype),
               stat = "summary", fun = "mean",
@@ -433,7 +423,7 @@ Server_ELISA_plot <- function(id) {
                 )
               }
             } +
-            ylab("Estiamted Concentration") +
+            ylab(input$ylab) +
             scale_fill_manual(values = genotype_colors) +  # Set custom fill colors
             scale_color_manual(values = genotype_colors) + # Set custom outline colors
             facet_wrap(~gene, scales = "free") +
