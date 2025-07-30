@@ -238,7 +238,7 @@ Server_qPCR_plot <- function(id) {
                 )
             }) |>
             mutate(
-              expression = 2^(diff_cq), ,
+              expression = 2^(-diff_cq), ,
               rel_expression = 2^(control_cq - diff_cq)
             ) |> 
             filter(!genotype=="dH2O") |> 
