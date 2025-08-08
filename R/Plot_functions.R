@@ -69,24 +69,29 @@ df %>%
 }
 
 JPL_survivalplot=function(df,colour_key=NA,font=7,legend_loc="none"){
-  
+  df <- df |> 
+    mutate(Sample = factor(Sample, ordered = TRUE)) |> 
+    glimpse()
   
   # # Create a enviroment for local debugging while developing
   # df=read_csv("Data/example_survivalplot.csv")
   # colour_key=NA;font=7;legend_loc="none"
-
+# browser()
   if(length(colour_key)>1){
-    colour_key_vector <- colour_key %>% 
-      filter(Sample %in% unique(df$Sample))
-      }
+    # colour_key_vector <- colour_key %>% 
+    #   filter(Sample %in% unique(df$Sample))
+    colour_key_vector <-colour_key[
+      match(levels(df$Sample), colour_key$Sample),
+    ]
+    }
   survdiff(Surv(Day, Mouse_status) ~ Sample,data = df)
   fit <- survfit(Surv(Day, Mouse_status) ~ Sample,data = df)
   
   
   fit$std.err
-      fit$logse
+  fit$logse
   
-  
+  # browser()
   plot <- ggsurvplot(fit, data = df, pval = F, 
                      onf.int = TRUE,
                      # Add risk table
@@ -131,8 +136,8 @@ JPL_barplot_annotation=function(df,
   
   if(length(colour_key)>1){
     colour_key_vector <- deframe(colour_key)
-    names(colour_key_vector) <- gsub("\\^fl/fl","<sup>fl/fl</sup>",names(colour_key_vector))
-    names(colour_key_vector) <- gsub("\\^+","<sup>+</sup>",names(colour_key_vector))
+    names(colour_key_vector) <- gsub("\\^fl/fl","|<sup>fl/fl</sup>",names(colour_key_vector))
+    names(colour_key_vector) <- gsub("\\^+","|<sup>+</sup>",names(colour_key_vector))
     # names(colour_key_vector) <- paste0("<i>",names(colour_key_vector),"</i>")
     }
 
@@ -225,8 +230,13 @@ JPL_barplot_annotation=function(df,
   
   
   sample_labels <- levels(df$Sample) %>%
-    gsub("\\^fl/fl","<sup>fl/fl</sup>",.) %>%
-    gsub("\\^+","<sup>+</sup>",.)
+    gsub("\\^fl/fl","|<sup>fl/fl</sup>",.) %>%
+    gsub("\\^+","|<sup>+</sup>",.)
+  
+  # y_label=df$Unit[1]
+  y_label=gsub(" ", "|", df$Unit[1])
+  y_label <- gsub("<(?!/)", "|<", y_label, perl = TRUE)
+  # y_label=gsub("<", "|<", y_label)
   
   df %>%
     filter(!is.na(Value)) %>%
@@ -305,7 +315,7 @@ JPL_barplot_annotation=function(df,
     # {if(display_N)
       # geom_text(aes(x = Annotation, y = 0 + 0.2, label = Count),
       #           hjust = 0.5, vjust = 0, size = font,inherit.aes=F)} +
-    ylab(df$Unit[1]) +
+    ylab(y_label) +
     {if(log_scale)scale_y_log10()}+
     coord_cartesian(ylim = cartesian_ylim, clip = "off") +
     {if("Annotation_1_label" %in% colnames(df)){annotate("text",x = 0.4,y =annotation_1_y,label = df$Annotation_1_label[1],hjust = 1,size=font/.pt,colour = "#111111",family = family)}} +
@@ -392,4 +402,16 @@ pastel_palette <- c(
   "#B5EAD7", "#FF9AA2", "#A2C7E5", "#D5AAE5", "#E3A869",
   "#C4B7CB", "#A8D5BA", "#C5E1A5"
 )
+fix_svg_dollar_question <- function(svg_path, output_path = svg_path) {
+  # Read the SVG file as text
+  svg_lines <- readLines(svg_path, warn = FALSE)
+  
+  # Replace all instances of "$?" with a space
+  svg_lines_fixed <- gsub("\\|", " ", svg_lines)
+  
+  # Write back to the same (or new) file
+  writeLines(svg_lines_fixed, output_path)
+  
+  message("✔ Fixed '|' instances in: ", output_path)
+}
 

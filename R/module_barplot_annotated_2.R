@@ -198,6 +198,8 @@ Server_barplot_annotated2 <- function(id) {
           mutate(Sample = factor(Sample, levels = colour_df$Sample,ordered = T)) |>
           glimpse()
         
+        # browser()
+        
         plot <- JPL_barplot_annotation(
           data_df,
           colour_df,
@@ -222,6 +224,7 @@ Server_barplot_annotated2 <- function(id) {
                        width = unit(nbars * input$width, "mm"),
                        height = unit(input$height,"mm"))
         
+        fix_svg_dollar_question(outfile,outfile)
         
         list(src = outfile, contentType = "image/svg+xml", alt = "SVG Plot")
       }, deleteFile = FALSE)

@@ -210,6 +210,9 @@ Server_batchplot <- function(id) {
                          # width = unit(bars_count*10, "mm"),
                          width = unit(plot_width, "mm"),
                          height = unit(input$height,"mm"))
+          
+          
+          fix_svg_dollar_question(paste0(outfile_zip,"/",j,".svg"),paste0(outfile_zip,"/",j,".svg"))
         }
         # progress <- shiny::Progress$close()
         
